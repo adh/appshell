@@ -27,7 +27,7 @@ setup(
         "License :: OSI Approved :: MIT License",
         "Topic :: Software Development :: Libraries :: Application Frameworks"
     ],
-    install_requirs = [
+    install_requires = [
         "Flask",
         "Flask-BabelEx",
         "Flask-Bootstrap",
