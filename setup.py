@@ -14,7 +14,7 @@ setup(
     name = "appshell",
     version = "0.0.1",
     author = "Ales Hakl",
-    author_email = "andrewjcarter@gmail.com",
+    author_email = "ales@hakl.net",
     description = ("Bootstrap and Flask based application framework"),
     license = "MIT",
     keywords = "flask bootstrap admin",
