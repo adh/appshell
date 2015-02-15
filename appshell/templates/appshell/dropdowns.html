@@ -1,0 +1,26 @@
+{%macro simple(item_list)%}
+<ul class="dropdown-menu" role="menu">
+{{ items(item_list) }}
+</ul>
+{%endmacro%}
+
+{%macro grouped(groups) %}
+<ul class="dropdown-menu" role="menu">
+  {%for i in groups: %}
+    {%if i.header%}
+      <li role="presentation" class="dropdown-header">{{i.header}}</li>
+    {%elif not loop.first %}
+      <li role="presentation" class="divider"></li>
+    {%endif%}
+    {{ items(i) }}
+  {%endfor%}
+</ul>
+{%endmacro%}
+
+{%macro items(item_list) %}
+  {%for i in item_list %}
+    <li {{i.liattrs|xmlattr}}>
+      <a {{i.aattrs|xmlattr}}>{{i.text}}</a>
+    </li>
+  {%endfor%}
+{%endmacro%}

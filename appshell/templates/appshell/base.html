@@ -1,0 +1,71 @@
+{% extends "bootstrap/base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% import "appshell/dropdowns.html" as dropdowns %}
+{% block styles %}
+{{ super() }}
+<link rel="stylesheet" 
+      href="{{url_for('appshell.static', filename='appshell.css')}}" />
+{% endblock %}
+
+{% block navbar %}
+  {%set gettext = appshell.babel.gettext %}
+  {%set menu = appshell.build_menu() %}
+
+  {%macro top_menu_items(items): %}
+    {% for i in items %}
+      <li {{i.liattrs|xmlattr}}>
+        <a {{i.aattrs|xmlattr}}>{{i.text}}
+          {% if i.items %}<span class="caret"></span>{% endif %}
+        </a>
+        {% if i.items %}
+          {{ dropdowns.grouped(i.items) }}
+        {% endif %}
+      </li>
+    {% endfor %}
+  {%endmacro%}
+
+
+  <nav class="navbar navbar-inverse navbar-fixed-top">
+    <div class="container-fluid">
+      <div class="navbar-header">
+         <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">{% trans %}Toggle navigation{% endtrans %}</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+         </button>
+         <a class="navbar-brand" href="{{ appshell.root_view_url() }}">{{appshell.app_name}}</a>
+      </div>
+      <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav navbar-left">
+            {{ top_menu_items(menu.left) }}
+          </ul>
+          {%if appshell.search_view %}
+            <form class="navbar-form navbar-right" target={{url_for(appshell.search_view)}}>
+              <input type="text" class="form-control" placeholder="{%trans%}Search...{%endtrans%}">
+            </form>
+          {%endif%}
+          <ul class="nav navbar-nav navbar-right">
+            {{ top_menu_items(menu.right) }}
+          </ul>    
+        </div>
+    </div>
+  </nav>
+{% endblock %}
+
+{% block content %}
+  <div class="container-fluid">
+  {% if self.nav: %}
+     <div class="row">
+       <div class="col-sm-3 col-md-2 sidebar">
+          {{ self.nav() }}
+       </div>
+       <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+         {{ self.main() }}
+       </div>
+     </div>
+  {% else %}
+    {{ self.main() }}
+  {% endif %}
+  </div>
+{% endblock %}
