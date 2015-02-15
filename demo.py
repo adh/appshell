@@ -5,6 +5,9 @@ from appshell.login import user_loader
 from flask.ext.login import UserMixin
 
 app = Flask(__name__)
+
+app.config['SECRET_KEY'] = 'foo'
+
 shell = AppShell('AppShell demo', 'simple.hello', app,
                  components=['.sql', '.login'])
 

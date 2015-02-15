@@ -92,7 +92,6 @@ class AppShell(TopLevelMenu):
 
         if not entry:
             target = item or menu
-            print (menu, group, item)
 
             if '/' in target:
                 if not klass:
