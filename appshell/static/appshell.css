@@ -78,5 +78,7 @@ body {
 .main .page-header {
   margin-top: 0;
 }
-
+.main-full{
+    padding: 20px;
+}
 

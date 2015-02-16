@@ -1,11 +1,34 @@
 {% extends "bootstrap/base.html" %}
 {% import "bootstrap/wtf.html" as wtf %}
 {% import "appshell/dropdowns.html" as dropdowns %}
+
 {% block styles %}
 {{ super() }}
 <link rel="stylesheet" 
       href="{{url_for('appshell.static', filename='appshell.css')}}" />
+<link rel="stylesheet" 
+      href="{{url_for('appshell.static', filename='datatables/css/dataTables.bootstrap.css')}}" />
+<link rel="stylesheet" 
+      href="{{url_for('appshell.static', filename='datatables/css/dataTables.fixedHeader.css')}}" />
+<script>
+  collected_onloads = [];
+</script>
 {% endblock %}
+
+{%block scripts %}
+{{ super() }}
+<script src="{{url_for('appshell.static', filename='datatables/js/jquery.dataTables.min.js')}}"></script>
+<script src="{{url_for('appshell.static', filename='datatables/js/dataTables.bootstrap.js')}}"></script>
+<script src="{{url_for('appshell.static', filename='datatables/js/dataTables.fixedHeader.js')}}"></script>
+<script src="{{url_for('appshell.static', filename='appshell.js')}}"></script>
+<script>
+$(document).ready(function(){
+  for (i in collected_onloads){
+    collected_onloads[i]();
+  }
+});
+</script>
+{%endblock%}
 
 {% block navbar %}
   {%set gettext = appshell.babel.gettext %}
@@ -65,7 +88,13 @@
        </div>
      </div>
   {% else %}
-    {{ self.main() }}
+    <div class="main-full">
+      {{ self.main() }}
+    </div>
   {% endif %}
   </div>
 {% endblock %}
+
+{%block main %}
+  {{ main_content }}
+{%endblock%}

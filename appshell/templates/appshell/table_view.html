@@ -1,0 +1,7 @@
+{% extends "appshell/base.html" %}
+{% import "appshell/datatables.html" as dt %}
+{% block main %}
+<p>
+{{dt.simple_table("single_table", columns, data, options)}}
+</p>
+{% endblock %}

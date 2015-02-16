@@ -1,0 +1,22 @@
+<table id="{{table.name}}" class="table table-striped table-bordered" cellspacing="0" width="100%">
+        <thead>
+          <tr>
+            {%for i in table.columns: %}
+              {{ i.header }}
+            {%endfor%}
+          </tr>
+        </thead>
+        <tbody>
+          {%for i in table.data: %}
+            {{i}}
+          {%endfor%}
+        </tbody>
+</table>
+<script language="Javascript">
+collected_onloads.push(function() {
+    t = $({{("#"+table.name)|tojson}}).dataTable({{table.options|tojson}});
+    {%if "fixed_header" in table.options:%}
+      new $.fn.dataTable.FixedHeader(t, {"offsetTop": 50});
+    {%endif%}
+  });
+</script>

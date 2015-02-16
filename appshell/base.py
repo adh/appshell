@@ -1,4 +1,4 @@
-from flask import Flask, Blueprint, url_for, Markup, request
+from flask import Flask, Blueprint, url_for, Markup, request, render_template
 from flask.ext.bootstrap import Bootstrap
 from flask.ext.babelex import Babel, Domain
 from flask.ext.wtf import CsrfProtect
@@ -19,6 +19,9 @@ def parse_menu_path(path):
         return menu, None, None
     group, discard, item = item.rpartition(':')
     return menu, group, item
+
+def single_view(main_content):
+    return render_template('appshell/base.html', main_content=main_content)
 
 class TopLevelMenu(object):
     def __init__(self):
