@@ -1,4 +1,4 @@
-<table id="{{table.name}}" class="table table-striped table-bordered" cellspacing="0" width="100%">
+<table id="{{table.name}}" class="table table-striped table-hover" cellspacing="0" width="100%">
         <thead>
           <tr>
             {%for i in table.columns: %}
@@ -14,7 +14,14 @@
 </table>
 <script language="Javascript">
 collected_onloads.push(function() {
-    t = $({{("#"+table.name)|tojson}}).dataTable({{table.options|tojson}});
+    var t;
+    var options = {{table.options|tojson}}
+    var e = $({{("#"+table.name)|tojson}})
+    {%if "scrollY" in table.options and table.options["scrollY"] < 0: %}
+      options["scrollY"] = $(window).height() + {{table.options["scrollY"]}};
+    {%endif%}
+    t = e.dataTable(options);
+    foo = t;
     {%if "fixed_header" in table.options:%}
       new $.fn.dataTable.FixedHeader(t, {"offsetTop": 50});
     {%endif%}

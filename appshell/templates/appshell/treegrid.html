@@ -1,0 +1,19 @@
+<table id="{{treegrid.name}}" class="table tree table-hover" cellspacing="0" width="100%">
+        <thead>
+          <tr>
+            {%for i in treegrid.columns: %}
+              {{ i.header }}
+            {%endfor%}
+          </tr>
+        </thead>
+        <tbody>
+          {%for i in treegrid.data: %}
+            {{i}}
+          {%endfor%}
+        </tbody>
+</table>
+<script language="Javascript">
+collected_onloads.push(function() {
+    tg = $({{("#"+treegrid.name)|tojson}}).treegrid({{treegrid.options|tojson}});
+  });
+</script>

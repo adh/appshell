@@ -3,7 +3,7 @@ $('.dropdown-select').click(function(e) {
 });
 
 
-$('.dropdown-select-item').click(e){
+$('.dropdown-select-item').click(function(e){
     tgt = $(e.currentTarget);
     dd = tgt.parents('.dropdown-select')
     
@@ -18,4 +18,4 @@ $('.dropdown-select-item').click(e){
         }
         $(dd.data('text-target')).text(text)
     }
-}
+});
