@@ -3,14 +3,22 @@ from markupsafe import Markup
 from appshell.markup import element
 
 class Column(object):
-    def __init__(self, header):
-        self.header = Markup("<th>{0}</th>").format(header)
+    def __init__(self, name):
+        self.name = name
+        self.header = Markup("<th>{0}</th>").format(name)
     def get_cell_html(self, row):
         return element("td", {}, self.get_cell_inner_html(row))
     def get_cell_inner_html(self, row):
         return self.get_cell_data(row)
     def get_json_data(self, row):
         return unicode(self.get_cell_inner_html(row))
+
+    def get_filter_html(self, column_index, table_name):
+        return Markup('''<input type="text" 
+                                class="tablefilter form-control" 
+                                data-tablefilter-column="{0}"
+                                data-tablefilter-target="{1}"/>''')\
+            .format(column_index, table_name)
 
 class SequenceColumn(Column):
     def __init__(self, header, index):
@@ -21,11 +29,12 @@ class SequenceColumn(Column):
         
 
 class DataTable(object):
-    def __init__(self, name, columns, data, options={}):
+    def __init__(self, name, columns, data, options={}, filters=None):
         self._options = options
         self.name = name
         self.columns = self.transform_columns(columns)
         self.data = self.transform_data(data)
+        self.filters = filters
 
     @property
     def options(self):
@@ -72,10 +81,10 @@ class SequenceColumnMixin(object):
 class IterableDataTable(DataTable):
     row_factory = TableRow
 
-    def __init__(self, name, columns, data, options=None):
+    def __init__(self, name, columns, data, options=None, **kwargs):
         if options == None:
-            options = {"paging": False, "fixed_header": True}
-        DataTable.__init__(self, name, columns, data, options)
+            options = {"paging": False, "fixed_header": {"bottom": True}}
+        DataTable.__init__(self, name, columns, data, options, **kwargs)
 
     def transform_data(self, data):
         return [self.row_factory(i, self.columns) for i in data]
@@ -97,6 +106,7 @@ class TableDataSource(object):
         return columns
 
     def data_view(self, **args):
+        print request.args
         draw = int(request.args["draw"])
         start = int(request.args["start"])
         length = int(request.args["length"])
@@ -136,12 +146,12 @@ class SequenceTableDataSource(SequenceColumnMixin, TableDataSource):
 
 
 class VirtualTable(DataTable):
-    def __init__(self, data_source, name=None, options=None, params={}):
+    def __init__(self, data_source, name=None, options=None, params={}, **kwargs):
         if options == None:
             options = {}
         if name == None:
             name = data_source.name
-        DataTable.__init__(self, name, data_source.columns, [], options)
+        DataTable.__init__(self, name, data_source.columns, [], options, **kwargs)
         self.data_source = data_source
         self.params = params
 
@@ -151,14 +161,16 @@ class VirtualTable(DataTable):
 
     @property
     def options(self):
+        orig = super(VirtualTable, self).options
         res = {"ajax": url_for(self.data_source.endpoint, **self.params),
                "scrollY": -150,
-               "dom": "frtS",
+               "dom": "rtS",
                "ordering": False,
-               "searching": False,
+               "searching": True,
                "deferRender": True,
                "serverSide": True}
-
+        for k, v in orig.iteritems():
+            res[k] = v
         return res
 
 

@@ -35,7 +35,7 @@ table_data = [("%d-1" % i, "%d-2" % i, "%d-3" % i) for i in range(100)]
 @widgets.menu('Simple table')
 def simple_table():
     t = PlainTable("simple_table",
-                   ("Column 1", "Column 2", "Column 3"),table_data)
+                   ("Column 1", "Column 2", "Column 3"),table_data, filters='bottom')
     return single_view(t)
 
 tree_data = [TreeGridItem(("foo", "Foo"), 
@@ -66,7 +66,8 @@ def virtual_data_source(start, length, search, ordering, column_filters):
 @widgets.route('/widgets/virtual')
 @widgets.menu('Virtual table')
 def virtual():
-    return single_view(VirtualTable(vt))
+    return single_view(VirtualTable(vt, filters='bottom', 
+                                    options={"scrollY": -200}))
 
 
 
