@@ -250,7 +250,10 @@ class VirtualTable(DataTable):
                "deferRender": True,
                "serverSide": True}
         for k, v in orig.iteritems():
-            res[k] = v
+            if v == None:
+                del res[k]
+            else:
+                res[k] = v
         return res
 
 
