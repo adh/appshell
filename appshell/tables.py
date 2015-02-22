@@ -244,6 +244,7 @@ class VirtualTable(DataTable):
         orig = super(VirtualTable, self).options
         res = {"ajax": res_url(self.data_source.endpoint, **self.params),
                "scrollY": -150,
+               "scrollX": True,
                "dom": "rtS",
                "ordering": False,
                "searching": True,

@@ -71,7 +71,9 @@ def virtual_data_source(start, length, search, ordering, column_filters):
 @widgets.menu('Virtual table')
 def virtual():
     return single_view(VirtualTable(vt, filters='bottom', 
-                                    options={"scrollY": -200}))
+                                    options={"scrollY": -200,
+                                             "ordering": True,
+                                             "autoWidth": False}))
 
 @widgets.route('/widgets/dropdowns')
 @widgets.menu('Dropdowns')

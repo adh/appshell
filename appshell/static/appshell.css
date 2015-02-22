@@ -91,6 +91,7 @@ body.with-navbar {
     overflow: auto;
 }
 
-.dataTables_scrollBody thead{
-    display:none;
+.dataTables_scrollBody thead th{
+    height: 0px;
+    overflow: hidden;
 }
