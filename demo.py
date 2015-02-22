@@ -26,6 +26,7 @@ def hello():
 
 @simple.route('/mnau')
 @simple.menu('Mnau!')
+@simple.local_menu('Mnau')
 def mnau():
     return render_template('hello.html')
 app.register_blueprint(simple)

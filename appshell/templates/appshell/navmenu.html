@@ -1,5 +1,10 @@
-{% extends appshell.base_template %}
-{% block nav %}
+{%macro nav_group()%}
   <ul class="nav nav-sidebar">
+    {{ caller()}}
   </ul>
-{% endblock %}
+{%endmacro%}
+
+{%macro nav_item(text, endpoint) %}
+  <li{{ ({"class":"active"} if request.endpoint == endpoint else {})|xmlattr}}><a href="{{url_or_url_for(endpoint)}}" 
+         >{{text}}</a></li>
+{%endmacro%}

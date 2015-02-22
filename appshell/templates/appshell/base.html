@@ -71,3 +71,12 @@
   </div>
 {% endblock %}
 
+{%block title%}
+  {%if page_title:%}
+  {{page_title}} - 
+  {%endif%}
+  {%if appshell.current_module.title_text:%}
+  {{ appshell.current_module.title_text }} - 
+  {%endif%}
+  {{ appshell.app_name }}
+{%endblock%}

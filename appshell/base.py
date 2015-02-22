@@ -1,4 +1,4 @@
-from flask import Flask, Blueprint, Markup, request
+from flask import Flask, Blueprint, Markup, request, current_app
 import flask
 from flask.ext.bootstrap import Bootstrap
 from flask.ext.babelex import Babel, Domain
@@ -10,6 +10,10 @@ import importlib
 
 mydomain = Domain('appshell')
 
+template_globals = {"url_for": url_for, 
+                    "url_or_url_for": url_or_url_for,
+                    "url_or_res_url": url_or_res_url,
+                    "res_url": res_url}
 
 def parse_menu_path(path):
     menu, discard, item = path.partition('/')
@@ -17,9 +21,6 @@ def parse_menu_path(path):
         return menu, None, None
     group, discard, item = item.rpartition(':')
     return menu, group, item
-
-def single_view(main_content):
-    return render_template('appshell/base.html', main_content=main_content)
 
 class TopLevelMenu(object):
     def __init__(self):
@@ -62,11 +63,18 @@ class AppShell(TopLevelMenu):
     @property
     def base_template(self):
         t = "appshell/base.html"
+        if self.current_module and self.current_module.has_local_nav():
+            t = "appshell/local_nav.html"
+
         if "__view" in request.args:
             vn = request.args["__view"]
             if vn in self.base_templates:
                 t = self.base_templates[vn]
         return t
+
+    @property
+    def current_module(self):
+        return current_app.blueprints[request.blueprint]
 
     def init_app(self, app):
         if not hasattr(app, 'extensions'):
@@ -80,12 +88,10 @@ class AppShell(TopLevelMenu):
 
         @app.context_processor
         def context_processor():
+            return {"appshell": self}
 
-            return {"appshell": self, 
-                    "url_for": url_for, 
-                    "url_or_url_for": url_or_url_for,
-                    "url_or_res_url": url_or_res_url,
-                    "res_url": res_url}
+        for n, f in template_globals.iteritems():
+            app.add_template_global(f, name=n)
 
         Bootstrap(app)
         app.config['BOOTSTRAP_SERVE_LOCAL'] = True
@@ -141,7 +147,6 @@ class AppShell(TopLevelMenu):
     def build_menu(self):
         return {k: v.build_real_menu() for k,v in self.menu.iteritems()}
         
-
 class Module(Blueprint, TopLevelMenu):
     def __init__(self, *args, **kwargs):
         Blueprint.__init__(self, *args, **kwargs)
@@ -152,7 +157,18 @@ class Module(Blueprint, TopLevelMenu):
         self.menuentries = []
         self.menulabels = []
         self.base_templates = {}
+        self.local_nav = {}
+        self.title_text = None
 
+    def has_local_nav(self):
+        return len(self.local_nav) > 0
+
+    @property
+    def local_nav_menu(self):
+        ln = self.local_nav
+        return [ [ln[k][j] for j in sorted(ln[k].keys())]
+                 for k in sorted(self.local_nav.keys())]
+    
     def entrypoint_for_view(self, view):
         return self.name + '.' + view.__name__
 
@@ -186,7 +202,15 @@ class Module(Blueprint, TopLevelMenu):
             return view
         return wrap
 
+    def local_menu(self, text, group=None, sort_key=None):
+        def wrap(view):
+            name = self.name + '.' + view.__name__
+            self.add_local_menu_entry(name, text, group, sort_key)
+            return view
+        return wrap
+
     def label(self, text):
+        self.title_text = text
         self.add_menu_label(self.default_menu + '/' + self.default_group, 
                             text, position=self.default_position)
 
@@ -200,6 +224,14 @@ class Module(Blueprint, TopLevelMenu):
             position = self.default_position
         self.menulabels.append((path, text, position))
 
+    def add_local_menu_entry(self, endpoint, text, group=None, sort_key=None):
+        if sort_key == None:
+            sort_key = text
+        
+        if group not in self.local_nav:
+            self.local_nav[group] = {}
+
+        self.local_nav[group][sort_key] = (endpoint, text)
         
     def add_base_template(self, name, filename):
         self.base_templates[name] = filename

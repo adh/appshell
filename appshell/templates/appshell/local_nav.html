@@ -1,0 +1,11 @@
+{%extends "appshell/base.html" %}
+{%import "appshell/navmenu.html" as nm %}
+{%block nav %}
+{%for i in appshell.current_module.local_nav_menu: %}
+  {%call nm.nav_group()%}
+    {%for j in i:%}
+      {{ nm.nav_item(j[1], j[0]) }}
+    {%endfor%}
+  {%endcall%}
+{%endfor%}
+{%endblock %}
