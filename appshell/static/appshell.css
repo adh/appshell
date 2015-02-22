@@ -1,7 +1,6 @@
-body {
+body.with-navbar {
   padding-top: 50px;
 }
-
 
 /*
  * Global add-ons
@@ -82,3 +81,16 @@ body {
     padding: 20px;
 }
 
+
+.dropdown-select {
+    padding-left: 15px;
+    padding-right: 15px;
+    padding-top: 5px;
+    padding-bottom: 0px;
+    max-height: 650px;
+    overflow: auto;
+}
+
+.dataTables_scrollBody thead{
+    display:none;
+}

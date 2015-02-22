@@ -1,5 +1,6 @@
 from collections import OrderedDict
-from flask import request, url_for
+from flask import request
+from appshell.urls import url_for
 
 class MenuItem(object):
     def __init__(self, text, target=None, url=None,

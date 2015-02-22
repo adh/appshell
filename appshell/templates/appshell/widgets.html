@@ -1,0 +1,22 @@
+{%macro datepicker(name, value, classes='')%}
+<div class="input-group date" 
+     data-provide="datepicker" 
+     data-date-format="yyyy-mm-dd">
+  <input type="text" 
+         class="form-control {{classes}} input-sm">
+  <span class="input-group-addon"><i class="glyphicon glyphicon-calendar"></i></span>
+</div>
+{%endmacro%}
+
+{%macro rangeinput(name, value, classes='', rootattrs={})%}
+<div class="input-daterange input-group {{classes}}" 
+     id="datepicker" {{rootattrs|xmlattr}}>
+    <input type="text" class="input-sm form-control range-from" name="{{name}}_from" />
+    <span class="input-group-addon">-</span>
+    <input type="text" class="input-sm form-control range-to" name="{{name}}_to" />
+</div>
+{%endmacro%}
+
+{%macro daterange(name, value, classes='')%}
+{{ rangeinput(name, value, classes, {"data-provide": "datepicker", "data-date-format": "yyyy-mm-dd"}) }}
+{%endmacro%}

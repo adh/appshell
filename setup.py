@@ -34,6 +34,7 @@ setup(
         "Flask-Login",
         "Flask-SQLAlchemy",
         "Flask-WTF",
-        "WTForms-Alchemy"
+        "WTForms-Alchemy",
+        "iso8601"
     ]
 )

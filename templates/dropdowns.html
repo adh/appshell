@@ -1,0 +1,22 @@
+{% extends "appshell/navmenu.html" %}
+{% import "appshell/dropdowns.html" as dd %}
+{% block main %}
+<h1>Dropdowns</h1>
+<p>
+  Custom content: {%call dd.dropdown_select('custom', '', 'Select item...') %}
+  Lorem ipsum
+  {%endcall%}
+</p>
+
+<p>
+  Table: {%call dd.dropdown_select('custom', '', 'Select item...') %}
+  {{table}}
+  {%endcall%}
+</p>
+
+<p>
+  Tree: {%call dd.dropdown_select('custom', '', 'Select item...') %}
+  {{tree}}
+  {%endcall%}
+</p>
+{% endblock %}

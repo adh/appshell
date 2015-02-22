@@ -1,6 +1,6 @@
 from flask import render_template
 from markupsafe import Markup
-from appshell.tables import TableRow, SequenceColumnMixin
+from appshell.tables import TableRow, SequenceColumnMixin, Column, ColumnsMixin
 
 class TreeGridItem(object):
     def __init__(self, data, children=None):
@@ -33,7 +33,7 @@ class TreeGridRow(TableRow):
         return res
 
 
-class TreeGrid(object):
+class TreeGrid(ColumnsMixin):
     row_factory = TreeGridRow
     def __init__(self, name, columns, items, options=None):
         if (options == None):
@@ -49,14 +49,11 @@ class TreeGrid(object):
         self._rows = None
         self.data = self.materialize_rows()
 
-    def transform_columns(self, columns):
-        return columns
 
     def materialize_rows(self):
         res = []
         for i in self.items:
             res.extend(i.materialize_rows(self.row_factory, self.columns))
-        print res
         return res
 
 

@@ -24,3 +24,19 @@
     </li>
   {%endfor%}
 {%endmacro%}
+
+{%macro dropdown_select(name, value, text) %}
+  <div class="dropdown">
+    <input type="hidden" name="{{name}}" value="{{value}}" />
+    <button class="btn btn-default dropdown-toggle" 
+            type="button" 
+            data-toggle="dropdown"
+            aria-expanded="true">
+      <span class="dropdown-select-text" id="{{name}}-text">{{text}}</span>
+      <span class="caret"></span>
+    </button>
+    <div class="dropdown-menu dropdown-select">
+      {{ caller() }}
+    </div>
+  </div>  
+{%endmacro%}

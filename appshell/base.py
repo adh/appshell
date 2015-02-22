@@ -1,17 +1,15 @@
-from flask import Flask, Blueprint, url_for, Markup, request, render_template
+from flask import Flask, Blueprint, Markup, request
+import flask
 from flask.ext.bootstrap import Bootstrap
 from flask.ext.babelex import Babel, Domain
 from flask.ext.wtf import CsrfProtect
 from menu import MenuEntry, MainMenu
+from appshell.urls import url_for, url_or_url_for, res_url, url_or_res_url
+from appshell.templates import render_template
 import importlib
 
 mydomain = Domain('appshell')
 
-def url_or_url_for(path):
-    if '/' in path:
-        return path
-    else:
-        return url_for(path)
 
 def parse_menu_path(path):
     menu, discard, item = path.partition('/')
@@ -49,6 +47,7 @@ class AppShell(TopLevelMenu):
         self.root_view = root_view
         self.components = components
         self.search_view = None
+        self.base_templates = {"plain": "appshell/base_plain.html"}
 
         if app:
             self.init_app(app)
@@ -56,6 +55,18 @@ class AppShell(TopLevelMenu):
     def use_component(self, app, module):
         mod = importlib.import_module(module, 'appshell')
         return mod.register_in_app(app)
+
+    def add_base_template(self, name, filename):
+        self.base_templates[name] = filename
+
+    @property
+    def base_template(self):
+        t = "appshell/base.html"
+        if "__view" in request.args:
+            vn = request.args["__view"]
+            if vn in self.base_templates:
+                t = self.base_templates[vn]
+        return t
 
     def init_app(self, app):
         if not hasattr(app, 'extensions'):
@@ -69,7 +80,12 @@ class AppShell(TopLevelMenu):
 
         @app.context_processor
         def context_processor():
-            return {"appshell": self}
+
+            return {"appshell": self, 
+                    "url_for": url_for, 
+                    "url_or_url_for": url_or_url_for,
+                    "url_or_res_url": url_or_res_url,
+                    "res_url": res_url}
 
         Bootstrap(app)
         app.config['BOOTSTRAP_SERVE_LOCAL'] = True
@@ -135,6 +151,7 @@ class Module(Blueprint, TopLevelMenu):
         self.default_position = 'left'
         self.menuentries = []
         self.menulabels = []
+        self.base_templates = {}
 
     def entrypoint_for_view(self, view):
         return self.name + '.' + view.__name__
@@ -184,6 +201,8 @@ class Module(Blueprint, TopLevelMenu):
         self.menulabels.append((path, text, position))
 
         
+    def add_base_template(self, name, filename):
+        self.base_templates[name] = filename
 
     def register(self, app, *args, **kwargs):
         Blueprint.register(self, app, *args, **kwargs)
@@ -198,3 +217,5 @@ class Module(Blueprint, TopLevelMenu):
             ash.add_menu_entry(*i)
         for i in self.menulabels:
             ash.add_menu_label(*i)
+        for k, v in self.base_templates.iteritems():
+            ash.add_base_template(k, v)

@@ -1,6 +1,5 @@
 
-own content because we have a fixed navbar that is 50px tall */
-body {
+body.with-nav {
   padding-top: 50px;
 }
 

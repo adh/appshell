@@ -35,3 +35,5 @@ $('.tablefilter').on('keyup change', function (e){
 
     t.columns(column).search(value).draw();
 })
+
+

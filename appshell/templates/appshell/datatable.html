@@ -1,4 +1,6 @@
-<table id="{{table.name}}" class="table table-striped table-hover datatable" cellspacing="0" width="100%">
+<table id="{{table.name}}" 
+       class="table table-striped table-hover datatable"
+       {{table.attrs|xmlattr}}>
         <thead>
           {%if table.filters == 'top' %}
             <tr>
@@ -36,7 +38,11 @@ collected_onloads.push(function() {
     {%if "scrollY" in table.options and table.options["scrollY"] < 0: %}
       options["scrollY"] = $(window).height() + {{table.options["scrollY"]}};
     {%endif%}
-    t = e.DataTable(options);
+    e.parents('.dropdown').on('shown.bs.dropdown', function(){
+      console.log("mnau!");
+      t.draw();
+    })
+    var t = e.DataTable(options);
     {%if "fixed_header" in table.options:%}
       var fho = {"offsetTop": 50};
       {%for k, v in table.options.fixed_header.iteritems(): %}

@@ -1,14 +1,18 @@
-from flask import Flask, Blueprint, render_template
-from appshell import AppShell, Module, single_view
+from flask import Flask, Blueprint
+from appshell import AppShell, Module, single_view, render_template
 from appshell.sql import db
 from appshell.login import user_loader
 from appshell.tables import PlainTable, SequenceTableDataSource, VirtualTable
 from appshell.trees import PlainTreeGrid, TreeGridItem
 from flask.ext.login import UserMixin
+from sqlalchemy import Column, Integer, String, ForeignKey, DateTime
+import iso8601
+import json
 
 app = Flask(__name__)
 
 app.config['SECRET_KEY'] = 'foo'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite://'
 
 shell = AppShell('AppShell demo', 'simple.hello', app,
                  components=['.sql', '.login'])
@@ -35,7 +39,7 @@ table_data = [("%d-1" % i, "%d-2" % i, "%d-3" % i) for i in range(100)]
 @widgets.menu('Simple table')
 def simple_table():
     t = PlainTable("simple_table",
-                   ("Column 1", "Column 2", "Column 3"),table_data, filters='bottom')
+                   ("Column 1", "Column 2", "Column 3"),table_data)
     return single_view(t)
 
 tree_data = [TreeGridItem(("foo", "Foo"), 
@@ -69,6 +73,21 @@ def virtual():
     return single_view(VirtualTable(vt, filters='bottom', 
                                     options={"scrollY": -200}))
 
+@widgets.route('/widgets/dropdowns')
+@widgets.menu('Dropdowns')
+def dropdowns():
+    t = PlainTable("simple_table",
+                   ("Column 1", "Column 2", "Column 3"),table_data, 
+                   options={"scrollY": 400, "pagingType": "simple"},
+                   attrs={"style": "width: 680px"})
+    tg = PlainTreeGrid("treeegrid",
+                      ("Name", "Description"), tree_data)
+    return render_template('dropdowns.html', table=t, tree=tg)
+
+@widgets.route('/widgets/components')
+@widgets.menu('Components')
+def components():
+    return render_template('components.html')
 
 
 
@@ -82,7 +101,32 @@ class User(UserMixin):
         self.id = userid
 
 
+class DemoEntity(db.Model):
+    __tablename__ = 'demo'
+    id = Column(Integer, primary_key=True)
+    name = Column(String)
+    email = Column(String)
+    created = Column(DateTime)
+    company = Column(String)
+    address = Column(String)
+    city = Column(String)
+    gps = Column(String)
+    iban = Column(String)
+
+@app.before_first_request
+def init_db():
+    db.create_all()
+    dd = json.load(open("demo_data.json", "r"))
+    s = db.session()
+    for i in dd:
+        o = DemoEntity()
+        for k, v in i.iteritems():
+            if k in ("created",):
+                v = iso8601.parse_date(v)
+            setattr(o, k, v)
+        s.add(o)
+    s.commit()
 
 if __name__ == '__main__':
     app.debug = True
-    app.run()
+    app.run(port=5050, host="0.0.0.0")

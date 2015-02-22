@@ -1,9 +1,10 @@
-from flask import render_template, jsonify, url_for, request
+from flask import render_template, jsonify, request
 from markupsafe import Markup
-from appshell.markup import element
+from appshell.markup import element, link_button
+from appshell.urls import res_url, url_or_url_for
 
 class Column(object):
-    def __init__(self, name):
+    def __init__(self, name, **kwargs):
         self.name = name
         self.header = Markup("<th>{0}</th>").format(name)
     def get_cell_html(self, row):
@@ -21,15 +22,91 @@ class Column(object):
             .format(column_index, table_name)
 
 class SequenceColumn(Column):
-    def __init__(self, header, index):
-        Column.__init__(self, header)
+    def __init__(self, name, index, **kwargs):
+        super(SequenceColumn, self).__init__(name, index=index, **kwargs)
         self.index = index
     def get_cell_data(self, row):
         return row[self.index]
+
+class ObjectColumn(Column): 
+    def __init__(self, name, attr, **kwargs):
+        super(ObjectColumn, self).__init__(name, attr=attr, **kwargs)
+        self.attr = attr
+    def get_cell_data(self, row):
+        return getattr(row, self.attr)
+
+class DescriptorColumn(Column):
+    def __init__(self, name, descriptor, **kwargs):
+        super(ObjectColumn, self).__init__(name, attr=attr, **kwargs)
+        self.descriptor = descriptor
+    def get_cell_data(self, row):
+        return self.descriptor.fget(row)
         
 
-class DataTable(object):
-    def __init__(self, name, columns, data, options={}, filters=None):
+class Action(object):
+    __slots__ = ('text', 'endpoint', 'params', 'data_param', 'context_class')
+    def __init__(self, 
+                 text, 
+                 endpoint, 
+                 data_param='id', 
+                 context_class='default', 
+                 **params):
+        self.text = text
+        self.endpoint = endpoint
+        self.data_param = data_param
+        self.context_class = context_class
+        self.params = params
+
+    def get_url(self, data):
+        params = dict(self.params)
+        params[self.data_param] = data
+        return url_or_url_for(self.endpoint, params)
+
+    def get_button(self, data, size=None):
+        return link_button(self.get_url(data),
+                           self.text,
+                           context_class=self.context_class,
+                           size=size)
+
+class ActionColumnMixin(object):
+    actions = []
+    def __init__(self, name, actions=None, **kwargs):
+        super(ActionColumnMixin, self).__init__(name, 
+                                                actions=actions, 
+                                                **kwargs)
+        if actions:
+            self.actions = actions
+
+    def get_cell_inner_html(self, row):
+        res = [i.get_button(self.get_cell_data(row)) for i in self.actions]
+
+class ActionSequenceColumn(ActionColumnMixin, SequenceColumn):
+    pass
+
+class ColumnsMixin(object):
+    def transform_columns(self, columns):
+        return [i if isinstance(i, Column) else self.column_factory(i, 
+                                                                    index=idx) 
+                for idx, i in enumerate(columns)]
+
+    def column_factory(self, i, index):
+        return i
+
+
+class DataTable(ColumnsMixin):
+    def __init__(self, 
+                 name, 
+                 columns, 
+                 data, 
+                 options={}, 
+                 filters=None, 
+                 attrs=None,
+                 **kwargs):
+        if attrs == None:
+            attrs = {"cellspacing": "0",
+                     "width": "100%"}
+
+        self.attrs = attrs
         self._options = options
         self.name = name
         self.columns = self.transform_columns(columns)
@@ -40,8 +117,6 @@ class DataTable(object):
     def options(self):
         return self._options
 
-    def transform_columns(self, columns):
-        return columns
 
     def __html__(self):
         return render_template('appshell/datatable.html',
@@ -75,8 +150,7 @@ class TableRow(object):
         
 
 class SequenceColumnMixin(object):
-    def transform_columns(self, columns):
-        return [SequenceColumn(i, idx) for idx, i in enumerate(columns)]
+    column_factory=SequenceColumn
 
 class IterableDataTable(DataTable):
     row_factory = TableRow
@@ -84,7 +158,9 @@ class IterableDataTable(DataTable):
     def __init__(self, name, columns, data, options=None, **kwargs):
         if options == None:
             options = {"paging": False, "fixed_header": {"bottom": True}}
-        DataTable.__init__(self, name, columns, data, options, **kwargs)
+        super(IterableDataTable, self).__init__(name, columns, data, 
+                                                options=options, 
+                                                **kwargs)
 
     def transform_data(self, data):
         return [self.row_factory(i, self.columns) for i in data]
@@ -96,24 +172,24 @@ class IterableDataTable(DataTable):
 class PlainTable(SequenceColumnMixin, IterableDataTable):
     pass
 
-class TableDataSource(object):
+class TableDataSource(ColumnsMixin):
     def __init__(self, name, columns, param_string=""):
         self.name = name
         self.columns = self.transform_columns(columns)
         self.param_string = param_string
         
-    def transform_columns(self, columns):
-        return columns
-
     def data_view(self, **args):
-        print request.args
         draw = int(request.args["draw"])
         start = int(request.args["start"])
         length = int(request.args["length"])
         search = unicode(request.args["search[value]"])
 
         ordering = []
-        column_filters = []
+        column_filters = [ request.args["columns[{0}][search][value]"
+                                        .format(i)]
+                           for i in xrange(len(self.columns))]
+        
+
         data, total, filtered = self.get_data(start, length, search, 
                                               ordering, column_filters,
                                               **args)
@@ -151,7 +227,11 @@ class VirtualTable(DataTable):
             options = {}
         if name == None:
             name = data_source.name
-        DataTable.__init__(self, name, data_source.columns, [], options, **kwargs)
+        super(VirtualTable, self).__init__(name=name, 
+                                           columns=data_source.columns, 
+                                           data=[], 
+                                           options=options, **kwargs)
+
         self.data_source = data_source
         self.params = params
 
@@ -162,7 +242,7 @@ class VirtualTable(DataTable):
     @property
     def options(self):
         orig = super(VirtualTable, self).options
-        res = {"ajax": url_for(self.data_source.endpoint, **self.params),
+        res = {"ajax": res_url(self.data_source.endpoint, **self.params),
                "scrollY": -150,
                "dom": "rtS",
                "ordering": False,
