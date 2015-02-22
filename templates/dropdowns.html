@@ -20,4 +20,10 @@
   {{tree}}
   {%endcall%}
 </p>
+
+<p>
+  Checklist:
+  {{ dd.dropdown_checklist('checklist', '', {"a": "A", "b": "B", "c":"C"}.iteritems(), 'Select items...') }}
+</p>
+
 {% endblock %}

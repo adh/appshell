@@ -25,18 +25,33 @@
   {%endfor%}
 {%endmacro%}
 
-{%macro dropdown_select(name, value, text) %}
-  <div class="dropdown">
-    <input type="hidden" name="{{name}}" value="{{value}}" />
-    <button class="btn btn-default dropdown-toggle" 
+{%macro dropdown_select(name, 
+    value, text, dropup=False, input_attrs={}, input_classes="", dropdown_classes="") %}
+  <div class="dropdown{%if dropup%} dropup{%endif%}">
+    <input type="hidden" 
+           name="{{name}}" 
+           class="{{input_classes}}"
+           value="{{value}}" {input_attrs|xmlattr}/>
+    <button class="btn btn-default dropdown-toggle btn-block" 
             type="button" 
             data-toggle="dropdown"
             aria-expanded="true">
       <span class="dropdown-select-text" id="{{name}}-text">{{text}}</span>
-      <span class="caret"></span>
+      <span class="caret dropdown-select-caret"></span>
     </button>
-    <div class="dropdown-menu dropdown-select">
+    <div class="dropdown-menu dropdown-select {{dropdown_classes}}"
+         data-dropdown-select-name="{{name}}">
       {{ caller() }}
     </div>
   </div>  
+{%endmacro%}
+
+{%macro dropdown_checklist (name, value, data, text="", dropup=False, input_attrs={})%}
+  {%call dropdown_select(name, value, text, dropup, input_attrs=input_attrs, dropdown_classes="checklist") %}
+    {%for k, v in data:%}
+      <div class="checkbox">
+        <label><input type="checkbox" value="{{k}}">{{v}}</label>
+      </div>
+    {%endfor%}
+  {%endcall%}
 {%endmacro%}

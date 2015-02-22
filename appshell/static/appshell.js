@@ -37,3 +37,27 @@ $('.tablefilter').on('keyup change', function (e){
 })
 
 
+$('.checklist').each(function(i, e){
+    var name = $(e).data('dropdown-select-name')
+    function value_from_checks(){
+        var value = ""
+        var text = ""
+        
+        $(e).find('input[type="checkbox"]').each(function(i, c){
+            if ($(c).prop('checked')){
+                value += $(c).val()+";";
+                text += $(c).parent().text()+", ";
+            }
+        });
+
+        $("#"+name+"-text").text(text);
+        $("#"+name).val(value)
+    }
+    function checks_from_value(){
+        
+    }
+    console.log(e);
+    $(e).find('input[type="checkbox"]').on("change", function f(){
+        value_from_checks();
+    });
+});

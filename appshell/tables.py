@@ -4,22 +4,39 @@ from appshell.markup import element, link_button
 from appshell.urls import res_url, url_or_url_for
 
 class Column(object):
-    def __init__(self, name, **kwargs):
+    def __init__(self, 
+                 name, 
+                 filter_value=None, 
+                 filter_value_proc=None,
+                 **kwargs):
         self.name = name
         self.header = Markup("<th>{0}</th>").format(name)
+        self.filter_value = ""
+        self.filter_value_proc = filter_value_proc
+
     def get_cell_html(self, row):
         return element("td", {}, self.get_cell_inner_html(row))
+
     def get_cell_inner_html(self, row):
         return self.get_cell_data(row)
+
     def get_json_data(self, row):
         return unicode(self.get_cell_inner_html(row))
 
-    def get_filter_html(self, column_index, table_name):
+    def get_filter_html(self, column_index, table):
         return Markup('''<input type="text" 
+                                value="{2}"
                                 class="tablefilter form-control" 
                                 data-tablefilter-column="{0}"
                                 data-tablefilter-target="{1}"/>''')\
-            .format(column_index, table_name)
+            .format(column_index, table.name, 
+                    self.get_filter_value())
+
+    def get_filter_value(self):
+        fs = self.filter_value
+        if self.filter_value_proc:
+            fs= self.filter_value_proc()
+        return "mnau"
 
 class SequenceColumn(Column):
     def __init__(self, name, index, **kwargs):
@@ -117,10 +134,13 @@ class DataTable(ColumnsMixin):
     def options(self):
         return self._options
 
+    def default_filters(self):
+        return [ {"search": c.get_filter_value()} for c in self.columns ]
 
     def __html__(self):
         return render_template('appshell/datatable.html',
                                table=self)
+
 
 class TableRow(object):
     def __init__(self, data, columns):
@@ -199,7 +219,7 @@ class TableDataSource(ColumnsMixin):
         return jsonify({"draw": draw,
                         "recordsTotal": total,
                         "recordsFiltered": filtered,
-                        "data": data})
+                        "data": jdata})
 
     def register_view(self, f):
         endpoint = "data-source/" + self.name

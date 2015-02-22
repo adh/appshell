@@ -5,7 +5,7 @@
           {%if table.filters == 'top' %}
             <tr>
               {%for i in table.columns: %}
-                <td>{{ i.get_filter_html(loop.index0, table.name) }}</td>
+                <td>{{ i.get_filter_html(loop.index0, table) }}</td>
               {%endfor%}
             </tr>
           {%endif%}
@@ -24,7 +24,7 @@
           {%if table.filters == 'bottom' %}
             <tr>
               {%for i in table.columns: %}
-                <td>{{ i.get_filter_html(loop.index0, table.name) }}</td>
+                <td>{{ i.get_filter_html(loop.index0, table) }}</td>
               {%endfor%}
             </tr>
           {%endif%}
@@ -38,8 +38,12 @@ collected_onloads.push(function() {
     {%if "scrollY" in table.options and table.options["scrollY"] < 0: %}
       options["scrollY"] = $(window).height() + {{table.options["scrollY"]}};
     {%endif%}
+
+    {%if table.filters:%}
+       options["searchCols"] = {{table.default_filters()|tojson}}
+    {%endif%}
+
     e.parents('.dropdown').on('shown.bs.dropdown', function(){
-      console.log("mnau!");
       t.draw();
     })
     var t = e.DataTable(options);
