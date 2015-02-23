@@ -2,7 +2,7 @@ from flask.ext.wtf import Form
 from flask.ext.sqlalchemy import SQLAlchemy
 from wtforms_alchemy import model_form_factory
 from appshell.tables import TableDataSource, SequenceTableDataSource, \
-    SelectFilter, MultiSelectFilter, Column, TextFilter, ActionColumn
+    SelectFilter, MultiSelectFilter, Column, TextFilter, ActionColumnMixin
 from sqlalchemy.sql import expression as ex
 from sqlalchemy import desc
 
@@ -31,7 +31,7 @@ class SQLColumn(Column):
     def get_cell_data(self, row):
         return row[self.expression]
 
-class SQLActionColumn(SQLColumn, ActionColumn):
+class SQLActionColumn(ActionColumnMixin, SQLColumn):
     pass
     
 class SQLFilter(object):
@@ -52,8 +52,6 @@ class SQLPrefixFilter(TextFilter, SQLFilter):
     def sql_append_where(self, column, q, filter_data):
         return q.where(self.get_column_to_filter(column).like(filter_data+'%'))
     
-class SQLSelectDataSource
-
 class SQLSelectFilter(SelectFilter, SQLFilter):
     def sql_append_where(self, column, q, filter_data):
         return q.where(self.get_column_to_filter(column) == filter_data)
