@@ -105,7 +105,7 @@ class SQLTableDataSource(TableDataSource):
         return cs
 
     def get_select(self):
-        return ex.select(self.get_columns())
+        return ex.select(self.get_sql_columns())
 
     def apply_filters(self, q, filter_data):
         for idx, i in enumerate(self.columns):
