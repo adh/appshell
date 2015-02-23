@@ -27,6 +27,8 @@ setup(
         "License :: OSI Approved :: MIT License",
         "Topic :: Software Development :: Libraries :: Application Frameworks"
     ],
+    include_package_data=True,
+    zip_safe=False,    
     install_requires = [
         "Flask",
         "Flask-BabelEx",
