@@ -25,8 +25,8 @@ class SQLColumn(Column):
                                         **kwargs)
         self.expression = expression
         
-    def get_sql_select_column(self):
-        return self.expression
+    def get_sql_select_columns(self):
+        return [self.expression]
 
     def get_cell_data(self, row):
         return row[self.expression]
@@ -82,8 +82,11 @@ class SQLTableDataSource(TableDataSource):
             return self.selectable
 
     def get_select(self):
-        cs = [c.get_sql_select_column() 
-              for c in self.columns if hasattr(c, 'get_sql_select_column')]
+        cs = []
+
+        for c in self.columns:
+            if hasattr(c, 'get_sql_select_columns'):
+                cs += c.get_sql_select_columns() 
 
         print repr(cs)
 
@@ -111,7 +114,7 @@ class SQLTableDataSource(TableDataSource):
         filtered = db.session.execute(q.alias('for_count').count()).first()[0]
 
         for i, d in ordering:
-            col = self.columns[i].get_sql_select_column()
+            col = self.columns[i].get_sql_select_columns()[0]
             if d == 'desc':
                 col = desc(col)
             q =q.order_by(col)
