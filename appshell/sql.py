@@ -35,28 +35,30 @@ class SQLActionColumn(ActionColumnMixin, SQLColumn):
     pass
     
 class SQLFilter(object):
-    def __init__(self, column, **kwargs):
-        super(SQLColumnFilterMixin, self).__init__(column=column, **kwargs)
-        self.column = column
+    def __init__(self, filter_expr=None,
+                 **kwargs):
+        super(SQLFilter, self).__init__(filter_expr=filter_expr,
+                                        **kwargs)
+        self.filter_expr = filter_expr
 
     def get_column_to_filter(self, column):
         if self.filter_expr:
             return self.filter_expr
         else:
-            return column.get_sql_select_column()
+            return column.get_sql_select_columns()[0]
 
     def sql_append_where(self, column, q, filter_data):
         raise NotImplemented
 
-class SQLPrefixFilter(TextFilter, SQLFilter):
+class SQLPrefixFilter(SQLFilter, TextFilter):
     def sql_append_where(self, column, q, filter_data):
         return q.where(self.get_column_to_filter(column).like(filter_data+'%'))
     
-class SQLSelectFilter(SelectFilter, SQLFilter):
+class SQLSelectFilter(SQLFilter, SelectFilter):
     def sql_append_where(self, column, q, filter_data):
         return q.where(self.get_column_to_filter(column) == filter_data)
 
-class SQLMultiSelectFilter(MultiSelectFilter, SQLFilter):
+class SQLMultiSelectFilter(SQLFilter, MultiSelectFilter):
     def sql_append_where(self, column, q, filter_data):
         fl = [i for i in filter_data.split(';') if i != '']
         return q.where(self.get_column_to_filter(column).in_(fl))
@@ -87,8 +89,6 @@ class SQLTableDataSource(TableDataSource):
         for c in self.columns:
             if hasattr(c, 'get_sql_select_columns'):
                 cs += c.get_sql_select_columns() 
-
-        print repr(cs)
 
         return ex.select(cs)
 
