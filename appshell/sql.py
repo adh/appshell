@@ -96,14 +96,16 @@ class SQLTableDataSource(TableDataSource):
         else:
             return self.selectable
 
-    def get_select(self):
+    def get_sql_columns(self):
         cs = []
 
         for c in self.columns:
             if hasattr(c, 'get_sql_select_columns'):
                 cs += c.get_sql_select_columns() 
+        return cs
 
-        return ex.select(cs)
+    def get_select(self):
+        return ex.select(self.get_columns())
 
     def apply_filters(self, q, filter_data):
         for idx, i in enumerate(self.columns):
@@ -113,7 +115,8 @@ class SQLTableDataSource(TableDataSource):
 
     def get_data(self, start, length, search, ordering, column_filters, **args):
         q = self.get_select()
-        
+        qc = self.get_select()
+
         if self.prefilter:
             q = self.prefilter(q)
 

@@ -46,8 +46,8 @@
   </div>  
 {%endmacro%}
 
-{%macro dropdown_checklist (name, value, data, text="", dropup=False, input_attrs={})%}
-  {%call dropdown_select(name, value, text, dropup, input_attrs=input_attrs, dropdown_classes="checklist") %}
+{%macro dropdown_checklist (name, value, data, text="", dropup=False, input_attrs={}, input_classes="")%}
+  {%call dropdown_select(name, value, text, dropup, input_attrs=input_attrs, dropdown_classes="checklist", input_classes=input_classes) %}
     {%for k, v in data:%}
       <div class="checkbox">
         <label><input type="checkbox" value="{{k}}">{{v}}</label>
