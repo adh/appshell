@@ -64,17 +64,17 @@ class SQLMultiSelectFilter(MultiSelectFilter, SQLFilter):
 
 class SQLTableDataSource(TableDataSource):
     def __init__(self, name, columns, 
-                 selectable=None,
-                 selectable_proc=None,
+                 prefilter=None,
+                 where=[],
                  **kwargs):
         super(SQLTableDataSource, self).__init__(name, 
                                                  columns,
-                                                 selectable=selectable,
-                                                 selectable_proc=selectable_proc,
+                                                 prefilter=prefilter,
+                                                 where=where,
                                                  **kwargs)
-        self.selectable = selectable
-        self.selectable_proc = selectable_proc
-        
+        self.prefilter = prefilter
+        self.where = where
+
     def get_selectable(self):
         if self.selectable_proc:
             return self.selectable_proc()
@@ -97,11 +97,18 @@ class SQLTableDataSource(TableDataSource):
 
     def get_data(self, start, length, search, ordering, column_filters, **args):
         q = self.get_select()
-        total = db.session.execute(q.count()).first()[0]
+        
+        if self.prefilter:
+            q = self.prefilter(q)
+
+        for i in self.where:
+            q = q.where(i)
+
+        total = db.session.execute(q.alias('for_count').count()).first()[0]
 
         q = self.apply_filters(q, column_filters)
         
-        filtered = db.session.execute(q.count()).first()[0]
+        filtered = db.session.execute(q.alias('for_count').count()).first()[0]
 
         for i, d in ordering:
             col = self.columns[i].get_sql_select_column()
