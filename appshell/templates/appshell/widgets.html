@@ -20,3 +20,11 @@
 {%macro daterange(name, value, classes='')%}
 {{ rangeinput(name, value, classes, {"data-provide": "datepicker", "data-date-format": "yyyy-mm-dd"}) }}
 {%endmacro%}
+
+{%macro select(name, value, data, select_attrs={}, select_classes="") %}
+<select name="{{name}}" class="form-control {{select_classes}}" {{select_attrs|xmlattr}}>
+  {%for k,v in data: %}
+  <option value="{{v}}" {%if k==value%}selected{%endif%}>{{v}}</option>
+  {%endfor%}
+</select>
+{%endmacro%}

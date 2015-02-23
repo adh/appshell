@@ -2,17 +2,29 @@ from flask import render_template, jsonify, request
 from markupsafe import Markup
 from appshell.markup import element, link_button
 from appshell.urls import res_url, url_or_url_for
+from appshell.templates import widgets, dropdowns
 
 class Column(object):
+    orderable = True
+
     def __init__(self, 
                  name, 
-                 filter_value=None, 
-                 filter_value_proc=None,
+                 filter=None,
+                 options={},
+                 orderable=None,
                  **kwargs):
         self.name = name
         self.header = Markup("<th>{0}</th>").format(name)
-        self.filter_value = ""
-        self.filter_value_proc = filter_value_proc
+        self.filter = filter
+        self._options = options
+        if orderable != None:
+            self.orderable = orderable
+
+    @property
+    def options(self):
+        o = dict(self._options)
+        o["orderable"] = self.orderable
+        return o
 
     def get_cell_html(self, row):
         return element("td", {}, self.get_cell_inner_html(row))
@@ -24,6 +36,30 @@ class Column(object):
         return unicode(self.get_cell_inner_html(row))
 
     def get_filter_html(self, column_index, table):
+        if self.filter:
+            return self.filter.get_filter_html(column_index,
+                                               self,
+                                               table)
+        else:
+            return ""
+
+
+class Filter(object):
+    def __init__(self, filter_value=None, filter_value_proc=None, **kwargs):
+        self.filter_value = filter_value
+        self.filter_value_proc = filter_value_proc
+
+    def get_filter_value(self):
+        fs = self.filter_value
+        if self.filter_value_proc:
+            fs= self.filter_value_proc()
+        if fs == None:
+            fs = ""
+        return fs
+    
+
+class TextFilter(Filter):
+    def get_filter_html(self, column_index, column, table):
         return Markup('''<input type="text" 
                                 value="{2}"
                                 class="tablefilter form-control" 
@@ -32,11 +68,42 @@ class Column(object):
             .format(column_index, table.name, 
                     self.get_filter_value())
 
-    def get_filter_value(self):
-        fs = self.filter_value
-        if self.filter_value_proc:
-            fs= self.filter_value_proc()
-        return "mnau"
+
+class SelectFilter(Filter):
+    def __init__(self,
+                 filter_data=None,
+                 filter_data_proc=None,
+                 **kwargs):
+        super(SelectFilter, self).__init__(filter_data=filter_data,
+                                           filter_data_proc=filter_data_proc,
+                                           **kwargs)
+        self.filter_data = filter_data
+        self.filter_data_proc = filter_data_proc
+
+    def get_filter_data(self):
+        fd = self.filter_data
+        if self.filter_data_proc:
+            fd= self.filter_data_proc()
+        return fd
+    
+
+    def get_filter_html(self, column_index, column, table):
+        return widgets.select("filter_" + str(id(self)), 
+                              self.get_filter_value(), 
+                              self.get_filter_data(),
+                              select_attrs={"data-table-filter-column": column_index,
+                                            "data-table-filter-target": table.name},
+                              select_classes="tablefilter")
+    
+class MultiSelectFilter(SelectFilter):
+    def get_filter_html(self, column_index, column, table):
+        return dropdowns.dropdown_checklist("filter_"+str(id(self)),
+                                            self.get_filter_value(),
+                                            self.get_filter_data(),
+                                            input_attrs={"data-table-filter-column": column_index,
+                                                         "data-table-filter-target": table.name},
+                                            input_classes="tablefilter")
+
 
 class SequenceColumn(Column):
     def __init__(self, name, index, **kwargs):
@@ -86,6 +153,7 @@ class Action(object):
                            size=size)
 
 class ActionColumnMixin(object):
+    orderable = False
     actions = []
     def __init__(self, name, actions=None, **kwargs):
         super(ActionColumnMixin, self).__init__(name, 
@@ -132,10 +200,13 @@ class DataTable(ColumnsMixin):
 
     @property
     def options(self):
-        return self._options
+        o = dict(self._options)
+        o["columns"] = [ c.options for c in self.columns]
+        return o
 
     def default_filters(self):
-        return [ {"search": c.get_filter_value()} for c in self.columns ]
+        return [ {"search": c.filter.get_filter_value() if c.filter else None} 
+                 for c in self.columns ]
 
     def __html__(self):
         return render_template('appshell/datatable.html',
@@ -193,7 +264,7 @@ class PlainTable(SequenceColumnMixin, IterableDataTable):
     pass
 
 class TableDataSource(ColumnsMixin):
-    def __init__(self, name, columns, param_string=""):
+    def __init__(self, name, columns, param_string="", **kwargs):
         self.name = name
         self.columns = self.transform_columns(columns)
         self.param_string = param_string
@@ -205,6 +276,12 @@ class TableDataSource(ColumnsMixin):
         search = unicode(request.args["search[value]"])
 
         ordering = []
+        i = 0
+        while "order[{0}][column]".format(i) in request.args:
+            ordering.append((int(request.args["order[{0}][column]".format(i)]),
+                             request.args["order[{0}][dir]".format(i)]))
+            i +=1
+
         column_filters = [ request.args["columns[{0}][search][value]"
                                         .format(i)]
                            for i in xrange(len(self.columns))]

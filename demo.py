@@ -1,18 +1,19 @@
 from flask import Flask, Blueprint
 from appshell import AppShell, Module, single_view, render_template
-from appshell.sql import db
+from appshell.sql import db, SQLColumn, SQLTableDataSource, SQLPrefixFilter, \
+    SQLSelectFilter, SQLMultiSelectFilter
 from appshell.login import user_loader
 from appshell.tables import PlainTable, SequenceTableDataSource, VirtualTable
 from appshell.trees import PlainTreeGrid, TreeGridItem
 from flask.ext.login import UserMixin
-from sqlalchemy import Column, Integer, String, ForeignKey, DateTime
+from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, orm
 import iso8601
 import json
 
 app = Flask(__name__)
 
 app.config['SECRET_KEY'] = 'foo'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite://'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
 
 shell = AppShell('AppShell demo', 'simple.hello', app,
                  components=['.sql', '.login'])
@@ -97,13 +98,6 @@ def components():
 app.register_blueprint(widgets)
 
 
-
-@user_loader
-class User(UserMixin):
-    def __init__(self, userid):
-        self.id = userid
-
-
 class DemoEntity(db.Model):
     __tablename__ = 'demo'
     id = Column(Integer, primary_key=True)
@@ -115,6 +109,38 @@ class DemoEntity(db.Model):
     city = Column(String)
     gps = Column(String)
     iban = Column(String)
+
+
+data = Module('data', __name__, template_folder='templates')
+data.label('Data')
+dds = SQLTableDataSource(name="sql_table",
+                         columns=[SQLColumn("Name", 
+                                            DemoEntity.__table__.c.name,
+                                            filter=SQLPrefixFilter()),
+                                  SQLColumn("Email",
+                                            DemoEntity.__table__.c.email,
+                                            filter=SQLPrefixFilter())],
+                         selectable=DemoEntity.__table__)
+dds.register_view(data)
+
+@data.route('/data/sql-query')
+@data.menu('Arbitrary SQL')
+def sql_query():
+    return single_view(VirtualTable(dds, filters='bottom', 
+                                    options={"scrollY": -200,
+                                             "ordering": True,
+                                             "autoWidth": False}))
+
+
+app.register_blueprint(data)
+
+
+@user_loader
+class User(UserMixin):
+    def __init__(self, userid):
+        self.id = userid
+
+
 
 @app.before_first_request
 def init_db():

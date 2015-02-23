@@ -8,6 +8,9 @@ class TemplateProxy(object):
     def __getattr__(self, name):
         return get_template_attribute(self.name, name)
 
+widgets = TemplateProxy('appshell/widgets.html')
+dropdowns = TemplateProxy('appshell/dropdowns.html')
+
 def render_template(path, 
                     **kwargs):
     return flask.render_template(path, **kwargs)

@@ -96,3 +96,10 @@ body.with-navbar {
     overflow: hidden;
 }
 
+.dropdown-select .checkbox label {
+    width: 100%;
+}
+
+.tablefilter.form-control{
+    width: 100%;
+}
