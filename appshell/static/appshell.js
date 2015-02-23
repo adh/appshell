@@ -37,6 +37,20 @@ $('.tablefilter').on('keyup change', function (e){
 })
 
 
+$('.tablefilter-range').each(function(i, elem){
+    var eq =$(elem);
+    var id = eq.data('tablefilter-target');
+    var column = eq.data('tablefilter-column');
+    function update(e){
+        var t = appshell.datatables[id]; 
+        var value = eq.find('.range-from').val() + ';' + eq.find('.range-to').val();        
+        t.columns(column).search(value).draw();
+    }
+    eq.find('.range-from').on('keyup change', update);
+    eq.find('.range-to').on('keyup change', update);
+})
+
+
 $('.checklist').each(function(i, e){
     var name = $(e).data('dropdown-select-name')
     function value_from_checks(){

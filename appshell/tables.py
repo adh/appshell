@@ -3,6 +3,8 @@ from markupsafe import Markup
 from appshell.markup import element, link_button
 from appshell.urls import res_url, url_or_url_for
 from appshell.templates import widgets, dropdowns
+import iso8601
+import datetime
 
 class Column(object):
     orderable = True
@@ -62,7 +64,7 @@ class TextFilter(Filter):
     def get_filter_html(self, column_index, column, table):
         return Markup('''<input type="text" 
                                 value="{2}"
-                                class="tablefilter form-control" 
+                                class="tablefilter form-control input-sm" 
                                 data-tablefilter-column="{0}"
                                 data-tablefilter-target="{1}"/>''')\
             .format(column_index, table.name, 
@@ -91,8 +93,8 @@ class SelectFilter(Filter):
         return widgets.select("filter_" + str(id(self)), 
                               self.get_filter_value(), 
                               self.get_filter_data(),
-                              select_attrs={"data-table-filter-column": column_index,
-                                            "data-table-filter-target": table.name},
+                              select_attrs={"data-tablefilter-column": column_index,
+                                            "data-tablefilter-target": table.name},
                               select_classes="tablefilter")
     
 class MultiSelectFilter(SelectFilter):
@@ -100,9 +102,57 @@ class MultiSelectFilter(SelectFilter):
         return dropdowns.dropdown_checklist("filter_"+str(id(self)),
                                             self.get_filter_value(),
                                             self.get_filter_data(),
-                                            input_attrs={"data-table-filter-column": column_index,
-                                                         "data-table-filter-target": table.name},
+                                            input_attrs={"data-tablefilter-column": column_index,
+                                                         "data-tablefilter-target": table.name},
                                             input_classes="tablefilter")
+
+class RangeFilter(Filter):
+    def get_filter_value(self):
+        v = super(RangeFilter, self).get_filter_value()
+        if v:
+            return v
+        else:
+            return ';'
+
+    def parse_filter_data(self, data):
+        if data:
+            return data.split(';')
+        else:
+            return [None, None]
+    def get_filter_html(self, column_index, column, table):
+        return widgets.rangeinput("filter_"+str(id(self)),
+                                  self.parse_filter_data(self.get_filter_value()),
+                                  classes="tablefilter-range",
+                                  root_attrs={"data-tablefilter-column": column_index,
+                                              "data-tablefilter-target": table.name})
+
+class DateRangeFilter(RangeFilter):
+    def __init__(self, default_last=None, **kwargs):
+        super(DateRangeFilter, self).__init__(default_last=default_last, 
+                                              **kwargs)
+        self.default_last = default_last
+
+    def get_filter_value(self):
+        v = super(DateRangeFilter, self).get_filter_value()
+        if v and v != ';':
+            return v
+        if self.default_last:
+            t = datetime.date.today() + datetime.timedelta(days=1)
+            f = (t - datetime.timedelta(days=self.default_last))
+            return f.isoformat() + ';' + t.isoformat()
+        return ';'
+
+
+    def parse_filter_data(self, data):
+        return [iso8601.parse_date(i).date() if i else '' 
+                for i in data.split(';')]
+    def get_filter_html(self, column_index, column, table):
+        return widgets.daterange("filter_"+str(id(self)),
+                                 self.parse_filter_data(self.get_filter_value()),
+                                 classes="tablefilter-range",
+                                 root_attrs={"data-tablefilter-column": column_index,
+                                             "data-tablefilter-target": table.name})
+
 
 
 class SequenceColumn(Column):

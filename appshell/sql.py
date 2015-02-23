@@ -2,7 +2,8 @@ from flask.ext.wtf import Form
 from flask.ext.sqlalchemy import SQLAlchemy
 from wtforms_alchemy import model_form_factory
 from appshell.tables import TableDataSource, SequenceTableDataSource, \
-    SelectFilter, MultiSelectFilter, Column, TextFilter, ActionColumnMixin
+    SelectFilter, MultiSelectFilter, Column, TextFilter, ActionColumnMixin,\
+    RangeFilter, DateRangeFilter
 from sqlalchemy.sql import expression as ex
 from sqlalchemy import desc
 
@@ -57,6 +58,18 @@ class SQLPrefixFilter(SQLFilter, TextFilter):
 class SQLSelectFilter(SQLFilter, SelectFilter):
     def sql_append_where(self, column, q, filter_data):
         return q.where(self.get_column_to_filter(column) == filter_data)
+
+class SQLRangeFilter(SQLFilter, RangeFilter):
+    def sql_append_where(self, column, q, filter_data):
+        f, t = self.parse_filter_data(filter_data)
+        if f:
+            q = q.where(self.get_column_to_filter(column) > f)
+        if t:
+            q = q.where(self.get_column_to_filter(column) < t)
+        return q
+    
+class SQLDateRangeFilter(SQLRangeFilter, DateRangeFilter):
+    pass
 
 class SQLMultiSelectFilter(SQLFilter, MultiSelectFilter):
     def sql_append_where(self, column, q, filter_data):

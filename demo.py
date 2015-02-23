@@ -1,7 +1,7 @@
 from flask import Flask, Blueprint
 from appshell import AppShell, Module, single_view, render_template
 from appshell.sql import db, SQLColumn, SQLTableDataSource, SQLPrefixFilter, \
-    SQLSelectFilter, SQLMultiSelectFilter
+    SQLSelectFilter, SQLMultiSelectFilter, SQLDateRangeFilter
 from appshell.login import user_loader
 from appshell.tables import PlainTable, SequenceTableDataSource, VirtualTable
 from appshell.trees import PlainTreeGrid, TreeGridItem
@@ -119,7 +119,10 @@ dds = SQLTableDataSource(name="sql_table",
                                             filter=SQLPrefixFilter()),
                                   SQLColumn("Email",
                                             DemoEntity.__table__.c.email,
-                                            filter=SQLPrefixFilter())],
+                                            filter=SQLPrefixFilter()),
+                                  SQLColumn("Created",
+                                            DemoEntity.__table__.c.created,
+                                            filter=SQLDateRangeFilter(default_last=7))],
                          selectable=DemoEntity.__table__)
 dds.register_view(data)
 
