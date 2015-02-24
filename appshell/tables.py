@@ -102,6 +102,7 @@ class MultiSelectFilter(SelectFilter):
         return dropdowns.dropdown_checklist("filter_"+str(id(self)),
                                             self.get_filter_value(),
                                             self.get_filter_data(),
+                                            dropup=(table.filters=='bottom'),
                                             input_attrs={"data-tablefilter-column": column_index,
                                                          "data-tablefilter-target": table.name},
                                             input_classes="tablefilter")
