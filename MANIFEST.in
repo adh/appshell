@@ -1,0 +1,2 @@
+recursive-include appshell/templates *
+recursive-include appshell/static *

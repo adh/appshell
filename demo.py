@@ -2,13 +2,15 @@ from flask import Flask, Blueprint
 from appshell import AppShell, Module, single_view, render_template
 from appshell.sql import db, SQLColumn, SQLTableDataSource, SQLPrefixFilter, \
     SQLSelectFilter, SQLMultiSelectFilter, SQLDateRangeFilter
-from appshell.login import user_loader
+from appshell.login import current_user, PasswordAuthenticationModule,\
+    ModulePermissions, Permission
 from appshell.tables import PlainTable, SequenceTableDataSource, VirtualTable
 from appshell.trees import PlainTreeGrid, TreeGridItem
 from flask.ext.login import UserMixin
 from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, orm
 import iso8601
 import json
+import time
 
 app = Flask(__name__)
 
@@ -16,7 +18,10 @@ app.config['SECRET_KEY'] = 'foo'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
 
 shell = AppShell('AppShell demo', 'simple.hello', app,
-                 components=['.sql', '.login'])
+                 components={'sql': {}})
+
+perm = ModulePermissions('demo',
+                         [Permission('mnau')])
 
 simple = Module('simple', __name__, template_folder='templates')
 simple.label('Simple module')
@@ -28,6 +33,7 @@ def hello():
 @simple.route('/mnau')
 @simple.menu('Mnau!')
 @simple.local_menu('Mnau')
+@perm.mnau.require
 def mnau():
     return render_template('hello.html')
 app.register_blueprint(simple)
@@ -66,6 +72,7 @@ def virtual_data_source(start, length, search, ordering, column_filters):
     filtered = 1000
     ds = [[i, i] 
           for i in xrange(total)]
+    time.sleep(0.3)
     return ds[start:start+length], total, filtered
 
 
@@ -97,6 +104,35 @@ def components():
 
 app.register_blueprint(widgets)
 
+
+auth = PasswordAuthenticationModule('auth', __name__, template_folder='templates')
+
+class User(UserMixin):
+    def get_name(self):
+        return "Test user"
+    def get_id(self):
+        return "test"
+    
+    @classmethod
+    def load_user(cls, user_id):
+        if user_id == "test":
+            return cls()
+        else:
+            return None
+
+    @classmethod
+    def authenticate(cls, login, password):
+        print login, password
+        if login == "test" and password == "test":
+            return cls()
+        else:
+            return None
+
+    def has_permission(self, permission):
+        return False
+
+auth.userclass = User
+app.register_blueprint(auth)
 
 class DemoEntity(db.Model):
     __tablename__ = 'demo'
@@ -136,12 +172,6 @@ def sql_query():
 
 
 app.register_blueprint(data)
-
-
-@user_loader
-class User(UserMixin):
-    def __init__(self, userid):
-        self.id = userid
 
 
 

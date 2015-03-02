@@ -16,7 +16,7 @@ class ModelForm(BaseModelForm):
     def get_session(self):
         return db.session
 
-def register_in_app(app):
+def register_in_app(appshell, app):
     db.init_app(app)
 
 class SQLColumn(Column):

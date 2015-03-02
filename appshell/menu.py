@@ -34,15 +34,20 @@ class MenuItem(object):
         return self
 
 class MenuEntry(object):
-    def __init__(self, text, target=None, url=None, values={}, items=[]):
+    def __init__(self, text, target=None, url=None, values={}, 
+                 visibility_proc=None, items=[]):
         self.text = text
         self.target = target
         self.url = url
         self.values = values
         self.items = items
+        self.visibility_proc = visibility_proc
 
     def is_visible(self):
-        return True
+        if not self.visibility_proc:
+            return True
+        else:
+            return self.visibility_proc(**self.values)
 
     def as_menu_item(self):
         if self.is_visible():
@@ -97,6 +102,7 @@ class MenuContainer(OrderedDict):
         return self.factory(text=self.text, items=items, active=active)
 
 
+
 class MainMenu(object):
     def __init__(self):
         self.items = MenuContainer()
@@ -118,4 +124,17 @@ class MainMenu(object):
     def build_real_menu(self):
         return self.items.get_menu_items()
 
+class DropdownMenu(object):
+    def __init__(self):
+        self.items = MenuContainer()
 
+    def ensure_group(self, group, text=None):
+        return self.items.get_or_create(group, text, 
+                                        factory=MenuGroup)
+
+    def add_entry(self, item, entry, group=''):
+        g = self.ensure_group(group)
+        g[item] = entry
+    
+    def build_real_menu(self):
+        return self.items.get_menu_items()

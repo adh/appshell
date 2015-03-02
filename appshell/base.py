@@ -6,7 +6,9 @@ from flask.ext.wtf import CsrfProtect
 from menu import MenuEntry, MainMenu
 from appshell.urls import url_for, url_or_url_for, res_url, url_or_res_url
 from appshell.templates import render_template
+from appshell.utils import visibility_proc_for_view
 import importlib
+from werkzeug.local import LocalProxy
 
 mydomain = Domain('appshell')
 
@@ -22,8 +24,11 @@ def parse_menu_path(path):
     group, discard, item = item.rpartition(':')
     return menu, group, item
 
+current_appshell = LocalProxy(lambda: current_app.extensions['appshell'])
+
 class TopLevelMenu(object):
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
+        super(TopLevelMenu, self).__init__(*args, **kwargs)
         self.menu_entry_class = MenuEntry
 
     def add_menu_entry(self, path, entry, postion='left'):
@@ -44,18 +49,21 @@ class AppShell(TopLevelMenu):
 
         self.menu = {"left": MainMenu(),
                      "right": MainMenu()}
+        self.system_module = None
         self.babel = mydomain
         self.root_view = root_view
-        self.components = components
+        self.component_config = components
         self.search_view = None
         self.base_templates = {"plain": "appshell/base_plain.html"}
 
         if app:
             self.init_app(app)
         
-    def use_component(self, app, module):
-        mod = importlib.import_module(module, 'appshell')
-        return mod.register_in_app(app)
+    def use_component(self, app, module, cfg):
+        mod = importlib.import_module("."+module, 'appshell')
+        d = mod.register_in_app(self, app, **cfg)
+        setattr(self, module, d)
+        return d
 
     def add_base_template(self, name, filename):
         self.base_templates[name] = filename
@@ -98,8 +106,8 @@ class AppShell(TopLevelMenu):
 
         Babel(app)
 
-        for k in self.components:
-            self.use_component(app, k)
+        for k, v in self.component_config.iteritems():
+            self.use_component(app, k, v)
 
     
     def root_view_url(self):
@@ -147,10 +155,9 @@ class AppShell(TopLevelMenu):
     def build_menu(self):
         return {k: v.build_real_menu() for k,v in self.menu.iteritems()}
         
-class Module(Blueprint, TopLevelMenu):
+class Module(TopLevelMenu, Blueprint):
     def __init__(self, *args, **kwargs):
-        Blueprint.__init__(self, *args, **kwargs)
-        TopLevelMenu.__init__(self)
+        super(Module, self).__init__(*args, **kwargs)
         self.default_menu = self.name
         self.default_group = ''
         self.default_position = 'left'
@@ -175,6 +182,7 @@ class Module(Blueprint, TopLevelMenu):
     def menu_entry_for_view(self, view, text, values={}):
         return self.menu_entry_class(text,
                                      target=self.entrypoint_for_view(view),
+                                     visibility_proc=visibility_proc_for_view(view),
                                      values=values)
 
     def menu(self,  text, path=None, values={}, position=None):
@@ -237,7 +245,7 @@ class Module(Blueprint, TopLevelMenu):
         self.base_templates[name] = filename
 
     def register(self, app, *args, **kwargs):
-        Blueprint.register(self, app, *args, **kwargs)
+        super(Module, self).register(app, *args, **kwargs)
         
         if not hasattr(app, 'extensions'):
             return
@@ -251,3 +259,20 @@ class Module(Blueprint, TopLevelMenu):
             ash.add_menu_label(*i)
         for k, v in self.base_templates.iteritems():
             ash.add_base_template(k, v)
+
+class SystemModule(Module):
+    def register(self, app, *args, **kwargs):
+        if not hasattr(app, 'extensions'):
+            return
+        if not 'appshell' in app.extensions:
+            return
+
+        ash = app.extensions['appshell']
+        if ash.system_module != None:
+            raise ValueError("Multiple system modules in one application")
+        ash.system_module = self
+
+        super(Module, self).register(app, *args, **kwargs)
+        
+    def get_system_menu(self):
+        return None

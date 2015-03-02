@@ -33,7 +33,9 @@ $('.tablefilter').on('keyup change', function (e){
     var column = tgt.data('tablefilter-column');
     var value = tgt.val()
 
-    t.columns(column).search(value).draw();
+    if (t.column(column).search() != value){
+        t.column(column).search(value).draw();
+    }
 })
 
 
@@ -44,7 +46,9 @@ $('.tablefilter-range').each(function(i, elem){
     function update(e){
         var t = appshell.datatables[id]; 
         var value = eq.find('.range-from').val() + ';' + eq.find('.range-to').val();        
-        t.columns(column).search(value).draw();
+        if (t.column(column).search() != value){
+            t.column(column).search(value).draw();
+        }
     }
     eq.find('.range-from').on('keyup change', update);
     eq.find('.range-to').on('keyup change', update);
@@ -75,3 +79,17 @@ $('.checklist').each(function(i, e){
         value_from_checks();
     });
 });
+
+(function(){
+    var timeout;
+    $(document).ajaxStart(function(){
+        timeout = setTimeout("$('.appshell-spinner').show()", 200);
+    });
+    $(document).ajaxStop(function(){
+        if (timeout){
+            clearTimeout(timeout);
+        }
+        timeout = null;
+        $('#appshell-ajax-spinner').hide();
+    });
+})()

@@ -10,6 +10,7 @@ class TemplateProxy(object):
 
 widgets = TemplateProxy('appshell/widgets.html')
 dropdowns = TemplateProxy('appshell/dropdowns.html')
+wtf = TemplateProxy('bootstrap/wtf.html')
 
 def render_template(path, 
                     **kwargs):
@@ -21,3 +22,4 @@ def single_view(main_content, title=None, template=None):
     return render_template(template, 
                            main_content=main_content,
                            page_title=title)
+

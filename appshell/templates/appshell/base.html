@@ -2,13 +2,26 @@
 {% import "bootstrap/wtf.html" as wtf %}
 {% import "appshell/dropdowns.html" as dropdowns %}
 
+{%macro flashed_messages() -%}
+  {%with messages = get_flashed_messages(with_categories=True) -%}
+    {%if messages -%} {# don't output anything if there are no messages #}
+      {%for cat, msg in messages %}
+  <div class="alert alert-{{cat}} alert-dismissable" role="alert">
+    {{msg}} 
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+{%endfor -%}
+{%endif -%}
+{%endwith -%}
+{%endmacro -%}
 
 {% block navbar %}
   {%set gettext = appshell.babel.gettext %}
   {%set menu = appshell.build_menu() %}
 
-  {%macro top_menu_items(items): %}
-    {% for i in items %}
+  {%macro top_menu_item(i): %}
       <li {{i.liattrs|xmlattr}}>
         <a {{i.aattrs|xmlattr}}>{{i.text}}
           {% if i.items %}<span class="caret"></span>{% endif %}
@@ -17,7 +30,10 @@
           {{ dropdowns.grouped(i.items) }}
         {% endif %}
       </li>
-    {% endfor %}
+  {%endmacro%}
+
+  {%macro top_menu_items(items): %}
+    {% for i in items %}{{top_menu_item(i)}}{% endfor %}
   {%endmacro%}
 
 
@@ -38,11 +54,14 @@
           </ul>
           {%if appshell.search_view %}
             <form class="navbar-form navbar-right" target={{url_for(appshell.search_view)}}>
-              <input type="text" class="form-control" placeholder="{%trans%}Search...{%endtrans%}">
+              <input type="text" class="form-control" name="search" placeholder="{%trans%}Search...{%endtrans%}">
             </form>
           {%endif%}
           <ul class="nav navbar-nav navbar-right">
             {{ top_menu_items(menu.right) }}
+            {%if appshell.system_module %}
+              {{ top_menu_item(appshell.system_module.get_system_menu_item()) }}
+            {%endif%}
           </ul>    
         </div>
     </div>
@@ -60,14 +79,28 @@
           {{ self.nav() }}
        </div>
        <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+         {{ flashed_messages() }}
          {{ self.main() }}
        </div>
      </div>
   {% else %}
     <div class="main-full">
+      {{ flashed_messages() }}
       {{ self.main() }}
     </div>
   {% endif %}
+  </div>
+  <div class="appshell-spinner panel panel-warning" id="appshell-ajax-spinner">
+    <div class="panel-heading panel-title">
+      {%trans%}Please wait...{%endtrans%}
+    </div>
+    <div class="panel-body">
+      <div class="progress">
+        <div class="progress-bar progress-bar-striped progress-bar-warning active" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%">
+          <span class="sr-only">Working</span>
+        </div>
+      </div>
+    </div>
   </div>
 {% endblock %}
 
