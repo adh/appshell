@@ -2,21 +2,6 @@
 {% import "bootstrap/wtf.html" as wtf %}
 {% import "appshell/dropdowns.html" as dropdowns %}
 
-{%macro flashed_messages() -%}
-  {%with messages = get_flashed_messages(with_categories=True) -%}
-    {%if messages -%} {# don't output anything if there are no messages #}
-      {%for cat, msg in messages %}
-  <div class="alert alert-{{cat}} alert-dismissable" role="alert">
-    {{msg}} 
-    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-      <span aria-hidden="true">&times;</span>
-    </button>
-  </div>
-{%endfor -%}
-{%endif -%}
-{%endwith -%}
-{%endmacro -%}
-
 {% block navbar %}
   {%set gettext = appshell.babel.gettext %}
   {%set menu = appshell.build_menu() %}
@@ -72,36 +57,24 @@
 {%block body_attribs%} class="with-navbar"{%endblock%}
 
 {% block content %}
-  <div class="container-fluid">
   {% if self.nav: %}
+  <div class="container-fluid">
      <div class="row">
        <div class="col-sm-3 col-md-2 sidebar">
           {{ self.nav() }}
        </div>
        <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
-         {{ flashed_messages() }}
-         {{ self.main() }}
+         <div class="main-container{%if page_layout%}-{{page_layout}}{%endif%}">
+           {{ self.main_wrapped() }}
+         </div>
        </div>
      </div>
+  </div>
   {% else %}
-    <div class="main-full">
-      {{ flashed_messages() }}
-      {{ self.main() }}
-    </div>
+  <div class="main-full container{%if page_layout%}-{{page_layout}}{%endif%}">
+    {{ self.main_wrapped() }}
+  </div>
   {% endif %}
-  </div>
-  <div class="appshell-spinner panel panel-warning" id="appshell-ajax-spinner">
-    <div class="panel-heading panel-title">
-      {%trans%}Please wait...{%endtrans%}
-    </div>
-    <div class="panel-body">
-      <div class="progress">
-        <div class="progress-bar progress-bar-striped progress-bar-warning active" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%">
-          <span class="sr-only">Working</span>
-        </div>
-      </div>
-    </div>
-  </div>
 {% endblock %}
 
 {%block title%}

@@ -2,7 +2,7 @@ from flask.ext.login import LoginManager, current_user
 from flask.ext.login import login_user, logout_user, login_fresh, \
     login_required, fresh_login_required, current_user, login_url
 from flask.ext.babelex import Babel, Domain
-from flask import Blueprint, request, flash, redirect
+from flask import Blueprint, request, flash, redirect, abort
 from appshell import SystemModule, current_appshell, url_for
 from appshell.menu import MenuItem, DropdownMenu
 from appshell.templates import wtf, single_view
@@ -10,6 +10,7 @@ from flask_wtf import Form
 from wtforms import StringField, PasswordField, SubmitField
 from wtforms.validators import DataRequired
 from appshell.utils import view_visible
+from appshell import templates
 
 from functools import wraps
 
@@ -65,6 +66,15 @@ class AuthenticationModule(SystemModule):
             return MenuItem(text=self.logged_in_text(),
                             items=self.logged_in_menu.build_real_menu())
 
+    def handle_forbidden_endpoint(self):
+        if current_user.is_anonymous():
+            return self.login_manager.unauthorized()
+        else:
+            return self.forbidden()
+
+    def forbidden(self):
+        return abort(403)
+
 class PasswordLoginForm(Form):
     username = StringField(lazy_gettext('Username:'))
     password = PasswordField(lazy_gettext('Password:'))
@@ -108,42 +118,8 @@ class PasswordAuthenticationModule(AuthenticationModule):
     def authenticate_user(self, username, password):
         return self.userclass.authenticate(username, password)
 
-all_permissions = {}
-    
-class Permission(object):
-    def __init__(self, name, text=None, fresh=False, *args, **kwargs):
-        self.name = name
-        if text is None:
-            text = name
-        self.text = text
-        self.login_required = login_required if not fresh \
-                              else fresh_login_required
-
-    def permitted(self, user=None):
-        if user is None:
-            user = current_user
-        if user.is_anonymous():
-            return False
-        return user.has_permission(self)
-        
-    @property
-    def require(self):
-        def wrap(view):
-            view_visible(view)
-            def visibility_proc(**kwargs):
-                return self.permitted()
-
-            @wraps(view)
-            def wrapper(**kwargs):
-                if not self.permitted():
-                    return "403"
-                return view(*args, **kwargs)
-            return self.login_required(wrapper)
-        return wrap
-
-class ModulePermissions(object):
-    def __init__(self, name_prefix, permissions=[]):
-        for i in permissions:
-            n = i.name
-            i.name = name_prefix+n
-            setattr(self, n, i)
+    def forbidden(self):
+        return templates.message(_('You don\'t have enough permissions to access this page'),
+                                 severity='danger',
+                                 title=_('Permission error'),
+                                 status=403)

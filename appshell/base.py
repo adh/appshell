@@ -7,6 +7,7 @@ from menu import MenuEntry, MainMenu
 from appshell.urls import url_for, url_or_url_for, res_url, url_or_res_url
 from appshell.templates import render_template
 from appshell.utils import visibility_proc_for_view
+from appshell.locals import current_appshell
 import importlib
 from werkzeug.local import LocalProxy
 
@@ -24,7 +25,6 @@ def parse_menu_path(path):
     group, discard, item = item.rpartition(':')
     return menu, group, item
 
-current_appshell = LocalProxy(lambda: current_app.extensions['appshell'])
 
 class TopLevelMenu(object):
     def __init__(self, *args, **kwargs):
@@ -55,6 +55,7 @@ class AppShell(TopLevelMenu):
         self.component_config = components
         self.search_view = None
         self.base_templates = {"plain": "appshell/base_plain.html"}
+        self.access_map = {}
 
         if app:
             self.init_app(app)
@@ -97,6 +98,11 @@ class AppShell(TopLevelMenu):
         @app.context_processor
         def context_processor():
             return {"appshell": self}
+
+        @app.before_request
+        def check_access():
+            if not self.endpoint_accessible(request.endpoint, request.args):
+                return self.handle_forbidden_endpoint()
 
         for n, f in template_globals.iteritems():
             app.add_template_global(f, name=n)
@@ -155,6 +161,27 @@ class AppShell(TopLevelMenu):
     def build_menu(self):
         return {k: v.build_real_menu() for k,v in self.menu.iteritems()}
         
+    def add_access_rule(self, endpoint, proc):
+        if endpoint not in self.access_map:
+            self.access_map[endpoint] = []
+
+        self.access_map[endpoint].append(proc)
+
+    def endpoint_accessible(self, endpoint, values):
+        if endpoint not in self.access_map:
+            return True
+        rules = self.access_map[endpoint]
+        for i in rules:
+            if not i(**values):
+                return False
+        return True
+
+    def handle_forbidden_endpoint(self):
+        if self.system_module:
+            return self.system_module.handle_forbidden_endpoint()
+        return flask.abort(403)
+
+
 class Module(TopLevelMenu, Blueprint):
     def __init__(self, *args, **kwargs):
         super(Module, self).__init__(*args, **kwargs)
@@ -166,6 +193,7 @@ class Module(TopLevelMenu, Blueprint):
         self.base_templates = {}
         self.local_nav = {}
         self.title_text = None
+        self.access_rules = []
 
     def has_local_nav(self):
         return len(self.local_nav) > 0
@@ -182,7 +210,6 @@ class Module(TopLevelMenu, Blueprint):
     def menu_entry_for_view(self, view, text, values={}):
         return self.menu_entry_class(text,
                                      target=self.entrypoint_for_view(view),
-                                     visibility_proc=visibility_proc_for_view(view),
                                      values=values)
 
     def menu(self,  text, path=None, values={}, position=None):
@@ -259,6 +286,17 @@ class Module(TopLevelMenu, Blueprint):
             ash.add_menu_label(*i)
         for k, v in self.base_templates.iteritems():
             ash.add_base_template(k, v)
+        for endpoint, proc in self.access_rules:
+            ash.add_access_rule(self.name + "." + endpoint, proc)
+
+    def add_access_rule(self, endpoint, proc):
+        self.access_rules.append((endpoint, proc))
+
+    def access(self, proc):
+        def wrap(f):
+            self.add_access_rule(f.__name__, proc)
+            return f
+        return wrap
 
 class SystemModule(Module):
     def register(self, app, *args, **kwargs):
@@ -276,3 +314,7 @@ class SystemModule(Module):
         
     def get_system_menu(self):
         return None
+
+    def handle_forbidden_endpoint(self):
+        return flask.abort(403)
+        

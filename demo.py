@@ -2,8 +2,7 @@ from flask import Flask, Blueprint
 from appshell import AppShell, Module, single_view, render_template
 from appshell.sql import db, SQLColumn, SQLTableDataSource, SQLPrefixFilter, \
     SQLSelectFilter, SQLMultiSelectFilter, SQLDateRangeFilter
-from appshell.login import current_user, PasswordAuthenticationModule,\
-    ModulePermissions, Permission
+from appshell.login import current_user, PasswordAuthenticationModule
 from appshell.tables import PlainTable, SequenceTableDataSource, VirtualTable
 from appshell.trees import PlainTreeGrid, TreeGridItem
 from flask.ext.login import UserMixin
@@ -20,9 +19,6 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
 shell = AppShell('AppShell demo', 'simple.hello', app,
                  components={'sql': {}})
 
-perm = ModulePermissions('demo',
-                         [Permission('mnau')])
-
 simple = Module('simple', __name__, template_folder='templates')
 simple.label('Simple module')
 @simple.route('/')
@@ -33,7 +29,7 @@ def hello():
 @simple.route('/mnau')
 @simple.menu('Mnau!')
 @simple.local_menu('Mnau')
-@perm.mnau.require
+@simple.access(lambda **kwa: False)
 def mnau():
     return render_template('hello.html')
 app.register_blueprint(simple)
@@ -48,7 +44,8 @@ table_data = [("%d-1" % i, "%d-2" % i, "%d-3" % i) for i in range(100)]
 def simple_table():
     t = PlainTable("simple_table",
                    ("Column 1", "Column 2", "Column 3"),table_data)
-    return single_view(t)
+    return single_view(t,
+                       layout='fluid')
 
 tree_data = [TreeGridItem(("foo", "Foo"), 
                           [TreeGridItem(("foo/bar", "Foobar"), [
@@ -82,7 +79,8 @@ def virtual():
     return single_view(VirtualTable(vt, filters='bottom', 
                                     options={"scrollY": -200,
                                              "ordering": True,
-                                             "autoWidth": False}))
+                                             "autoWidth": False}),
+                       layout='fluid')
 
 @widgets.route('/widgets/dropdowns')
 @widgets.menu('Dropdowns')
@@ -128,8 +126,6 @@ class User(UserMixin):
         else:
             return None
 
-    def has_permission(self, permission):
-        return False
 
 auth.userclass = User
 app.register_blueprint(auth)
@@ -168,7 +164,8 @@ def sql_query():
     return single_view(VirtualTable(dds, filters='bottom', 
                                     options={"scrollY": -200,
                                              "ordering": True,
-                                             "autoWidth": False}))
+                                             "autoWidth": False}),
+                       layout='fluid')
 
 
 app.register_blueprint(data)

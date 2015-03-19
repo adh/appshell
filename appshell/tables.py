@@ -357,7 +357,8 @@ class TableDataSource(ColumnsMixin):
                                self.name, 
                                self.param_string),
                        endpoint=endpoint,
-                       view_func=self.data_view)
+                       view_func=self.data_view,
+        )
 
         self.endpoint = f.name + "." + endpoint
 
@@ -390,7 +391,10 @@ class VirtualTable(DataTable):
     @property
     def options(self):
         orig = super(VirtualTable, self).options
-        res = {"ajax": res_url(self.data_source.endpoint, **self.params),
+        res = {"ajax": 
+               {
+                   "url": res_url(self.data_source.endpoint, **self.params),
+               },
                "scrollY": -150,
                "scrollX": True,
                "dom": "rtS",

@@ -20,6 +20,18 @@
 {% endblock %}
 
 {%block scripts %}
+<div class="appshell-spinner panel panel-warning" id="appshell-ajax-spinner">
+  <div class="panel-heading panel-title">
+    {%trans%}Please wait...{%endtrans%}
+  </div>
+  <div class="panel-body">
+    <div class="progress">
+      <div class="progress-bar progress-bar-striped progress-bar-warning active" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%">
+        <span class="sr-only">Working</span>
+      </div>
+    </div>
+  </div>
+</div>
 {{ super() }}
 <script src="{{res_url('appshell.static', filename='datatables/js/jquery.dataTables.min.js')}}"></script>
 <script src="{{res_url('appshell.static', filename='datatables/js/dataTables.bootstrap.js')}}"></script>
@@ -41,11 +53,31 @@ $(document).ready(function(){
 {%endblock%}
 
 {% block content %}
-  <div class="container">
-      {{ self.main() }}
+  <div class="container{%if page_layout%}-{{page_layout}}{%endif%}">
+      {{ self.main_wrapped() }}
   </div>
 {% endblock %}
 
+{%macro flashed_messages() -%}
+  {%with messages = get_flashed_messages(with_categories=True) -%}
+    {%if messages -%} {# don't output anything if there are no messages #}
+      {%for cat, msg in messages %}
+  <div class="alert alert-{{cat}} alert-dismissable" role="alert">
+    {{msg}} 
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+{%endfor -%}
+{%endif -%}
+{%endwith -%}
+{%endmacro -%}
+
+{%block main_wrapped %}
+    {{ flashed_messages() }}
+    {{ self.main() }}
+{%endblock%}
+
 {%block main %}
-  {{ main_content }}
+    {{ main_content }}
 {%endblock%}

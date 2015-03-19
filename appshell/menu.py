@@ -1,6 +1,7 @@
 from collections import OrderedDict
 from flask import request
 from appshell.urls import url_for
+from appshell.locals import current_appshell
 
 class MenuItem(object):
     def __init__(self, text, target=None, url=None,
@@ -34,20 +35,17 @@ class MenuItem(object):
         return self
 
 class MenuEntry(object):
-    def __init__(self, text, target=None, url=None, values={}, 
-                 visibility_proc=None, items=[]):
+    def __init__(self, text, target=None, url=None, values={}, items=[]):
         self.text = text
         self.target = target
         self.url = url
         self.values = values
         self.items = items
-        self.visibility_proc = visibility_proc
 
     def is_visible(self):
-        if not self.visibility_proc:
-            return True
-        else:
-            return self.visibility_proc(**self.values)
+        if self.target:
+            return current_appshell.endpoint_accessible(self.target,
+                                                        self.values)
 
     def as_menu_item(self):
         if self.is_visible():

@@ -43,6 +43,19 @@ collected_onloads.push(function() {
        options["searchCols"] = {{table.default_filters()|tojson}}
     {%endif%}
 
+    {%if "url" in table.options["ajax"]%}
+       options["ajax"]["data"] = (function(data, settings){
+         var i;
+         for (i = 0; i < data.columns.length; i++){
+           delete data.columns[i].searchable;
+           delete data.columns[i].orderable;
+           delete data.columns[i].name;
+           delete data.columns[i].search.regex;
+         }
+         console.log(data)
+       });
+    {%endif%}                                
+
     e.parents('.dropdown').on('shown.bs.dropdown', function(){
       t.draw();
     })
