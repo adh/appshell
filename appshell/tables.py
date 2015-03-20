@@ -1,10 +1,16 @@
 from flask import render_template, jsonify, request
 from markupsafe import Markup
-from appshell.markup import element, link_button
+from appshell.markup import element, link_button, button, xmltag
 from appshell.urls import res_url, url_or_url_for
-from appshell.templates import widgets, dropdowns
+from appshell.templates import widgets, dropdowns, modals
 import iso8601
 import datetime
+
+from flask.ext.babelex import Babel, Domain
+
+mydomain = Domain('appshell')
+_ = mydomain.gettext
+lazy_gettext = mydomain.lazy_gettext
 
 class Column(object):
     orderable = True
@@ -99,13 +105,22 @@ class SelectFilter(Filter):
     
 class MultiSelectFilter(SelectFilter):
     def get_filter_html(self, column_index, column, table):
-        return dropdowns.dropdown_checklist("filter_"+str(id(self)),
-                                            self.get_filter_value(),
-                                            self.get_filter_data(),
-                                            dropup=(table.filters=='bottom'),
-                                            input_attrs={"data-tablefilter-column": column_index,
-                                                         "data-tablefilter-target": table.name},
-                                            input_classes="tablefilter")
+        return modals.modal_checklist("filter_"+str(id(self)),
+                                      self.get_filter_value(),
+                                      self.get_filter_data(),
+                                      input_attrs={"data-tablefilter-column": column_index,
+                                                   "data-tablefilter-target": table.name},
+                                      input_classes="tablefilter")
+
+class MultiSelectTreeFilter(MultiSelectFilter):
+    def get_filter_html(self, column_index, column, table):
+        return modals.modal_checktree("filter_"+str(id(self)),
+                                      self.get_filter_value(),
+                                      self.get_filter_data(),
+                                      input_attrs={"data-tablefilter-column": column_index,
+                                                   "data-tablefilter-target": table.name},
+                                      input_classes="tablefilter")
+    
 
 class RangeFilter(Filter):
     def get_filter_value(self):
@@ -145,8 +160,10 @@ class DateRangeFilter(RangeFilter):
 
 
     def parse_filter_data(self, data):
-        return [iso8601.parse_date(i).date() if i else '' 
+        f, t = [iso8601.parse_date(i).date() if i else '' 
                 for i in data.split(';')]
+        return f, t
+
     def get_filter_html(self, column_index, column, table):
         return widgets.daterange("filter_"+str(id(self)),
                                  self.parse_filter_data(self.get_filter_value()),
@@ -176,7 +193,54 @@ class DescriptorColumn(Column):
         self.descriptor = descriptor
     def get_cell_data(self, row):
         return self.descriptor.fget(row)
+
+class CustomSelectColumnMixin(object):
+    def __init__(self, name, label=None, text_proc=None, **kwargs):
+        super(CustomSelectColumnMixin, self).__init__(name, 
+                                                      text_proc=text_proc, 
+                                                      label=label,
+                                                      **kwargs)
+
+        if label is None:
+            label = lazy_gettext("Select")
+        if text_proc is None:
+            text_proc = lambda d, r: d
+
+        self.text_proc = text_proc
+        self.label = label
+
+    def get_cell_inner_html(self, row):
+        d = self.get_cell_data(row)
+        return button(self.label, "custom-select-item",
+                      size="sm",
+                      attrs={"data-value": d,
+                             "data-text": self.text_proc(d, row)})
         
+class CustomSelectSequenceColumn(CustomSelectColumnMixin, SequenceColumn):
+    pass
+    
+class CheckBoxColumnMixin(object):
+    def __init__(self, name, text_proc=None, checkbox_attrs={}, **kwargs):
+        super(CheckBoxColumnMixin, self).__init__(name, 
+                                                  text_proc=text_proc, 
+                                                  checkbox_attrs=checkbox_attrs,
+                                                  **kwargs)
+        if text_proc is None:
+            text_proc = lambda d, r: d
+
+        self.text_proc = text_proc
+        self.checkbox_attrs = checkbox_attrs
+
+    def get_cell_inner_html(self, row):
+        d = self.get_cell_data(row)
+        attrs = {"value": d, "type": "checkbox"}
+        attrs.update(self.checkbox_attrs)
+        return Markup("<label>{0}{1}</label>")\
+            .format(xmltag("input", attrs), self.text_proc(d, row))
+
+class CheckBoxSequenceColumn(CheckBoxColumnMixin, SequenceColumn):
+    pass
+                       
 
 class Action(object):
     __slots__ = ('text', 'endpoint', 'params', 'data_param', 'context_class')

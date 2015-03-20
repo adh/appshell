@@ -3,7 +3,8 @@ from appshell import AppShell, Module, single_view, render_template
 from appshell.sql import db, SQLColumn, SQLTableDataSource, SQLPrefixFilter, \
     SQLSelectFilter, SQLMultiSelectFilter, SQLDateRangeFilter
 from appshell.login import current_user, PasswordAuthenticationModule
-from appshell.tables import PlainTable, SequenceTableDataSource, VirtualTable
+from appshell.tables import PlainTable, SequenceTableDataSource, VirtualTable,\
+    CustomSelectSequenceColumn, CheckBoxSequenceColumn
 from appshell.trees import PlainTreeGrid, TreeGridItem
 from flask.ext.login import UserMixin
 from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, orm
@@ -49,7 +50,25 @@ def simple_table():
 
 tree_data = [TreeGridItem(("foo", "Foo"), 
                           [TreeGridItem(("foo/bar", "Foobar"), [
-                              TreeGridItem(("foo/bar/quux", "Foobarquux"), [])]),
+                              TreeGridItem(("foo/bar/quux", "Foobarquux"), []),
+                              TreeGridItem(("foo/bar/quux", "Foobarquux"), []),
+                              TreeGridItem(("foo/bar/quux", "Foobarquux"), []),
+                              TreeGridItem(("foo/bar/quux", "Foobarquux"), []),
+                              TreeGridItem(("foo/bar/quux", "Foobarquux"), []),
+                              TreeGridItem(("foo/bar/quux", "Foobarquux"), []),
+                              TreeGridItem(("foo/bar/quux", "Foobarquux"), []),
+                              TreeGridItem(("foo/bar/quux", "Foobarquux"), []),
+                              TreeGridItem(("foo/bar/quux", "Foobarquux"), []),
+                              TreeGridItem(("foo/bar/quux", "Foobarquux"), []),
+                              TreeGridItem(("foo/bar/quux", "Foobarquux"), []),
+                              TreeGridItem(("foo/bar/quux", "Foobarquux"), []),
+                              TreeGridItem(("foo/bar/quux", "Foobarquux"), []),
+                              TreeGridItem(("foo/bar/quux", "Foobarquux"), []),
+                              TreeGridItem(("foo/bar/quux", "Foobarquux"), []),
+                              TreeGridItem(("foo/bar/quux", "Foobarquux"), []),
+                              TreeGridItem(("foo/bar/quux", "Foobarquux"), []),
+                          ]),
+                        
                            TreeGridItem(("foo/baz", "Foobaz"), [])]),
              TreeGridItem(("spam", "Spam"), [])]
 
@@ -89,9 +108,26 @@ def dropdowns():
                    ("Column 1", "Column 2", "Column 3"),table_data, 
                    options={"scrollY": 400, "pagingType": "simple"},
                    attrs={"style": "width: 680px"})
+    tm = PlainTable("msimple_table",
+                    ("Column 1", "Column 2", "Column 3"),table_data, 
+                    options={"scrollY": 400, "pagingType": "simple"},
+                    attrs={"style": "width: 680px"})
     tg = PlainTreeGrid("treeegrid",
-                      ("Name", "Description"), tree_data)
-    return render_template('dropdowns.html', table=t, tree=tg)
+                       ("Name", "Description", CustomSelectSequenceColumn("",
+                                                                          index=0)), 
+                       tree_data)
+    tgm = PlainTreeGrid("mtreeegrid",
+                      ("Name", "Description", CustomSelectSequenceColumn("",
+                                                                          index=0)), tree_data)
+    tgc = PlainTreeGrid("mtreeegrid",
+                      (CheckBoxSequenceColumn("Name", index=0),
+                       "Description"), tree_data)
+    tgmc = PlainTreeGrid("mctreeegrid",
+                      (CheckBoxSequenceColumn("Name", index=0),
+                       "Description"), tree_data)
+
+
+    return render_template('dropdowns.html', table=t, tree=tg, m_tree=tgm, ctree=tgc, mctree=tgmc)
 
 @widgets.route('/widgets/components')
 @widgets.menu('Components')

@@ -1,0 +1,10 @@
+{%macro end_body()%}
+{{ push_block("content", caller()) }}
+{%endmacro%}
+
+{%macro script()%}
+{{ push_block('scripts', caller()) }}
+{%endmacro%}
+
+{%macro div_with_id(class)%}
+{%endmacro%}

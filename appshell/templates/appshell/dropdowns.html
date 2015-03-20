@@ -39,8 +39,8 @@
       <span class="dropdown-select-text" id="{{name}}-text">{{text}}</span>
       <span class="caret dropdown-select-caret"></span>
     </button>
-    <div class="dropdown-menu dropdown-select {{dropdown_classes}}"
-         data-dropdown-select-name="{{name}}">
+    <div class="dropdown-menu dropdown-select custom-select-container {{dropdown_classes}}"
+         data-custom-select-name="{{name}}">
       {{ caller() }}
     </div>
   </div>  
@@ -53,5 +53,11 @@
         <label><input type="checkbox" value="{{k}}">{{v}}</label>
       </div>
     {%endfor%}
+  {%endcall%}
+{%endmacro%}
+
+{%macro dropdown_checktree (name, value, data, text="", dropup=False, input_attrs={}, input_classes="")%}
+  {%call dropdown_select(name, value, text, dropup, input_attrs=input_attrs, dropdown_classes="checktree", input_classes=input_classes) %}
+      {{data}}
   {%endcall%}
 {%endmacro%}

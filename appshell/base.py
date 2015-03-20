@@ -6,7 +6,7 @@ from flask.ext.wtf import CsrfProtect
 from menu import MenuEntry, MainMenu
 from appshell.urls import url_for, url_or_url_for, res_url, url_or_res_url
 from appshell.templates import render_template
-from appshell.utils import visibility_proc_for_view
+from appshell.utils import push_block, get_pushed_blocks
 from appshell.locals import current_appshell
 import importlib
 from werkzeug.local import LocalProxy
@@ -16,7 +16,9 @@ mydomain = Domain('appshell')
 template_globals = {"url_for": url_for, 
                     "url_or_url_for": url_or_url_for,
                     "url_or_res_url": url_or_res_url,
-                    "res_url": res_url}
+                    "res_url": res_url,
+                    "push_block": push_block,
+                    "get_pushed_blocks": get_pushed_blocks}
 
 def parse_menu_path(path):
     menu, discard, item = path.partition('/')
@@ -103,6 +105,7 @@ class AppShell(TopLevelMenu):
         def check_access():
             if not self.endpoint_accessible(request.endpoint, request.args):
                 return self.handle_forbidden_endpoint()
+
 
         for n, f in template_globals.iteritems():
             app.add_template_global(f, name=n)

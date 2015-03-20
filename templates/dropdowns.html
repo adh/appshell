@@ -1,5 +1,6 @@
 {% extends appshell.base_template %}
 {% import "appshell/dropdowns.html" as dd %}
+{% import "appshell/modals.html" as m %}
 {%set page_title = "Dropdowns"%}
 {% block main %}
 <h1>Dropdowns</h1>
@@ -10,20 +11,54 @@
 </p>
 
 <p>
-  Table: {%call dd.dropdown_select('custom', '', 'Select item...') %}
-  {{table}}
+  Custom content modal: {%call m.modal_select('custom', '', 'Select item...') %}
+  Lorem ipsum
   {%endcall%}
 </p>
 
 <p>
-  Tree: {%call dd.dropdown_select('custom', '', 'Select item...') %}
+  Table: {%call dd.dropdown_select('custom', '', 'Select item...') %}
+  {{table}}
+  {%endcall%}
+</p>
+<p>
+  Table: {%call m.modal_select('mtable', '', 'Select item...') %}
+  {{mtable}}
+  {%endcall%}
+</p>
+
+<p>
+  Tree: {%call dd.dropdown_select('tree', '', 'Select item...') %}
   {{tree}}
+  {%endcall%}
+</p>
+
+<p>
+  Tree: {%call m.modal_select('m-tree', '', 'Select item...') %}
+  <div class="modal-body-table">
+  {{m_tree}}
+  </div>
   {%endcall%}
 </p>
 
 <p>
   Checklist:
   {{ dd.dropdown_checklist('checklist', '', {"a": "A", "b": "B", "c":"C"}.iteritems(), 'Select items...') }}
+</p>
+
+<p>
+  Modal:
+  {{ m.modal_checklist('m-checklist', '', {"a": "A", "b": "B", "c":"C"}.iteritems(), 'Select items...') }}
+</p>
+
+<p>
+  CheckTree: 
+  {{ dd.dropdown_checktree('c-tree', '', ctree, 'Select item...') }}
+</p>
+
+<p>
+  Modal CheckTree: 
+  {{ m.modal_checktree('mc-tree', '', mctree, 'Select item...') }}
 </p>
 
 {% endblock %}

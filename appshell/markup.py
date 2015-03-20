@@ -19,14 +19,16 @@ def element(name, attrs, contents):
                                          contents,
                                          name)
 
-def class_button(klass, text, context_class="default", size=None):
+def button(text, classes, context_class="default", size=None, attrs={}):
     cls = "btn btn-"+context_class
     if size:
         cls += " btn-" + size
+    attrs = dict(attrs)
+    attrs.update({"class": cls + " " + classes, 
+                  "type": "button"})
     return element("button", 
-                   {"class": cls + " " + klass, 
-                    "type": "button"},
-                   contents)
+                   attrs,
+                   text)
 
 def link_button(url, text, context_class="default", size=None):
     cls = "btn btn-"+context_class
@@ -34,4 +36,4 @@ def link_button(url, text, context_class="default", size=None):
         cls += " btn-" + size
     return element("a", 
                    {"class": cls, "role": "button", "href": url},
-                   contents)
+                   text)

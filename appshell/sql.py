@@ -3,7 +3,7 @@ from flask.ext.sqlalchemy import SQLAlchemy
 from wtforms_alchemy import model_form_factory
 from appshell.tables import TableDataSource, SequenceTableDataSource, \
     SelectFilter, MultiSelectFilter, Column, TextFilter, ActionColumnMixin,\
-    RangeFilter, DateRangeFilter
+    RangeFilter, DateRangeFilter, MultiSelectTreeFilter
 from sqlalchemy.sql import expression as ex
 from sqlalchemy import desc
 
@@ -74,6 +74,11 @@ class SQLDateRangeFilter(SQLRangeFilter, DateRangeFilter):
 class SQLMultiSelectFilter(SQLFilter, MultiSelectFilter):
     def sql_append_where(self, column, q, filter_data):
         fl = [i for i in filter_data.split(';') if i != '']
+        return q.where(self.get_column_to_filter(column).in_(fl))
+
+class SQLLeafMultiSelectTreeFilter(SQLFilter, MultiSelectTreeFilter):
+    def sql_append_where(self, column, q, filter_data):
+        fl = [i.rpartition("/")[2] for i in filter_data.split(';') if i != '']
         return q.where(self.get_column_to_filter(column).in_(fl))
     
 

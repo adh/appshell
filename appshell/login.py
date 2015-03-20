@@ -9,7 +9,6 @@ from appshell.templates import wtf, single_view
 from flask_wtf import Form
 from wtforms import StringField, PasswordField, SubmitField
 from wtforms.validators import DataRequired
-from appshell.utils import view_visible
 from appshell import templates
 
 from functools import wraps

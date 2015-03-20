@@ -1,26 +1,20 @@
-from flask import request
+from flask import request, g
+from appshell.locals import current_appshell
+from collections import defaultdict
+from werkzeug import LocalProxy
 
-def visibility_proc_for_view(view):
-    if hasattr(view, '_appshell__visibility_proc'):
-        return view._appshell__visibility_proc
-    else:
-        return None
+def get_pushed_blocks_dict():
+    pb = getattr(g, '_appshell_pushed_blocks', None)
+    if pb is None:
+        pb = g._appshell_pushed_blocks = defaultdict(list)
+    return pb
 
-def attach_view_visibility(view, proc):
-    old = visibility_proc_for_view(view)
-    if old:
-        def visibilty_proc(**kwargs):
-            if not proc(**kwargs):
-                return False
-            else:
-                return old(**kwargs)
-            view._appshell__visibility_proc = visibility_proc
-    else:
-        view._appshell__visibility_proc = proc
+pushed_blocks = LocalProxy(get_pushed_blocks_dict)
 
+def push_block(cls, caller):
+    pushed_blocks[cls].append(caller)
+    print pushed_blocks[cls]
+    return '' # XXX
 
-def view_visible(view):
-    def wrap(func):
-        attach_view_visibility(view, func)
-        return func
-    return wrap
+def get_pushed_blocks(cls):
+    return pushed_blocks[cls]

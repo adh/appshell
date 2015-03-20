@@ -90,6 +90,10 @@ body.with-navbar {
     max-height: 650px;
     overflow: auto;
 }
+.modal-body {
+    max-height: 80vh;
+    overflow: auto;
+}
 
 .dataTables_scrollBody thead th{
     height: 0px;

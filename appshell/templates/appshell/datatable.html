@@ -1,3 +1,5 @@
+{%import "appshell/utils.html" as u%}
+
 <table id="{{table.name}}" 
        class="table table-striped table-hover datatable"
        {{table.attrs|xmlattr}}>
@@ -30,6 +32,7 @@
           {%endif%}
         </tfoot>
 </table>
+{%call u.script()%}
 <script language="Javascript">
 collected_onloads.push(function() {
     var t;
@@ -58,7 +61,11 @@ collected_onloads.push(function() {
 
     e.parents('.dropdown').on('shown.bs.dropdown', function(){
       t.draw();
-    })
+    });
+    e.parents('.modal').on('shown.bs.modal', function(){
+                         console.log("foo!");
+      t.draw();
+    });
     var t = e.DataTable(options);
     {%if "fixed_header" in table.options:%}
       var fho = {"offsetTop": 50};
@@ -70,3 +77,4 @@ collected_onloads.push(function() {
     appshell.datatables[{{table.name|tojson}}] = t;
   });
 </script>
+{%endcall%}

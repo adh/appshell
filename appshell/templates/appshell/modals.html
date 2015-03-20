@@ -1,0 +1,69 @@
+{%import "appshell/utils.html" as u%}
+
+{%macro modal(title, id, body_classes='', body_attrs={}) %}
+{%set c = caller() %}
+{%call u.end_body() %}
+<div class="modal fade" id="{{id}}">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">
+          {%if title%}
+            {{title}}
+          {%else%}
+            {%trans%}Please select...{%endtrans%}
+          {%endif%}
+        </h4>
+      </div>
+      <div class="modal-body {{body_classes}}"  {{body_attrs|xmlattr}}>
+        {{c}}
+      </div>
+    </div>
+  </div>
+</div>
+{%endcall%}
+{%endmacro%}
+
+
+{%macro modal_select(name, 
+    value, text, title=None, input_attrs={}, input_classes="", body_classes="") %}
+<input type="hidden" 
+       name="{{name}}" id="{{name}}"
+       class="{{input_classes}}"
+       value="{{value}}" {{input_attrs|xmlattr}}/>
+<button class="btn btn-default btn-block" 
+        type="button" 
+        data-toggle="modal"
+        data-target="#{{name}}-modal"
+        aria-expanded="true">
+  <span class="dropdown-select-text" id="{{name}}-text">{{text}}</span>
+  <span class="glyphicon glyphicon-list-alt"></span>
+</button>
+{%set c = caller()%}
+{%call modal(title, name+"-modal", body_classes=body_classes+' custom-select-container', body_attrs={"data-custom-select-name": name})%}
+  {{ c }}
+{%endcall%}
+{%endmacro%}
+
+{%macro modal_checklist (name, value, data, text="", title="", input_attrs={}, input_classes="")%}
+  {%set discard = input_attrs.update({"data-custom-select-name": name}) %}
+  {%call modal_select(name, value, text, title, input_attrs=input_attrs, input_classes=input_classes) %}
+    <div class="checklist" data-custom-select-name="{{name}}">
+      {%for k, v in data:%}
+        <div class="checkbox">
+          <label><input type="checkbox" value="{{k}}">{{v}}</label>
+        </div>
+      {%endfor%}
+    </div>
+  {%endcall%}
+{%endmacro%}
+
+{%macro modal_checktree (name, value, data, text="", title="", input_attrs={}, input_classes="")%}
+  {%set discard = input_attrs.update({"data-custom-select-name": name}) %}
+  {%call modal_select(name, value, text, title, input_attrs=input_attrs, input_classes=input_classes) %}
+    <div class="checktree" data-custom-select-name="{{name}}">
+      {{data}}
+    </div>
+  {%endcall%}
+{%endmacro%}

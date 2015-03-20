@@ -10,6 +10,7 @@ class TemplateProxy(object):
 
 widgets = TemplateProxy('appshell/widgets.html')
 dropdowns = TemplateProxy('appshell/dropdowns.html')
+modals = TemplateProxy('appshell/modals.html')
 wtf = TemplateProxy('bootstrap/wtf.html')
 
 def render_template(path, 
