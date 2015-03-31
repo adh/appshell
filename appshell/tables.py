@@ -259,7 +259,7 @@ class Action(object):
     def get_url(self, data):
         params = dict(self.params)
         params[self.data_param] = data
-        return url_or_url_for(self.endpoint, params)
+        return url_or_url_for(self.endpoint, **params)
 
     def get_button(self, data, size=None):
         return link_button(self.get_url(data),
@@ -279,6 +279,7 @@ class ActionColumnMixin(object):
 
     def get_cell_inner_html(self, row):
         res = [i.get_button(self.get_cell_data(row)) for i in self.actions]
+        return Markup("").join(res)
 
 class ActionSequenceColumn(ActionColumnMixin, SequenceColumn):
     pass
