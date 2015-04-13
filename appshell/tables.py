@@ -283,6 +283,8 @@ class ActionColumnMixin(object):
 
 class ActionSequenceColumn(ActionColumnMixin, SequenceColumn):
     pass
+class ActionObjectColumn(ActionColumnMixin, ObjectColumn):
+    pass
 
 class ColumnsMixin(object):
     def transform_columns(self, columns):

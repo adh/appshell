@@ -142,3 +142,37 @@ class SQLTableDataSource(TableDataSource):
 
         q = q.limit(length).offset(start)
         return db.session.execute(q), total, filtered
+
+class ModelTableDataSource(TableDataSource):
+    def __init__(self, name, columns, 
+                 query=None,
+                 query_proc=None,
+                 **kwargs):
+        super(SQLTableDataSource, self).__init__(name, 
+                                                 columns,
+                                                 prefilter=prefilter,
+                                                 where=where,
+                                                 **kwargs)
+        self.query = self.query
+        if query_proc:
+            self.query_proc = self.query_proc
+
+    def query_proc(self):
+        return self.query
+
+    def apply_filters(self, q, filters):
+        for idx, i in enumerate(self.columns):
+            if i.filter and filter_data[idx]:
+                q = i.filter.model_filter(i, q, filter_data[idx])
+        return q
+
+    def get_data(self, start, length, search, ordering, column_filters, **args):
+        q = self.query_proc()
+
+        total = q.count()
+
+        q = self.apply_filters(q, column_filters)
+        filtersed = q.count()
+
+        return q.all(), total, filtered
+

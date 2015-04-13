@@ -13,7 +13,6 @@ pushed_blocks = LocalProxy(get_pushed_blocks_dict)
 
 def push_block(cls, caller):
     pushed_blocks[cls].append(caller)
-    print pushed_blocks[cls]
     return '' # XXX
 
 def get_pushed_blocks(cls):
