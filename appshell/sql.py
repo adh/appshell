@@ -1,4 +1,5 @@
 from flask.ext.wtf import Form
+from appshell.forms import OrderedForm
 from flask.ext.sqlalchemy import SQLAlchemy
 from wtforms_alchemy import model_form_factory
 from appshell.tables import TableDataSource, SequenceTableDataSource, \
@@ -9,7 +10,7 @@ from sqlalchemy import desc
 
 db = SQLAlchemy()
 
-BaseModelForm = model_form_factory(Form)
+BaseModelForm = model_form_factory(OrderedForm)
 
 class ModelForm(BaseModelForm):
     @classmethod

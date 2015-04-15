@@ -185,7 +185,12 @@ class ObjectColumn(Column):
         super(ObjectColumn, self).__init__(name, attr=attr, **kwargs)
         self.attr = attr
     def get_cell_data(self, row):
-        return getattr(row, self.attr)
+        r = row
+        for i in self.attr.split('.'):
+            r = getattr(r, i)
+            if r is None:
+                return None
+        return r
 
 class DescriptorColumn(Column):
     def __init__(self, name, descriptor, **kwargs):
@@ -278,7 +283,7 @@ class ActionColumnMixin(object):
             self.actions = actions
 
     def get_cell_inner_html(self, row):
-        res = [i.get_button(self.get_cell_data(row)) for i in self.actions]
+        res = [i.get_button(self.get_cell_data(row), size='xs') for i in self.actions]
         return Markup("").join(res)
 
 class ActionSequenceColumn(ActionColumnMixin, SequenceColumn):

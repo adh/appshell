@@ -3,6 +3,12 @@
 <div class="panel panel-{{severity}}">
   <div class="panel-heading"><div class="panel-title">{{page_title}}</div></div>
   <div class="panel-body">{{message}}</div>
+  <div class="panel-footer">
+    <form method="POST">
+      <a href="javascript:window.history.back()" class="btn btn-danger">No</a>
+      <button class="btn btn-success pull-right">Yes</button>
+    </form>
+  </div>
 </div>
 
 
