@@ -1,0 +1,32 @@
+{% extends appshell.base_template %}
+{%import "appshell/widgets.html" as w%}
+
+{%set page_layout='fluid'%}
+
+{%block page_styles%}
+<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" />
+{%endblock%}
+
+{%block page_scripts%}
+<script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
+<script>
+  $('#map').css('height', $(window).height() - 100);
+  var map = L.map('map').setView([0, 0], 3);
+  L.tileLayer({{map.tilelayer|tojson}},{{map.tile_options|tojson}}).addTo(map);
+
+  var fitTo = [];
+  
+  {%for i in map.elements%}
+    {{i.get_js()}}
+  {%endfor%}
+
+  {%if map.fit_to%}
+  map.fitBounds({{map.fit_to|tojson}});
+  {%endif%}
+</script>{%endblock%}
+
+
+
+{%block main%}
+<div id="map"></div>
+{%endblock%}

@@ -1,0 +1,7 @@
+{%macro marker(pos, opts={})%}
+var element = L.marker({{pos|tojson}}, {{opts|tojson}}).addTo(map);
+{%endmacro%}
+
+{%macro popup(popup)%}
+element.bindPopup({{popup|tojson}});
+{%endmacro%}

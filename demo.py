@@ -6,6 +6,7 @@ from appshell.login import current_user, PasswordAuthenticationModule
 from appshell.tables import PlainTable, SequenceTableDataSource, VirtualTable,\
     CustomSelectSequenceColumn, CheckBoxSequenceColumn
 from appshell.trees import PlainTreeGrid, TreeGridItem
+from appshell.leaflet import Map, Marker
 from flask.ext.login import UserMixin
 from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, orm
 import iso8601
@@ -206,6 +207,22 @@ def sql_query():
 
 app.register_blueprint(data)
 
+class M:
+    def __init__(self, lat,lng):
+        self.lat = lat
+        self.lng = lng
+
+maps = Module('maps', __name__, template_folder='templates')
+maps.label('Maps')
+@maps.route('/maps/simple')
+@maps.menu('Simple map')
+def simple_map():
+    m = Map()
+    m.add(Marker([50,13]), fit=True)
+    m.add(Marker([50,14]), fit=True)
+    return m.render()
+
+app.register_blueprint(maps)
 
 
 @app.before_first_request

@@ -17,7 +17,9 @@
 <script>
   collected_onloads = [];
 </script>
-{% endblock %}
+{%block page_styles %}
+{%endblock%}
+{%endblock%}
 
 {%block scripts %}
 {%for i in get_pushed_blocks('content')%}{{i}}{%endfor%}
@@ -43,8 +45,9 @@
 <script src="{{res_url('appshell.static', filename='treegrid/js/jquery.treegrid.bootstrap3.js')}}"></script>
 <script src="{{res_url('appshell.static', filename='datepicker/js/bootstrap-datepicker.js')}}"></script>
 <script src="{{res_url('appshell.static', filename='Chart.min.js')}}"></script>
-
 <script src="{{res_url('appshell.static', filename='appshell.js')}}"></script>
+{%block page_scripts %}
+{%endblock%}
 <script>
 $(document).ready(function(){
   for (i in collected_onloads){
