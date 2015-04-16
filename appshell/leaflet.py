@@ -1,11 +1,19 @@
 from flask import render_template
 from appshell.templates import TemplateProxy
+from markupsafe import Markup, escape
+from itertools import chain
 
 t = TemplateProxy('appshell/leaflet_elements.html')
 
+def merge_bounds(*lists):
+    return [[min((i[0] for i in chain(*lists))),
+             min((i[1] for i in chain(*lists)))],
+            [max((i[0] for i in chain(*lists))),
+             max((i[1] for i in chain(*lists)))]]
+
 class MapElement(object):
     def __init__(self, popup=None, **kwargs):
-        self.popup = popup
+        self.popup = escape(popup)
     def get_bounds(self):
         return []
     def get_js(self, target='map'):
@@ -33,7 +41,7 @@ class MarkerCluster(MapElement):
     def add(self, el, fit=False):
         self.elements.append(el)
         if fit:
-            self.fit_to += el.get_bounds()
+            self.fit_to = merge_bounds(self.fit_to, el.get_bounds())
     def get_bounds(self):
         return self.fit_to
     def get_js(self, target='map'):
@@ -61,7 +69,7 @@ class Map(object):
     def add(self, el, fit=False):
         self.elements.append(el)
         if fit:
-            self.fit_to += el.get_bounds()
+            self.fit_to = merge_bounds(self.fit_to, el.get_bounds())
             
     def render(self):
         return render_template('appshell/leaflet.html', map=self)
