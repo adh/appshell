@@ -1,7 +1,16 @@
-{%macro marker(pos, opts={})%}
-var element = L.marker({{pos|tojson}}, {{opts|tojson}}).addTo(map);
+{%macro marker(pos, opts={}, target='map')%}
+var e = L.marker({{pos|tojson}}, {{opts|tojson}});
+{{target}}.addLayer(e);
 {%endmacro%}
 
 {%macro popup(popup)%}
-element.bindPopup({{popup|tojson}});
+e.bindPopup({{popup|tojson}});
+{%endmacro%}
+
+{%macro marker_cluster(c, target='map')%}
+var c = new L.MarkerClusterGroup();
+{%for i in c.elements%}
+{{i.get_js('c')}}
+{%endfor%}
+{{target}}.addLayer(c);
 {%endmacro%}

@@ -5,20 +5,25 @@
 
 {%block page_styles%}
 <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" />
+<link rel="stylesheet" href="{{res_url('appshell.static', filename='leaflet/MarkerCluster.css')}}" />
+<link rel="stylesheet" href="{{res_url('appshell.static', filename='leaflet/MarkerCluster.Default.css')}}" />
 {%endblock%}
 
 {%block page_scripts%}
 <script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
+<script src="{{res_url('appshell.static', filename='leaflet/leaflet.markercluster-src.js')}}"></script>
 <script>
   $('#map').css('height', $(window).height() - 100);
   var map = L.map('map').setView([0, 0], 3);
   L.tileLayer({{map.tilelayer|tojson}},{{map.tile_options|tojson}}).addTo(map);
 
   var fitTo = [];
-  
+
+  (function(){
   {%for i in map.elements%}
     {{i.get_js()}}
   {%endfor%}
+  })();
 
   {%if map.fit_to%}
   map.fitBounds({{map.fit_to|tojson}});

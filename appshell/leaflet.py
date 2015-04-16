@@ -8,8 +8,8 @@ class MapElement(object):
         self.popup = popup
     def get_bounds(self):
         return []
-    def get_js(self):
-        return self.get_element_js() + self.get_popup_js()
+    def get_js(self, target='map'):
+        return self.get_element_js(target=target) + self.get_popup_js()
     def get_popup_js(self):
         if not self.popup:
             return ""
@@ -21,10 +21,24 @@ class Marker(MapElement):
         super(Marker, self).__init__(pos=pos, **kwargs);
         self.pos = pos
         self.options = options
-    def get_element_js(self):
-        return t.marker(self.pos, self.options)
+    def get_element_js(self, target='map'):
+        return t.marker(self.pos, self.options, target=target)
     def get_bounds(self):
         return [self.pos]
+
+class MarkerCluster(MapElement):
+    def __init__(self, **kwargs):
+        self.elements = []
+        self.fit_to = []
+    def add(self, el, fit=False):
+        self.elements.append(el)
+        if fit:
+            self.fit_to += el.get_bounds()
+    def get_bounds(self):
+        return self.fit_to
+    def get_js(self, target='map'):
+        return t.marker_cluster(c=self, target=target)
+
 
 class Map(object):
     def __init__(self, x=0, y=0, z=0, tilelayer=None, tile_options={}):
@@ -48,7 +62,6 @@ class Map(object):
         self.elements.append(el)
         if fit:
             self.fit_to += el.get_bounds()
-            print self.fit_to
             
     def render(self):
         return render_template('appshell/leaflet.html', map=self)
