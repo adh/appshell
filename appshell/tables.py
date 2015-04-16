@@ -20,11 +20,13 @@ class Column(object):
                  filter=None,
                  options={},
                  orderable=None,
+                 convert=None,
                  **kwargs):
         self.name = name
         self.header = Markup("<th>{0}</th>").format(name)
         self.filter = filter
         self._options = options
+        self.convert = convert
         if orderable != None:
             self.orderable = orderable
 
@@ -38,6 +40,9 @@ class Column(object):
         return element("td", {}, self.get_cell_inner_html(row))
 
     def get_cell_inner_html(self, row):
+        if self.convert:
+            return self.convert(self.get_cell_data(row))
+
         return self.get_cell_data(row)
 
     def get_json_data(self, row):
