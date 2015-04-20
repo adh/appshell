@@ -13,12 +13,16 @@ from werkzeug.local import LocalProxy
 
 mydomain = Domain('appshell')
 
+def endpoint_accessible(target, values):
+    return current_appshell.endpoint_accessible(target, values)
+
 template_globals = {"url_for": url_for, 
                     "url_or_url_for": url_or_url_for,
                     "url_or_res_url": url_or_res_url,
                     "res_url": res_url,
                     "push_block": push_block,
-                    "get_pushed_blocks": get_pushed_blocks}
+                    "get_pushed_blocks": get_pushed_blocks,
+                    "endpoint_accessible": endpoint_accessible}
 
 def parse_menu_path(path):
     menu, discard, item = path.partition('/')

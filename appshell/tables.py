@@ -21,6 +21,7 @@ class Column(object):
                  options={},
                  orderable=None,
                  convert=None,
+                 data_proc=None,
                  **kwargs):
         self.name = name
         self.header = Markup("<th>{0}</th>").format(name)
@@ -29,6 +30,8 @@ class Column(object):
         self.convert = convert
         if orderable != None:
             self.orderable = orderable
+        if data_proc:
+            self.get_cell_data = data_proc
 
     @property
     def options(self):
@@ -177,7 +180,6 @@ class DateRangeFilter(RangeFilter):
                                              "data-tablefilter-target": table.name})
 
 
-
 class SequenceColumn(Column):
     def __init__(self, name, index, **kwargs):
         super(SequenceColumn, self).__init__(name, index=index, **kwargs)
@@ -291,6 +293,8 @@ class ActionColumnMixin(object):
         res = [i.get_button(self.get_cell_data(row), size='xs') for i in self.actions]
         return Markup("").join(res)
 
+class ActionColumn(ActionColumnMixin, Column):
+    pass
 class ActionSequenceColumn(ActionColumnMixin, SequenceColumn):
     pass
 class ActionObjectColumn(ActionColumnMixin, ObjectColumn):
