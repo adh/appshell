@@ -255,18 +255,20 @@ class CheckBoxSequenceColumn(CheckBoxColumnMixin, SequenceColumn):
                        
 
 class Action(object):
-    __slots__ = ('text', 'endpoint', 'params', 'data_param', 'context_class')
     def __init__(self, 
                  text, 
                  endpoint, 
                  data_param='id', 
                  context_class='default', 
+                 is_visible=None,
                  **params):
         self.text = text
         self.endpoint = endpoint
         self.data_param = data_param
         self.context_class = context_class
         self.params = params
+        if is_visible:
+            self.is_visible = is_visible
 
     def get_url(self, data):
         params = dict(self.params)
@@ -279,6 +281,9 @@ class Action(object):
                            context_class=self.context_class,
                            size=size)
 
+    def is_visible(self, data, orig_data=None):
+        return True
+
 class ActionColumnMixin(object):
     orderable = False
     actions = []
@@ -290,7 +295,9 @@ class ActionColumnMixin(object):
             self.actions = actions
 
     def get_cell_inner_html(self, row):
-        res = [i.get_button(self.get_cell_data(row), size='xs') for i in self.actions]
+        data = self.get_cell_data(row)
+        res = [i.get_button(data, size='xs') 
+               for i in self.actions if i.is_visible(data, row)]
         return Markup("").join(res)
 
 class ActionColumn(ActionColumnMixin, Column):
