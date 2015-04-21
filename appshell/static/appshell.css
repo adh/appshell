@@ -127,3 +127,7 @@ body.with-navbar {
     margin-right: auto;
     max-width: 1170px;
 }
+
+.appshell-tabs {
+    margin-bottom: 10px;
+}

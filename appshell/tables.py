@@ -298,7 +298,7 @@ class ActionColumnMixin(object):
         data = self.get_cell_data(row)
         res = [i.get_button(data, size='xs') 
                for i in self.actions if i.is_visible(data, row)]
-        return Markup("").join(res)
+        return Markup(" ").join(res)
 
 class ActionColumn(ActionColumnMixin, Column):
     pass
