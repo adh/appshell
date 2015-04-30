@@ -30,10 +30,14 @@ def button(text, classes, context_class="default", size=None, attrs={}):
                    attrs,
                    text)
 
-def link_button(url, text, context_class="default", size=None):
+def link_button(url, text, context_class="default", size=None, hint=None):
     cls = "btn btn-"+context_class
     if size:
         cls += " btn-" + size
     return element("a", 
-                   {"class": cls, "role": "button", "href": url},
+                   {"class": cls, "role": "button", "href": url, "title": hint},
                    text)
+
+def glyphicon(icon):
+    return Markup('<span class="glyphicon glyphicon-{0}"></span>')\
+        .format(icon)

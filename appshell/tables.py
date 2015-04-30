@@ -261,12 +261,14 @@ class Action(object):
                  data_param='id', 
                  context_class='default', 
                  is_visible=None,
+                 hint=None,
                  **params):
         self.text = text
         self.endpoint = endpoint
         self.data_param = data_param
         self.context_class = context_class
         self.params = params
+        self.hint = hint
         if is_visible:
             self.is_visible = is_visible
 
@@ -279,7 +281,8 @@ class Action(object):
         return link_button(self.get_url(data),
                            self.text,
                            context_class=self.context_class,
-                           size=size)
+                           size=size,
+                           hint=self.hint)
 
     def is_visible(self, data, orig_data=None):
         return True
@@ -298,7 +301,7 @@ class ActionColumnMixin(object):
         data = self.get_cell_data(row)
         res = [i.get_button(data, size='xs') 
                for i in self.actions if i.is_visible(data, row)]
-        return Markup(" ").join(res)
+        return Markup("&nbsp;").join(res)
 
 class ActionColumn(ActionColumnMixin, Column):
     pass
