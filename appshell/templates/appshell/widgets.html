@@ -8,19 +8,19 @@
 </div>
 {%endmacro%}
 
-{%macro rangeinput(name, value, classes='', root_attrs={})%}
+{%macro rangeinput(name, value, classes='', root_attrs={}, input_attrs={})%}
 <div class="input-daterange input-group {{classes}}" 
-     id="datepicker" {{root_attrs|xmlattr}}>
-    <input type="text" class="input-sm form-control range-from" name="{{name}}_from" value="{{value[0]}}"/>
+      {{root_attrs|xmlattr}}>
+    <input type="text" class="input-sm form-control range-from" name="{{name}}_from" value="{{value[0]}}" {{input_attrs|xmlattr}}/>
     <span class="input-group-addon">-</span>
-    <input type="text" class="input-sm form-control range-to" name="{{name}}_to" value="{{value[1]}}"/>
+    <input type="text" class="input-sm form-control range-to" name="{{name}}_to" value="{{value[1]}}" {{input_attrs|xmlattr}}/>
 </div>
 {%endmacro%}
 
 {%macro daterange(name, value, classes='', root_attrs={})%}
 {%set new_attrs = {"data-provide": "datepicker", "data-date-format": "yyyy-mm-dd"}%}
 {%set dummy = new_attrs.update(root_attrs) %}
-{{ rangeinput(name, value, classes, new_attrs) }}
+{{ rangeinput(name, value, classes, new_attrs, input_attrs={"onkeydown": "return false;"}) }}
 {%endmacro%}
 
 {%macro select(name, value, data, select_attrs={}, select_classes="") %}
