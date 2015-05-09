@@ -1,3 +1,4 @@
+
 from flask import Flask, Blueprint
 from appshell import AppShell, Module, single_view, render_template
 from appshell.sql import db, SQLColumn, SQLTableDataSource, SQLPrefixFilter, \
@@ -120,7 +121,7 @@ def dropdowns():
     tgm = PlainTreeGrid("mtreeegrid",
                       ("Name", "Description", CustomSelectSequenceColumn("",
                                                                           index=0)), tree_data)
-    tgc = PlainTreeGrid("mtreeegrid",
+    tgc = PlainTreeGrid("ctreeegrid",
                       (CheckBoxSequenceColumn("Name", index=0),
                        "Description"), tree_data)
     tgmc = PlainTreeGrid("mctreeegrid",
