@@ -143,6 +143,17 @@ $(document).ready(function(){
         });
         
     });
+    
+    $('.datatable-action').click(function(e){
+        var tgt = $(e.currentTarget);
+        var id = tgt.data('target');
+        var action = tgt.data('action');
+        var t = appshell.datatables[id];
+
+        paramstring = $.param(t.ajax.params());
+
+        window.location = t.ajax.url() + '?action=' + action + '&' + paramstring;
+    });
 });
 
 (function(){
