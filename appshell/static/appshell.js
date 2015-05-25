@@ -149,10 +149,13 @@ $(document).ready(function(){
         var id = tgt.data('target');
         var action = tgt.data('action');
         var t = appshell.datatables[id];
+        var url = t.ajax.url()
+        var paramstring = $.param(t.ajax.params());
 
-        paramstring = $.param(t.ajax.params());
-
-        window.location = t.ajax.url() + '?action=' + action + '&' + paramstring;
+        window.location = (url + 
+                           ((url.indexOf('?') == -1) ? '?' : '&') + 
+                           'action=' + action + 
+                           '&' + paramstring);
     });
 });
 
