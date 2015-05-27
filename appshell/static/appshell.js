@@ -173,3 +173,34 @@ $(document).ready(function(){
     });
 })()
 
+/* file-size plugin */
+jQuery.fn.dataTable.ext.type.detect.unshift( function ( data ) {
+    if ( typeof data !== 'string' ) {
+        return null;
+    }
+ 
+    var units = data.replace( /[\d\.]/g, '' ).toLowerCase();
+    if ( units !== '' && units !== 'b' && units !== 'kb' && units !== 'mb' && units !== 'gb' ) {
+        return null;
+    }
+ 
+    return isNaN( parseFloat( data ) ) ?
+        null :
+        'file-size';
+} );
+jQuery.fn.dataTable.ext.type.order['file-size-pre'] = function ( data ) {
+    var units = data.replace( /[\d\.]/g, '' ).toLowerCase();
+    var multiplier = 1;
+ 
+    if ( units === 'kb' ) {
+        multiplier = 1000;
+    }
+    else if ( units === 'mb' ) {
+        multiplier = 1000000;
+    }
+    else if ( units === 'gb' ) {
+        multiplier = 1000000000;
+    }
+ 
+    return parseFloat( data ) * multiplier;
+};
