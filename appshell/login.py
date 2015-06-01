@@ -102,7 +102,8 @@ class PasswordAuthenticationModule(AuthenticationModule):
             return single_view(wtf.quick_form(f, 
                                               form_type="horizontal",
                                               horizontal_columns=('lg', 2, 3)),
-                               title=_('Login'))
+                               title=_('Login'),
+                               template='appshell/base_plain.html')
 
         @self.route('/logout')
         @self.user_menu(lazy_gettext('Logout'))
