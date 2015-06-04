@@ -143,6 +143,7 @@ $(document).ready(function(){
         });
         
     });
+    $('.bootstrap-markdown').markdown({"autofocus": false});
 });
 
 (function(){
