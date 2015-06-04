@@ -1,0 +1,38 @@
+{%extends "appshell/base_plain.html"%}
+
+{%block styles%}
+{{ super()}}
+<link href="{{res_url('appshell.static', filename='login-form.css')}}" 
+      rel="stylesheet">
+{%endblock%}
+
+{%block title%}
+{%trans%}Login to{%endtrans%} {{appshell.app_name}}
+{%endblock%}
+
+{%block main%}
+    <div class="container">
+
+      <form class="form-signin" method="POST">
+         {{ form.hidden_tag() }}
+        <h3 class="form-signin-heading">{%trans%}Login to{%endtrans%} {{appshell.app_name}}</h3>
+        {{form.username.label}}
+        {{form.username(class="form-control")}}
+        {%- if form.username.errors %}
+          {%- for error in form.username.errors %}
+            <p class="help-block">{{error}}</p>
+          {%- endfor %}
+        {%- endif %}
+        {{form.password.label}}
+        {{form.password(class="form-control")}}
+        {%- if form.password.errors %}
+          {%- for error in form.password.errors %}
+            <p class="help-block">{{error}}</p>
+          {%- endfor %}
+        {%- endif %}
+
+        <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+      </form>
+
+    </div>
+{%endblock%}

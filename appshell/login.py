@@ -5,7 +5,7 @@ from flask.ext.babelex import Babel, Domain
 from flask import Blueprint, request, flash, redirect, abort
 from appshell import SystemModule, current_appshell, url_for
 from appshell.menu import MenuItem, DropdownMenu
-from appshell.templates import wtf, single_view
+from appshell.templates import wtf, single_view, render_template
 from flask_wtf import Form
 from wtforms import StringField, PasswordField, SubmitField
 from wtforms.validators import DataRequired
@@ -77,7 +77,6 @@ class AuthenticationModule(SystemModule):
 class PasswordLoginForm(Form):
     username = StringField(lazy_gettext('Username:'))
     password = PasswordField(lazy_gettext('Password:'))
-    ok = SubmitField(lazy_gettext("OK"))
 
 class PasswordAuthenticationModule(AuthenticationModule):
     def __init__(self, *args, **kwargs):
@@ -90,6 +89,7 @@ class PasswordAuthenticationModule(AuthenticationModule):
         def login():
             f = PasswordLoginForm()
             if f.validate_on_submit():
+                print "POSted to login"
                 user = self.authenticate_user(f.username.data, f.password.data)
                 if not user:
                     flash(_("Invalid username or password"), "danger")
@@ -99,11 +99,8 @@ class PasswordAuthenticationModule(AuthenticationModule):
                     return redirect(request.args.get("next") or 
                                     url_for(current_appshell.root_view))
 
-            return single_view(wtf.quick_form(f, 
-                                              form_type="horizontal",
-                                              horizontal_columns=('lg', 2, 3)),
-                               title=_('Login'),
-                               template='appshell/base_plain.html')
+            return render_template('appshell/default_login.html',
+                                   form=f)
 
         @self.route('/logout')
         @self.user_menu(lazy_gettext('Logout'))
