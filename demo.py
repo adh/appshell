@@ -8,11 +8,13 @@ from appshell.tables import PlainTable, SequenceTableDataSource, VirtualTable,\
     CustomSelectSequenceColumn, CheckBoxSequenceColumn
 from appshell.trees import PlainTreeGrid, TreeGridItem
 from appshell.leaflet import Map, Marker
+from appshell import table_export 
 from flask.ext.login import UserMixin
 from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, orm
 import iso8601
 import json
 import time
+from markupsafe import Markup
 
 app = Flask(__name__)
 
@@ -196,13 +198,17 @@ dds = SQLTableDataSource(name="sql_table",
                          selectable=DemoEntity.__table__)
 dds.register_view(data)
 
+dds.register_action("mnua", "Mnau", lambda x:"mnau!")
+table_export.all(dds)
+
 @data.route('/data/sql-query')
 @data.menu('Arbitrary SQL')
 def sql_query():
     return single_view(VirtualTable(dds, filters='bottom', 
-                                    options={"scrollY": -200,
+                                    options={"scrollY": -220,
                                              "ordering": True,
-                                             "autoWidth": False}),
+                                             "autoWidth": False},
+                                    ),
                        layout='fluid')
 
 

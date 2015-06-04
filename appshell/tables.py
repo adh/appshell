@@ -328,6 +328,7 @@ class DataTable(ColumnsMixin):
                  options={}, 
                  filters=None, 
                  attrs=None,
+                 bottom_toolbar="",
                  **kwargs):
         if attrs == None:
             attrs = {"cellspacing": "0",
@@ -339,6 +340,7 @@ class DataTable(ColumnsMixin):
         self.columns = self.transform_columns(columns)
         self.data = self.transform_data(data)
         self.filters = filters
+        self.bottom_toolbar = bottom_toolbar
 
     @property
     def options(self):
@@ -410,8 +412,18 @@ class TableDataSource(ColumnsMixin):
         self.name = name
         self.columns = self.transform_columns(columns)
         self.param_string = param_string
-        
+        self.action_handlers = {}
+        self.action_list = []
+
     def data_view(self, **args):
+        if "action" in request.args:
+            ah = self.action_handlers[request.args["action"]]
+            return ah(self.get_data_from_request_args(args), self)
+        else:
+            return jsonify(self.get_data_from_request_args(args))
+
+
+    def get_data_from_request_args(self, args):
         draw = int(request.args["draw"])
         start = int(request.args["start"])
         length = int(request.args["length"])
@@ -435,10 +447,10 @@ class TableDataSource(ColumnsMixin):
         jdata = [[c.get_json_data(i) for c in self.columns] 
                  for i in data]
 
-        return jsonify({"draw": draw,
-                        "recordsTotal": total,
-                        "recordsFiltered": filtered,
-                        "data": jdata})
+        return {"draw": draw,
+                "recordsTotal": total,
+                "recordsFiltered": filtered,
+                "data": jdata}
 
     def register_view(self, f):
         endpoint = "data-source/" + self.name
@@ -456,21 +468,42 @@ class TableDataSource(ColumnsMixin):
     def data_source(self, fn):
         self.get_data = fn
 
+    def register_action(self, name, text, handler, context_class="default"):
+        self.action_handlers[name] = handler
+        self.action_list.append((name, text, context_class))
+
+    def get_toolbar_data(self):
+        if len(self.action_list) == 0:
+            return ""
+        else:
+            return Markup("").join((button(i[1], 
+                                           "datatable-action",
+                                           context_class=i[2],
+                                           attrs={"data-target": self.name,
+                                                  "data-action": i[0]})
+                                    for i in self.action_list))
+
 class SequenceTableDataSource(SequenceColumnMixin, TableDataSource):
     pass
 
 
 
+
 class VirtualTable(DataTable):
-    def __init__(self, data_source, name=None, options=None, params={}, **kwargs):
+    def __init__(self, data_source, name=None, options=None, params={}, bottom_toolbar=None, **kwargs):
         if options == None:
             options = {}
         if name == None:
             name = data_source.name
+        if bottom_toolbar is None:
+            bottom_toolbar = data_source.get_toolbar_data()
+
         super(VirtualTable, self).__init__(name=name, 
                                            columns=data_source.columns, 
                                            data=[], 
-                                           options=options, **kwargs)
+                                           options=options, 
+                                           bottom_toolbar=bottom_toolbar,
+                                           **kwargs)
 
         self.data_source = data_source
         self.params = params
@@ -493,6 +526,9 @@ class VirtualTable(DataTable):
                "searching": True,
                "deferRender": True,
                "serverSide": True}
+        if self.bottom_toolbar:
+            res["scrollY"] = -180
+
         for k, v in orig.iteritems():
             if v == None:
                 del res[k]
