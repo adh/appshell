@@ -1,4 +1,5 @@
 from flask.ext.wtf import Form
+from wtforms.widgets import TextArea
 
 class OrderedForm(Form):
     def __iter__(self):
@@ -15,3 +16,13 @@ class OrderedForm(Form):
         return iter(fields)
         
     field_order = ['*','ok']
+
+class BootstrapMarkdown(TextArea):
+    def __init__(self, rows=10):
+        self.rows = rows
+
+    def __call__(self, field, **kwargs):
+        kwargs['rows'] = self.rows
+        c = kwargs.pop('class', '') or kwargs.pop('class_', '')
+        kwargs['class'] = u'%s %s' % ("bootstrap-markdown", c)
+        return super(BootstrapMarkdown, self).__call__(field, **kwargs)
