@@ -7,6 +7,7 @@ from appshell.tables import TableDataSource, SequenceTableDataSource, \
     RangeFilter, DateRangeFilter, MultiSelectTreeFilter
 from sqlalchemy.sql import expression as ex
 from sqlalchemy import desc
+import json
 
 db = SQLAlchemy()
 
@@ -58,6 +59,7 @@ class SQLPrefixFilter(SQLFilter, TextFilter):
     
 class SQLSelectFilter(SQLFilter, SelectFilter):
     def sql_append_where(self, column, q, filter_data):
+        filter_data = json.loads(filter_data)
         return q.where(self.get_column_to_filter(column) == filter_data)
 
 class SQLRangeFilter(SQLFilter, RangeFilter):

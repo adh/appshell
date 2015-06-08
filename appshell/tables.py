@@ -5,6 +5,7 @@ from appshell.urls import res_url, url_or_url_for
 from appshell.templates import widgets, dropdowns, modals
 import iso8601
 import datetime
+import json
 
 from flask.ext.babelex import Babel, Domain
 
@@ -106,7 +107,8 @@ class SelectFilter(Filter):
     def get_filter_html(self, column_index, column, table):
         return widgets.select("filter_" + str(id(self)), 
                               self.get_filter_value(), 
-                              [('', '')] + self.get_filter_data(),
+                              [('', '')] + 
+                              [ (json.dumps(v), n) for v, n in self.get_filter_data()],
                               select_attrs={"data-tablefilter-column": column_index,
                                             "data-tablefilter-target": table.name},
                               select_classes="tablefilter input-sm")
