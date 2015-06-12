@@ -131,3 +131,17 @@ body.with-navbar {
 .appshell-tabs {
     margin-bottom: 10px;
 }
+
+.image-enlarge {
+    position: relative;
+}
+
+.image-enlarge span {
+    display: none;
+    position: absolute;
+    left: 0px;
+    top: 0px;
+}
+.image-enlarge:hover span {
+    display: inline-block;
+}

@@ -42,3 +42,6 @@ def link_button(url, text, context_class="default", size=None, hint=None):
 def glyphicon(icon):
     return Markup('<span class="glyphicon glyphicon-{0}"></span>')\
         .format(icon)
+
+def image_enlarge(img, content):
+    return ""

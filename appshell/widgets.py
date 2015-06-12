@@ -31,3 +31,4 @@ class ServerSideTabbar(object):
     def __html__(self):
         return element('ul', {"class": "appshell-tabs nav nav-"+self.style},
                        Markup(u"").join(self.tabs))
+
