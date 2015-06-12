@@ -141,6 +141,8 @@ body.with-navbar {
     position: absolute;
     left: 0px;
     top: 0px;
+    z-index: 99;
+    box-shadow: black 0px 0px 10px;
 }
 .image-enlarge:hover span {
     display: inline-block;
