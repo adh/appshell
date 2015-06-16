@@ -174,6 +174,10 @@ $(document).ready(function(){
     function treegrid_restore(tgt){
         var sts = tgt.treegrid('getTreeContainer').data('settings');
         if (sts.appshellDisabledState){
+            tgt.treegrid('getAllNodes').each(function(idx, i){
+                $(i).css('display', 'table-row');
+            });
+
             sts.appshellDisabledState = false;
             sts.saveState = true;
             tgt.treegrid('getAllNodes').each(function(idx, i){
@@ -197,9 +201,6 @@ $(document).ready(function(){
                 }
             });
         } else {
-            tgt.treegrid('getAllNodes').each(function(idx, i){
-                $(i).css('display', 'table-row');
-            });
             treegrid_restore(tgt);            
         }
     });
