@@ -159,6 +159,50 @@ $(document).ready(function(){
                            'action=' + action + 
                            '&' + paramstring);
     });
+
+    function treegrid_expand_all(tgt){
+        var sts = tgt.treegrid('getTreeContainer').data('settings');
+        if (sts.appshellDisabledState){
+            return;
+        }
+        sts.appshellDisabledState = true;
+        tgt.treegrid('saveState');
+        sts.saveState = false;
+        tgt.treegrid('expandAll');
+    }
+
+    function treegrid_restore(tgt){
+        var sts = tgt.treegrid('getTreeContainer').data('settings');
+        if (sts.appshellDisabledState){
+            sts.appshellDisabledState = false;
+            sts.saveState = true;
+            tgt.treegrid('getAllNodes').each(function(idx, i){
+                $(i).treegrid('restoreState');
+            });
+        }
+    }
+
+    $('.treegrid-search').on('keyup change', function(e){
+        var myself = $(e.currentTarget);
+        var tgt = $(myself.data('target'));
+        var str = myself.val().toLowerCase()
+        if (str != ""){
+            treegrid_expand_all(tgt);
+            tgt.treegrid('getAllNodes').each(function(idx, i){
+                var self = $(i);
+                if (self.text().toLowerCase().indexOf(str) != -1){
+                    self.css('display', 'table-row');
+                } else {
+                    self.css('display', 'none');
+                }
+            });
+        } else {
+            tgt.treegrid('getAllNodes').each(function(idx, i){
+                $(i).css('display', 'table-row');
+            });
+            treegrid_restore(tgt);            
+        }
+    });
 });
 
 (function(){

@@ -35,7 +35,7 @@ class TreeGridRow(TableRow):
 
 class TreeGrid(ColumnsMixin):
     row_factory = TreeGridRow
-    def __init__(self, name, columns, items, options=None):
+    def __init__(self, name, columns, items, options=None, search=False):
         if (options == None):
             options = {"initialState": "collapsed",
                        'expanderExpandedClass': 'glyphicon glyphicon-folder-open',
@@ -48,6 +48,7 @@ class TreeGrid(ColumnsMixin):
         self.items = items
         self._rows = None
         self.data = self.materialize_rows()
+        self.search = search
 
 
     def materialize_rows(self):

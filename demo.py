@@ -80,7 +80,8 @@ tree_data = [TreeGridItem(("foo", "Foo"),
 @widgets.menu('Treegrid')
 def treegrid():
     t = PlainTreeGrid("treeegrid",
-                      ("Name", "Description"), tree_data)
+                      ("Name", "Description"), tree_data,
+                      search=True)
     return single_view(t)
 
 vt = SequenceTableDataSource("virtual_table",

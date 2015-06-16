@@ -147,3 +147,15 @@ body.with-navbar {
 .image-enlarge:hover span {
     display: inline-block;
 }
+
+.treegrid-search-panel {
+    text-align: right;
+}
+.treegrid-search-panel label{
+    font-weight: normal;
+    whitespace: nowrap;
+    text-align: left;
+}
+.treegrid-search-hidden {
+    display: none;
+}

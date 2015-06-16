@@ -1,3 +1,12 @@
+{%if treegrid.search%}
+<div class="treegrid-search-panel form-inline">
+  <label> 
+    Search: <input class="treegrid-search form-control input-sm" 
+                   type="text"
+                   data-target="#{{treegrid.name}}">
+  </label>
+</div>
+{%endif%}
 <table id="{{treegrid.name}}" class="table treegrid table-hover" cellspacing="0" width="100%">
         <thead>
           <tr>
