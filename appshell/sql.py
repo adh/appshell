@@ -126,7 +126,7 @@ class SQLTableDataSource(TableDataSource):
         qc = self.get_select()
 
         if self.prefilter:
-            q = self.prefilter(q)
+            q = self.prefilter(q, **args)
 
         for i in self.where:
             q = q.where(i)
