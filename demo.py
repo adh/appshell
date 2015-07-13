@@ -15,6 +15,14 @@ import iso8601
 import json
 import time
 from markupsafe import Markup
+from wtforms import StringField, PasswordField, SubmitField, SelectField, \
+    TextField, TextAreaField, DateTimeField
+from wtforms.widgets import TextArea, CheckboxInput, ListWidget, CheckboxInput
+from wtforms.ext.sqlalchemy.fields import QuerySelectMultipleField
+from wtforms.validators import DataRequired, Required, EqualTo, ValidationError
+from flask_wtf import Form
+from appshell.forms import BootstrapMarkdown, FormView, VerticalFormView, \
+    HorizontalFormView
 
 app = Flask(__name__)
 
@@ -232,6 +240,33 @@ def simple_map():
 
 app.register_blueprint(maps)
 
+
+forms = Module('forms', __name__, template_folder='templates')
+forms.label('Forms')
+
+class ArticleForm(Form):
+    title = TextField('Title')
+    slug = TextField('Slug')
+    summary = TextAreaField('Summary',
+                            widget=BootstrapMarkdown(rows=5))
+    content = TextAreaField('Content',
+                            widget=BootstrapMarkdown(rows=15))
+    published = DateTimeField('Published since')
+
+
+def define_form_view(i):
+    @forms.route('/forms/'+i.__name__,
+                 endpoint=i.__name__)
+    def form_view():
+        f = ArticleForm()
+        return single_view(i(f))
+    form_view.__name__ = i.__name__ # XXX
+    forms.menu(i.__name__)(i) # XXX
+
+for i in FormView, VerticalFormView, HorizontalFormView:
+    define_form_view(i)
+
+app.register_blueprint(forms)
 
 @app.before_first_request
 def init_db():

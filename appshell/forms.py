@@ -1,7 +1,7 @@
 from flask.ext.wtf import Form
 from flask import render_template
 from wtforms.widgets import TextArea
-from wtforms.fields import HiddenField
+from wtforms.fields import HiddenField, FileField
 from appshell.markup import element
 from markupsafe import Markup
 
@@ -34,7 +34,7 @@ class BootstrapMarkdown(TextArea):
         return super(BootstrapMarkdown, self).__call__(field, **kwargs)
 
 
-default_field_renderers = {}
+field_renderers = {}
 
 class FieldRenderer(object):
     __slots__ = ["view", "field", "kwargs"]
@@ -45,8 +45,8 @@ class FieldRenderer(object):
 
     def render_input(self):
         args = self.view.get_field_args(self.field)
-        args.update(kwargs)
-        return self.field(args)
+        args.update(self.kwargs)
+        return Markup(self.field(**args))
 
     def render_errors(self):
         if self.field.errors:
@@ -59,41 +59,40 @@ class FieldRenderer(object):
         if self.field.description:
             return element("p", self.view.description_attrs,
                            self.field.description)
-        
+        else:
+            return ""
+
+    def render_label(self):
+        return self.field.label(**self.view.label_args)
+    
     def __html__(self):
-        l = self.field.label(self.view.label_args)
+        l = self.render_label()
 
         i = Markup("{}{}{}").format(self.render_input(),
                                     self.render_description(),
                                     self.render_errors())
         
-        if self.view.input_div_attrs:
-            i = element("div", self.view.input_div_attrs, i)
+        if self.view.field_div_attrs:
+            i = element("div", self.view.field_div_attrs, i)
 
         return l+i
     
 class FormView(object):
-    def init(self,
-             form=None,
-             field_type_map=None,
-             **kwargs):
+    def __init__(self,
+                 form=None,
+                 **kwargs):
         self.form = form
-        self.field_renderers = field_renderers
+        self.field_renderers = {}
         self.label_args = {}
-        if from_attrs is None:
-            self.form_attrs = {}
-        else:
-            self.form_attrs = form_attrs
-
+        self.field_div_attrs = None
+        self.form_attrs = {}
+        
     def get_field_args(self, field):
         return {}
             
     def render_field(self, field, **kwargs):
-        if self.field_renderers \
-           and field.type in self.field_renderers:
-            r = self.field_renderers[field.type]
-        elif field.type in default_field_renderers:
-            r = default_field_renderers[field.type]
+        if field.type in field_renderers:
+            r = field_renderers[field.type]
         else:
             r = FieldRenderer
         return r(self, field, **kwargs)
@@ -101,25 +100,28 @@ class FormView(object):
     def render_fields(self, fields):
         l = []
         for i in fields:
+            if isinstance(i, HiddenField):
+                continue
             l.append(self.render_field(i))
             
         return Markup("").join(l)
 
-    def hidden_errors(self):
-        l = ((Markup('<p class="error">{}</p>').format(j) for j in i.errors)
-             for i in self.form.fields if not isinstance(i, HiddenField))
+    def hidden_errors(self, form):
+        l = (Markup("").join((Markup('<p class="error">{}</p>').format(j)
+                              for j in i.errors))
+             for i in form if not isinstance(i, HiddenField))
         return Markup("").join(l)
     
-    def render(self, fields):
+    def render(self, form):
         contents=Markup("{}{}{}{}").format(
-            self.form.hidden_tag(),
-            self.hidden_errors(),
-            self.render_fields(fields),
+            form.hidden_tag(),
+            self.hidden_errors(form),
+            self.render_fields(form),
             self.render_footer()
         )
         
         attrs = dict(self.form_attrs)
-        if any((isinstance(i, FileField) for i in fields)):
+        if any((isinstance(i, FileField) for i in form)):
             attrs["enctype"] = "multipart/form-data"
         
         return element("form", attrs, contents)
@@ -131,7 +133,27 @@ class FormView(object):
         return self.render(self.form)
 
 def field_renderer(t):
-    def wrap(f):
-        default_field_renderers[t] = f
-        return f
+    def wrap(cls):
+        field_renderers[t] = cls
+        return cls
+
+class VerticalFormView(FormView):
+    def render_field(self, field, **kwargs):
+        cls = "form-group"
+        if field.errors:
+            cls += " has-error"
+        if field.flags.required:
+            cls += " required"
+        return element("div", {"class": cls},
+                       super(VerticalFormView, self).render_field(field,
+                                                                  **kwargs)) 
+    def get_field_args(self, field):
+        return {"class": "form-control"}
+
     
+class HorizontalFormView(VerticalFormView):
+    def __init__(self, form, widths=[3, 9], size="md", **kwargs):
+        super(HorizontalFormView, self).__init__(form, **kwargs)
+        self.label_args= {"class": "col-{}-{}".format(size, widths[0])}
+        self.field_div_attrs = {"class": "col-{}-{}".format(size, widths[1])}
+        self.form_attrs = {"class": "form-horizontal"}
