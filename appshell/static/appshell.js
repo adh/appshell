@@ -204,6 +204,8 @@ $(document).ready(function(){
             treegrid_restore(tgt);            
         }
     });
+
+    $('select[multiple]').selectpicker({"selectedTextFormat": "count > 3"});
 });
 
 (function(){
