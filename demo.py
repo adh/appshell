@@ -255,11 +255,12 @@ class ArticleForm(Form):
 
 
 def define_form_view(i):
+    fv = i()
     @forms.route('/forms/'+i.__name__,
                  endpoint=i.__name__)
     def form_view():
         f = ArticleForm()
-        return single_view(i(f))
+        return single_view(fv(f))
     form_view.__name__ = i.__name__ # XXX
     forms.menu(i.__name__)(i) # XXX
 

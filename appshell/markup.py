@@ -23,11 +23,11 @@ def button(text, classes, context_class="default", size=None, attrs={}):
     cls = "btn btn-"+context_class
     if size:
         cls += " btn-" + size
-    attrs = dict(attrs)
-    attrs.update({"class": cls + " " + classes, 
-                  "type": "button"})
+    a = {"class": cls + " " + classes, 
+         "type": "button"}
+    a.update(attrs)
     return element("button", 
-                   attrs,
+                   a,
                    text)
 
 def link_button(url, text, context_class="default", size=None, hint=None):
