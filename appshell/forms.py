@@ -1,10 +1,14 @@
 from flask.ext.wtf import Form
 from flask import render_template
-from wtforms.widgets import TextArea
+from wtforms.widgets import TextArea, TextInput
 from wtforms.fields import HiddenField, FileField
+from wtforms import fields
 from appshell.markup import element, button, link_button
 from markupsafe import Markup
 from flask.ext.babelex import Babel, Domain
+from itertools import chain
+from hashlib import sha256
+from appshell.widgets import ClientSideTabbar
 
 mydomain = Domain('appshell')
 _ = mydomain.gettext
@@ -39,6 +43,22 @@ class BootstrapMarkdown(TextArea):
         kwargs['class'] = u'%s %s' % ("bootstrap-markdown", c)
         return super(BootstrapMarkdown, self).__call__(field, **kwargs)
 
+class DateWidget(TextInput):
+    def __call__(self, field, **kwargs):
+        i = super(DateWidget, self).__call__(field, **kwargs)
+        
+        i = Markup("""<div class="input-group date"
+                           data-provide="datepicker"
+                           data-date-format="yyyy-mm-dd">
+                        {}  
+                        <span class="input-group-addon"><i class="glyphicon glyphicon-calendar"></i></span>
+                      </div>""").format(i)
+        return i
+
+class DateField(fields.DateField):
+    widget = DateWidget()
+    
+    
 
 field_renderers = {}
 
@@ -146,6 +166,8 @@ class FormView(object):
         self.form_attrs = {}
         self.button_bar_attrs = {}
         self.method = method
+        self.error_attrs = {}
+        self.description_attrs = {}
         if buttons is None:
             self.buttons = [SubmitButton(lazy_gettext("OK"))]
         else:
@@ -175,7 +197,7 @@ class FormView(object):
     def hidden_errors(self, form):
         l = (Markup("").join((Markup('<p class="error">{}</p>').format(j)
                               for j in i.errors))
-             for i in form if not isinstance(i, HiddenField))
+             for i in form if isinstance(i, HiddenField))
         return Markup("").join(l)
     
     def render(self, form, form_info=None):
@@ -203,6 +225,9 @@ class FormView(object):
                              for i in self.buttons))
         return element("div", self.button_bar_attrs, c)
 
+    def get_formfield_view(self):
+        return self
+    
     def __call__(self, form, form_info=None):
         return RenderProxy(self, form, form_info=form_info)
 
@@ -221,12 +246,56 @@ def field_renderer(t):
     def wrap(cls):
         field_renderers[t] = cls
         return cls
+    return wrap
 
+@field_renderer('RadioField')
+class RadioFieldRenderer(FieldRenderer):
+    def render_input(self):
+        itms = (Markup('<div class="radio"><label>{} {}</label></div>').
+                format(Markup(i), Markup(i.label.text))
+                for i in self.field)
+        return Markup("").join(itms)
+
+
+@field_renderer('BooleanField')
+class BooleanFieldRenderer(FieldRenderer):
+    def render_input(self):
+        return Markup(self.field(**self.kwargs))
+        
+    def __html__(self):
+        l = ""
+        if self.view.label_args:
+            l = element("div", self.view.label_args, "")
+
+        i = Markup('<div class="checkbox"><label>{} {}</label>{}{}</div>')\
+            .format(self.render_input(),
+                    self.field.label.text,
+                    self.render_description(),
+                    self.render_errors())
+        
+        if self.view.field_div_attrs:
+            i = element("div", self.view.field_div_attrs, i)
+
+        return l+i
+
+@field_renderer('FormField')
+class FormFieldRenderer(FieldRenderer):
+    def render_input(self):
+        v = self.view.get_formfield_view()
+        return Markup("{}{}").format(self.field.hidden_tag(),
+                                     v.render_fields(self.field,
+                                                     form_info=self.form_info))
+        
+    def render_errors(self):
+        return ""
+    
 class VerticalFormView(FormView):
     def __init__(self, **kwargs):
         super(VerticalFormView, self).__init__(**kwargs)
         if any((isinstance(i, ButtonGroup) for i in self.buttons)):
             self.button_bar_attrs = {"class": "btn-toolbar"}
+        self.error_attrs = {"class": "help-block"}
+        self.description_attrs = {"class": "help-block"}
 
     
     def render_field(self, field, **kwargs):
@@ -249,3 +318,85 @@ class HorizontalFormView(VerticalFormView):
         self.label_args= {"class": "col-{}-{}".format(size, widths[0])}
         self.field_div_attrs = {"class": "col-{}-{}".format(size, widths[1])}
         self.form_attrs = {"class": "form-horizontal"}
+        
+class FormPart(object):
+    __slots__ = ["fields", "view", "name", "title"]
+    def __init__(self, title, view, fields=None, name=None):
+        self.title = title
+        self.view = view
+        if fields is None:
+            self.fields = view.get_owned_fields()
+        else:
+            self.fields = fields
+
+        if name is None:
+            self.name = "form-part-" + sha256(title).hexdigest()
+        else:
+            self.name = name
+
+            
+    def get_owned_fields(self):
+        return self.fields
+
+    def filter_own_fields(self, fields):
+        own = []
+        own_set = set()
+        rest = []
+
+        for i in self.get_owned_fields():
+            for j in fields:
+                if j.name == i:
+                    own.append(j)
+                    own_set.add(j)
+
+        rest = [i for i in fields if i not in own_set]
+
+        return own, rest
+    
+class HierarchicalFormView(FormView):
+    def __init__(self, rest_view=None, **kwargs):
+        super(HierarchicalFormView, self).__init__(**kwargs)
+        self.rest_view = rest_view
+        self.parts = []
+        
+    def get_owned_fields(self):
+        return chain(*(i.get_owned_fields() for i in self.tabs))
+
+    def add_part(self, part):
+        self.parts.append(part)
+
+    
+class TabbedFormView(HierarchicalFormView):
+    def add_tab(self, title, fields=None, view=None, name=None):
+        if view is None:
+            view = HorizontalFormView()
+        self.add_part(FormPart(title, view, fields=fields, name=name))
+
+    def render_fields(self, fields, form_info=None):
+        tb = ClientSideTabbar()
+        f = fields
+        for i in self.parts:
+            of, f = i.filter_own_fields(f)
+
+            t = i.title
+
+            if any((i.errors for i in of)):
+                t = Markup('<span class="text-danger"><span class="glyphicon glyphicon-warning-sign"> {}</span>').format(t) 
+            
+            tb.add_tab(t,
+                       element("div",
+                               i.view.form_attrs,
+                               i.view.render_fields(of, form_info=form_info)),
+                       name=i.name)
+        rest = ""
+        if f:
+            if not self.rest_view:
+                raise ValueError("Not all fields assigned to parts")
+            
+            rest = element("div",
+                           self.rest_view.form_attrs,
+                           self.rest_view.render_fields(f,
+                                                        form_info=form_info))
+
+        return Markup("{}{}").format(rest, tb)
+

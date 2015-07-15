@@ -16,13 +16,14 @@ import json
 import time
 from markupsafe import Markup
 from wtforms import StringField, PasswordField, SubmitField, SelectField, \
-    TextField, TextAreaField, DateTimeField
+    TextField, TextAreaField, BooleanField, RadioField, FormField
 from wtforms.widgets import TextArea, CheckboxInput, ListWidget, CheckboxInput
 from wtforms.ext.sqlalchemy.fields import QuerySelectMultipleField
 from wtforms.validators import DataRequired, Required, EqualTo, ValidationError
 from flask_wtf import Form
 from appshell.forms import BootstrapMarkdown, FormView, VerticalFormView, \
-    HorizontalFormView
+    HorizontalFormView, DateField, TabbedFormView
+from appshell.widgets import ClientSideTabbar
 
 app = Flask(__name__)
 
@@ -148,6 +149,15 @@ def components():
     return render_template('components.html')
 
 
+@widgets.route('/widgets/tabs')
+@widgets.menu('Tabs')
+def tabs():
+    tb = ClientSideTabbar()
+    tb.add_tab("Foo", "foo content")
+    tb.add_tab("Bar", "bar content")
+    tb.add_tab("Quux", "quux content")
+
+    return single_view(tb)
 
 app.register_blueprint(widgets)
 
@@ -244,26 +254,49 @@ app.register_blueprint(maps)
 forms = Module('forms', __name__, template_folder='templates')
 forms.label('Forms')
 
+class AuthorForm(Form):
+    name = TextField("Name")
+    email = TextField("Email")
+    affiliation = SelectField("Affiliation", choices=[('0', "None"),
+                                                      ('1', "Academic"),
+                                                      ('2', "Industry")])
+
 class ArticleForm(Form):
     title = TextField('Title')
-    slug = TextField('Slug')
+    slug = TextField('Slug', description="Part of article's URL (should be related to title and without special characters)")
     summary = TextAreaField('Summary',
                             widget=BootstrapMarkdown(rows=5))
     content = TextAreaField('Content',
                             widget=BootstrapMarkdown(rows=15))
-    published = DateTimeField('Published since')
-
+    published = DateField('Published since')
+    checkbox = BooleanField('Foo?')
+    radio = RadioField('Bar', choices=[(i, i) for i in ['A', 'B', 'C']])
+    author = FormField(AuthorForm)
+    
 
 def define_form_view(i):
     fv = i()
     @forms.route('/forms/'+i.__name__,
-                 endpoint=i.__name__)
+                 endpoint=i.__name__,
+                 methods=("GET", "POST"))
     def form_view():
         f = ArticleForm()
+        f.validate_on_submit()
         return single_view(fv(f))
     form_view.__name__ = i.__name__ # XXX
     forms.menu(i.__name__)(i) # XXX
 
+tfv = TabbedFormView(rest_view=HorizontalFormView())
+tfv.add_tab("Metadata", ["slug", "author", "published", "checkbox", "radio"])
+tfv.add_tab("Content", ["summary", "content"], view=VerticalFormView())
+@forms.route('/forms/TabbedFormView', methods=("GET", "POST"))
+@forms.menu("TabbedFormView")
+def tabbed_form():
+    f = ArticleForm()
+    f.validate_on_submit()
+    return single_view(tfv(f))
+    
+    
 for i in FormView, VerticalFormView, HorizontalFormView:
     define_form_view(i)
 

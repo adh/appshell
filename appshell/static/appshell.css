@@ -159,3 +159,7 @@ body.with-navbar {
 .treegrid-search-hidden {
     display: none;
 }
+
+.tab-content {
+    padding-top: 15px;
+}
