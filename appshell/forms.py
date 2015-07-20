@@ -3,7 +3,7 @@ from flask import render_template
 from wtforms.widgets import TextArea, TextInput
 from wtforms.fields import HiddenField, FileField
 from wtforms import fields
-from appshell.markup import element, button, link_button
+from appshell.markup import element, button, link_button, GridColumn
 from markupsafe import Markup
 from flask.ext.babelex import Babel, Domain
 from itertools import chain
@@ -282,9 +282,10 @@ class BooleanFieldRenderer(FieldRenderer):
 class FormFieldRenderer(FieldRenderer):
     def render_input(self):
         v = self.view.get_formfield_view()
-        return Markup("{}{}").format(self.field.hidden_tag(),
+        c = Markup("{}{}").format(self.field.hidden_tag(),
                                      v.render_fields(self.field,
                                                      form_info=self.form_info))
+        return element("div", v.form_attrs, c)
         
     def render_errors(self):
         return ""
@@ -296,7 +297,7 @@ class VerticalFormView(FormView):
             self.button_bar_attrs = {"class": "btn-toolbar"}
         self.error_attrs = {"class": "help-block"}
         self.description_attrs = {"class": "help-block"}
-
+        self.formfield_view = None
     
     def render_field(self, field, **kwargs):
         cls = "form-group"
@@ -310,6 +311,9 @@ class VerticalFormView(FormView):
                                                                   **kwargs)) 
     def get_field_args(self, field):
         return {"class": "form-control"}
+
+    def get_formfield_view(self):
+        return self.formfield_view or HorizontalFormView()
 
     
 class HorizontalFormView(VerticalFormView):
@@ -333,7 +337,6 @@ class FormPart(object):
             self.name = "form-part-" + sha256(title).hexdigest()
         else:
             self.name = name
-
             
     def get_owned_fields(self):
         return self.fields
@@ -400,3 +403,114 @@ class TabbedFormView(HierarchicalFormView):
 
         return Markup("{}{}").format(rest, tb)
 
+class FormPanel(FormPart):
+    __slots__ = ["footer", "width", "border", "column"]
+    def __init__(self, view,
+                 title=None, footer=None, name=None,
+                 width=None,
+                 column=None,
+                 border="default",
+                 **kwargs):
+        
+        if name is None:
+            name = "form-panel-" + sha256(u"{}{}".format(title,
+                                                         footer)).hexdigest()
+
+        super(FormPanel, self).__init__(title, view,
+                                       name=name,
+                                       **kwargs)
+
+        self.footer = footer
+        self.width = width
+        self.border = border
+        if column is None:
+            if width is not None:
+                column = GridColumn(width=width)
+        self.column = column
+
+    def should_be_wrapped_in_row(self):
+        return self.column is not None
+        
+    def panel_wrapper(self, content):
+        if self.border is not None:
+            content = element("div",
+                              {"class": "panel-body"},
+                              content)
+
+            if self.title is not None:
+                content = element("div",
+                                  {"class": "panel-heading"},
+                                  self.title) + content
+            
+            content = element("div",
+                              {"class": "panel panel-{}".format(self.border)},
+                              content)
+
+
+        if self.column:
+            content = self.column.render(content)
+            
+        return content
+        
+class PanelizedFormView(HierarchicalFormView):
+    def __init__(self, breakpoint='md', **kwargs):
+        super(PanelizedFormView, self).__init__(**kwargs)
+        self.breakpoint = breakpoint
+    
+    def add_panel(self,
+                  title=None,
+                  fields=None,
+                  width=None,
+                  column=None,
+                  footer=None,
+                  view=None,
+                  name=None,
+                  border="default"):
+        if view is None:
+            view = VerticalFormView()
+            
+        self.add_part(FormPanel(view,
+                                title=title,
+                                footer=footer,
+                                fields=fields,
+                                name=name,
+                                border=border,
+                                width=width,
+                                column=column))
+
+    def render_fields(self, fields, form_info=None):
+        f = fields
+        output = []
+        to_wrap = []
+        wrapped = False
+        for i in self.parts:
+            of, f = i.filter_own_fields(f)
+
+            t = i.title
+
+            fm = element("div",
+                         i.view.form_attrs,
+                         i.view.render_fields(of,
+                                              form_info=form_info))
+
+            if i.should_be_wrapped_in_row():
+                to_wrap.append(i.panel_wrapper(fm))
+                
+            else:
+                if to_wrap:
+                    output.append(element("div",
+                                         {"class": "row"},
+                                         Markup("").join(to_wrap)))
+                to_wrap = []
+
+                output.append(i.panel_wrapper(fm))
+
+        if to_wrap:
+            output.append(element("div",
+                                  {"class": "row"},
+                                  Markup("").join(to_wrap)))
+                
+        return Markup("").join(output)
+            
+        
+        

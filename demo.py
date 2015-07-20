@@ -22,7 +22,7 @@ from wtforms.ext.sqlalchemy.fields import QuerySelectMultipleField
 from wtforms.validators import DataRequired, Required, EqualTo, ValidationError
 from flask_wtf import Form
 from appshell.forms import BootstrapMarkdown, FormView, VerticalFormView, \
-    HorizontalFormView, DateField, TabbedFormView
+    HorizontalFormView, DateField, TabbedFormView, PanelizedFormView
 from appshell.widgets import ClientSideTabbar
 
 app = Flask(__name__)
@@ -286,6 +286,10 @@ def define_form_view(i):
     form_view.__name__ = i.__name__ # XXX
     forms.menu(i.__name__)(i) # XXX
 
+    
+for i in FormView, VerticalFormView, HorizontalFormView:
+    define_form_view(i)
+
 tfv = TabbedFormView(rest_view=HorizontalFormView())
 tfv.add_tab("Metadata", ["slug", "author", "published", "checkbox", "radio"])
 tfv.add_tab("Content", ["summary", "content"], view=VerticalFormView())
@@ -295,11 +299,19 @@ def tabbed_form():
     f = ArticleForm()
     f.validate_on_submit()
     return single_view(tfv(f))
-    
-    
-for i in FormView, VerticalFormView, HorizontalFormView:
-    define_form_view(i)
 
+pfv = PanelizedFormView(rest_view=HorizontalFormView())
+pfv.add_panel("Title", ["title", "slug", "summary"], border="primary", width=6)
+pfv.add_panel("Metadata", ["author", "published", "checkbox", "radio"], width=6)
+pfv.add_panel("Content", ["content"], border="success")
+@forms.route('/forms/PanelizedFormView', methods=("GET", "POST"))
+@forms.menu("PanelizedFormView")
+def panelized_form():
+    f = ArticleForm()
+    f.validate_on_submit()
+    return single_view(pfv(f))
+
+    
 app.register_blueprint(forms)
 
 @app.before_first_request
