@@ -321,7 +321,8 @@ class VerticalFormView(FormView):
 class HorizontalFormView(VerticalFormView):
     def __init__(self, widths=[3, 9], size="md", **kwargs):
         super(HorizontalFormView, self).__init__(**kwargs)
-        self.label_args= {"class": "col-{}-{}".format(size, widths[0])}
+        self.label_args= {"class": "control-label col-{}-{}".format(size,
+                                                                    widths[0])}
         self.field_div_attrs = {"class": "col-{}-{}".format(size, widths[1])}
         self.form_attrs = {"class": "form-horizontal"}
         

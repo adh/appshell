@@ -6,7 +6,7 @@ from flask.ext.babelex import Babel, Domain
 from flask.ext.wtf import CsrfProtect
 from menu import MenuEntry, MainMenu
 from appshell.urls import url_for, url_or_url_for, res_url, url_or_res_url
-from appshell.templates import render_template
+from appshell.templates import render_template, single_view
 from appshell.utils import push_block, get_pushed_blocks
 from appshell.locals import current_appshell
 import importlib
