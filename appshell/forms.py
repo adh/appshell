@@ -519,8 +519,6 @@ class PanelizedFormView(HierarchicalFormView):
 class FormEndpoint(View):
     methods = ['GET', 'POST']
     formview = HorizontalFormView()
-    def __init__(self):
-        self.page_args = {}
 
     def get_form_info(self):
         return {}
@@ -532,9 +530,6 @@ class FormEndpoint(View):
             if res is not None:
                 return res
         return self.render_form(**kwargs)
-
-    def render_template(self, form):
-        return single_view(form, **self.page_args)
     
     def render_form(self, **kwargs):
         return self.render_template(self.formview(self.form,

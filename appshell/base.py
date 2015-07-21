@@ -330,6 +330,9 @@ class SystemModule(Module):
 
 
 class View(flask.views.View):
+    def __init__(self):
+        self.page_args = {}
+    
     @classmethod
     def register(cls, blueprint, route,
                  name=None,
@@ -345,3 +348,5 @@ class View(flask.views.View):
         
         blueprint.add_url_rule(route, view_func=view)
 
+    def render_template(self, form):
+        return single_view(form, **self.page_args)

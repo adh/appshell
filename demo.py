@@ -315,13 +315,13 @@ def panelized_form():
 
 class MyFormEndpoint(FormEndpoint):
     formview = pfv
+    decorators = [forms.menu('FormEndpoint')]
     def create_form(self):
         return ArticleForm()
     def submitted(self):
         flash('Form submitted', 'success')
 
-MyFormEndpoint.register(forms, '/forms/FormEndpoint',
-                        decorators=[forms.menu('FormEndpoint')])
+MyFormEndpoint.register(forms, '/forms/FormEndpoint')
     
 app.register_blueprint(forms)
 

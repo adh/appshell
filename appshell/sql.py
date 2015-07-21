@@ -4,12 +4,20 @@ from flask.ext.sqlalchemy import SQLAlchemy
 from wtforms_alchemy import model_form_factory
 from appshell.tables import TableDataSource, SequenceTableDataSource, \
     SelectFilter, MultiSelectFilter, Column, TextFilter, ActionColumnMixin,\
-    RangeFilter, DateRangeFilter, MultiSelectTreeFilter
+    RangeFilter, DateRangeFilter, MultiSelectTreeFilter, PlainTable, \
+    ObjectColumn, Action
 from sqlalchemy.sql import expression as ex
 from sqlalchemy import desc
 import json
+from appshell.forms import FormEndpoint
+from flask.ext.babelex import Babel, Domain
+from appshell import View
 
 db = SQLAlchemy()
+
+mydomain = Domain('appshell')
+_ = mydomain.gettext
+lazy_gettext = mydomain.lazy_gettext
 
 BaseModelForm = model_form_factory(OrderedForm)
 
@@ -179,3 +187,66 @@ class ModelTableDataSource(TableDataSource):
 
         return q.all(), total, filtered
 
+class UpdatingFormEndpoint(FormEndpoint):
+    def create_from(self, id):
+        self.obj = self.model_class.query.get(id)
+        self.form.populate_obj(self.obj)
+        return self.form_class(request.form, obj)
+
+    def confirm_submit(self):
+        flash(_("Data saved"))
+        
+    def submitted(self, id):
+        self.form.populate_obj(self.obj)
+        db.session.commit()
+        return self.confirm_submit()
+
+class CreatingFormEndpoint(FormEndpoint):
+    def create_from(self, id):
+        return self.form_class()
+
+    def confirm_submit(self):
+        flash(_("Data saved"))
+        
+    def submitted(self, id):
+        self.obj = self.model_class
+        self.form.populate_obj(self.obj)
+        db.session.add(self.obj)
+        db.session.commit()
+        return self.confirm_submit()
+
+
+    
+class ModelTableEndpoint(View):
+    columns = ()
+    actions = ()
+    methods = ('GET')
+    action_column_name = lazy_gettext('Actions')
+    primary_key_attr = 'id'
+    action_factory=Action
+    
+    def transform_actions(self, actions):
+        return [i if isinstance(i, Action) else self.action_factory(i)
+                for i in actions]
+    
+    def get_data(self):
+        return self.model_class.query.all()
+
+    def build_table(self, **kwargs):
+        data = self.get_data(**kwargs)
+        if self.actions:
+            columns = list(self.columns)
+            actions = self.transform_actions(self.actions)
+            columns.append(ActionObjectColumn(self.action_column_name,
+                                              attr=self.primary_key_attr,
+                                              actions=actions))
+        else:
+            columns = self.columns
+        
+        t = PlainTable(self.__name__,
+                       columns,
+                       data)
+        return t
+    
+    def dispatch_request(self, **kwargs):
+        return self.render_template(self.build_table(**kwargs))

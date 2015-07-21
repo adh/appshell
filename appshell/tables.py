@@ -389,6 +389,9 @@ class TableRow(object):
 class SequenceColumnMixin(object):
     column_factory=SequenceColumn
 
+class ObjectColumnMixin(object):
+    column_factory=ObjectColumn
+    
 class IterableDataTable(DataTable):
     row_factory = TableRow
 
@@ -407,6 +410,8 @@ class IterableDataTable(DataTable):
         return self.columns
 
 class PlainTable(SequenceColumnMixin, IterableDataTable):
+    pass
+class ObjectTable(ObjectColumnMixin, IterableDataTable):
     pass
 
 class TableDataSource(ColumnsMixin):
