@@ -9,6 +9,8 @@ from flask.ext.babelex import Babel, Domain
 from itertools import chain
 from hashlib import sha256
 from appshell.widgets import ClientSideTabbar
+from appshell import View
+from appshell.templates import single_view
 
 mydomain = Domain('appshell')
 _ = mydomain.gettext
@@ -513,4 +515,29 @@ class PanelizedFormView(HierarchicalFormView):
         return Markup("").join(output)
             
         
+        
+class FormEndpoint(View):
+    methods = ['GET', 'POST']
+    formview = HorizontalFormView()
+    def __init__(self):
+        self.page_args = {}
+
+    def get_form_info(self):
+        return {}
+    
+    def dispatch_request(self, **kwargs):
+        self.form = self.create_form(**kwargs)
+        if self.form.validate_on_submit():
+            res = self.submitted(**kwargs)
+            if res is not None:
+                return res
+        return self.render_form(**kwargs)
+
+    def render_template(self, form):
+        return single_view(form, **self.page_args)
+    
+    def render_form(self, **kwargs):
+        return self.render_template(self.formview(self.form,
+                                                  form_info=self.get_form_info()))
+
         

@@ -1,5 +1,5 @@
 
-from flask import Flask, Blueprint
+from flask import Flask, Blueprint, flash
 from appshell import AppShell, Module, single_view, render_template
 from appshell.sql import db, SQLColumn, SQLTableDataSource, SQLPrefixFilter, \
     SQLSelectFilter, SQLMultiSelectFilter, SQLDateRangeFilter
@@ -22,7 +22,8 @@ from wtforms.ext.sqlalchemy.fields import QuerySelectMultipleField
 from wtforms.validators import DataRequired, Required, EqualTo, ValidationError
 from flask_wtf import Form
 from appshell.forms import BootstrapMarkdown, FormView, VerticalFormView, \
-    HorizontalFormView, DateField, TabbedFormView, PanelizedFormView
+    HorizontalFormView, DateField, TabbedFormView, PanelizedFormView, \
+    FormEndpoint
 from appshell.widgets import ClientSideTabbar
 
 app = Flask(__name__)
@@ -311,6 +312,16 @@ def panelized_form():
     f.validate_on_submit()
     return single_view(pfv(f))
 
+
+class MyFormEndpoint(FormEndpoint):
+    formview = pfv
+    def create_form(self):
+        return ArticleForm()
+    def submitted(self):
+        flash('Form submitted', 'success')
+
+MyFormEndpoint.register(forms, '/forms/FormEndpoint',
+                        decorators=[forms.menu('FormEndpoint')])
     
 app.register_blueprint(forms)
 

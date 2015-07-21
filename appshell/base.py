@@ -1,5 +1,6 @@
 from flask import Flask, Blueprint, Markup, request, current_app
 import flask
+import flask.views
 from flask.ext.bootstrap import Bootstrap
 from flask.ext.babelex import Babel, Domain
 from flask.ext.wtf import CsrfProtect
@@ -10,6 +11,7 @@ from appshell.utils import push_block, get_pushed_blocks
 from appshell.locals import current_appshell
 import importlib
 from werkzeug.local import LocalProxy
+
 
 mydomain = Domain('appshell')
 
@@ -324,4 +326,22 @@ class SystemModule(Module):
 
     def handle_forbidden_endpoint(self):
         return flask.abort(403)
+
+
+
+class View(flask.views.View):
+    @classmethod
+    def register(cls, blueprint, route,
+                 name=None,
+                 decorators=[],
+                 **kwargs):
+        if name is None:
+            name = cls.__name__
+
+        view = cls.as_view(name, **kwargs)
+
+        for i in decorators:
+            view = i(view)
         
+        blueprint.add_url_rule(route, view_func=view)
+
