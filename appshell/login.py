@@ -55,12 +55,15 @@ class AuthenticationModule(SystemModule):
             self.logged_in_menu.add_entry(name, entry, group)
             return view
         return wrap
-        
+
+    def get_anonymous_system_menu(self):
+        return MenuItem(text=self.login_text,
+                        url=self.login_url())
+    
 
     def get_system_menu_item(self):
         if current_user.is_anonymous():
-            return MenuItem(text=self.login_text,
-                            url=self.login_url())
+            return self.get_anonymous_system_menu()
         else:
             return MenuItem(text=self.logged_in_text(),
                             items=self.logged_in_menu.build_real_menu())
@@ -74,6 +77,11 @@ class AuthenticationModule(SystemModule):
     def forbidden(self):
         return abort(403)
 
+class AdminOnlyAuthenticationMixin(object):
+    def get_anonymous_system_menu(self):
+        return None
+
+    
 class PasswordLoginForm(Form):
     username = StringField(lazy_gettext('Username:'))
     password = PasswordField(lazy_gettext('Password:'))
@@ -120,3 +128,8 @@ class PasswordAuthenticationModule(AuthenticationModule):
                                  severity='danger',
                                  title=_('Permission error'),
                                  status=403)
+
+class AdminPasswordAuthenticationModule(AdminOnlyAuthenticationMixin,
+                                        PasswordAuthenticationModule):
+    pass
+
