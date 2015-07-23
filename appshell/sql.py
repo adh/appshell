@@ -5,13 +5,15 @@ from wtforms_alchemy import model_form_factory
 from appshell.tables import TableDataSource, SequenceTableDataSource, \
     SelectFilter, MultiSelectFilter, Column, TextFilter, ActionColumnMixin,\
     RangeFilter, DateRangeFilter, MultiSelectTreeFilter, PlainTable, \
-    ObjectColumn, Action
+    ObjectColumn, Action, ActionObjectColumn
 from sqlalchemy.sql import expression as ex
 from sqlalchemy import desc
 import json
 from appshell.forms import FormEndpoint
 from flask.ext.babelex import Babel, Domain
-from appshell import View
+from appshell import View, url_for
+from flask import flash, request, redirect
+from appshell.endpoints import ConfirmationEndpoint
 
 db = SQLAlchemy()
 
@@ -188,45 +190,81 @@ class ModelTableDataSource(TableDataSource):
         return q.all(), total, filtered
 
 class UpdatingFormEndpoint(FormEndpoint):
-    def create_from(self, id):
+    def create_form(self, id):
         self.obj = self.model_class.query.get(id)
-        self.form.populate_obj(self.obj)
-        return self.form_class(request.form, obj)
+        form = self.form_class(request.form, self.obj)
+        form.populate_obj(self.obj)
+        return form
 
     def confirm_submit(self):
-        flash(_("Data saved"))
+        flash(_("Data saved"), "success")
+
+    def post_populate(self):
+        return
         
     def submitted(self, id):
         self.form.populate_obj(self.obj)
+        self.post_populate()
         db.session.commit()
         return self.confirm_submit()
 
 class CreatingFormEndpoint(FormEndpoint):
-    def create_from(self, id):
+    detail_endpoint = None
+    listing_endpoint = None
+    
+    def create_form(self):
         return self.form_class()
 
     def confirm_submit(self):
-        flash(_("Data saved"))
-        
-    def submitted(self, id):
-        self.obj = self.model_class
+        flash(_("Data saved"), "success")
+        if self.detail_endpoint:
+            return redirect(url_for(self.detail_endpoint, id=self.obj.id))
+        if self.listing_endpoint:
+            return redirect(url_for(self.listing_endpoint))
+
+    def post_populate(self):
+        return
+                
+    def submitted(self):
+        self.obj = self.model_class()
         self.form.populate_obj(self.obj)
+        self.post_populate()
         db.session.add(self.obj)
         db.session.commit()
         return self.confirm_submit()
 
+class DeletingEndpoint(ConfirmationEndpoint):
+    methods = ("GET", "POST")
+    confirmation_format = lazy_gettext("Really delete {}?")
+    flash_format = lazy_gettext("{} was deleted")
 
+    def prepare(self, id):
+        self.obj = self.model_class.query.get(id)
+        print self.obj
+    
+    @property
+    def confirmation_message(self):
+        return self.confirmation_format.format(self.obj)
+
+    @property
+    def flash_message(self):
+        return self.flash_format.format(self.obj), 'success'
+            
+    def do_it(self, id):
+        db.session.delete(self.obj)
+        db.session.commit()
+    
     
 class ModelTableEndpoint(View):
     columns = ()
     actions = ()
-    methods = ('GET')
+    methods = ('GET',)
     action_column_name = lazy_gettext('Actions')
     primary_key_attr = 'id'
     action_factory=Action
     
     def transform_actions(self, actions):
-        return [i if isinstance(i, Action) else self.action_factory(i)
+        return [i if isinstance(i, Action) else self.action_factory(*i)
                 for i in actions]
     
     def get_data(self):
@@ -243,9 +281,13 @@ class ModelTableEndpoint(View):
         else:
             columns = self.columns
         
-        t = PlainTable(self.__name__,
+        t = PlainTable(self.__class__.__name__,
                        columns,
                        data)
+        t = self.wrap(t)
+        return t
+
+    def wrap(self, t):
         return t
     
     def dispatch_request(self, **kwargs):

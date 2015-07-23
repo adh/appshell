@@ -355,8 +355,8 @@ class DataTable(ColumnsMixin):
                  for c in self.columns ]
 
     def __html__(self):
-        return render_template('appshell/datatable.html',
-                               table=self)
+        return Markup(render_template('appshell/datatable.html',
+                                      table=self))
 
 
 class TableRow(object):

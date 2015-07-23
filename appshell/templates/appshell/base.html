@@ -45,9 +45,9 @@
           <ul class="nav navbar-nav navbar-right">
             {{ top_menu_items(menu.right) }}
             {%if appshell.system_module%}
-            {%set sysmenu = appshell.system_module.get_system_menu()%}
+            {%set sysmenu = appshell.system_module.get_system_menu_item()%}
               {%if sysmenu%}
-            {{ top_menu_item(appshell.system_module.get_system_menu_item()) }}
+            {{ top_menu_item(sysmenu) }}
             {%endif%}
             {%endif%}
           </ul>    

@@ -293,13 +293,16 @@ class FormFieldRenderer(FieldRenderer):
         return ""
     
 class VerticalFormView(FormView):
-    def __init__(self, **kwargs):
+    formfield_view = None
+    
+    def __init__(self, formfield_view=None, **kwargs):
         super(VerticalFormView, self).__init__(**kwargs)
         if any((isinstance(i, ButtonGroup) for i in self.buttons)):
             self.button_bar_attrs = {"class": "btn-toolbar"}
         self.error_attrs = {"class": "help-block"}
         self.description_attrs = {"class": "help-block"}
-        self.formfield_view = None
+        if formfield_view is not None:
+            self.formfield_view = formfield_view
     
     def render_field(self, field, **kwargs):
         cls = "form-group"

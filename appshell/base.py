@@ -334,10 +334,10 @@ class View(flask.views.View):
         self.page_args = {}
     
     @classmethod
-    def register(cls, blueprint, route,
-                 name=None,
-                 decorators=[],
-                 **kwargs):
+    def route(cls, blueprint, route,
+              name=None,
+              decorators=[],
+              **kwargs):
         if name is None:
             name = cls.__name__
 

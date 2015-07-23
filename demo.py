@@ -321,7 +321,7 @@ class MyFormEndpoint(FormEndpoint):
     def submitted(self):
         flash('Form submitted', 'success')
 
-MyFormEndpoint.register(forms, '/forms/FormEndpoint')
+MyFormEndpoint.route(forms, '/forms/FormEndpoint')
     
 app.register_blueprint(forms)
 

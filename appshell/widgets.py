@@ -32,7 +32,9 @@ class ServerSideTabbar(object):
     def __html__(self):
         return element('ul', {"class": "appshell-tabs nav nav-"+self.style},
                        Markup(u"").join(self.tabs))
-
+    def prepend(self, c):
+        return Markup("{}{}").format(self, c)
+    
 class ClientTab(object):
     __slots__ = ["title", "name", "content"]
     def __init__(self, title, content, name=None):

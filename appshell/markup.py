@@ -1,4 +1,5 @@
 from markupsafe import Markup
+from appshell.urls import url_or_url_for
 
 def xmlattrs(attrs):
     res = Markup(" ").join(
@@ -60,3 +61,52 @@ class GridColumn(object):
         
     def render(self, content):
         return element("div", {"class": self.get_class()}, content)
+
+class ToolbarButton(object):
+    __slots__ = ["text", "endpoint", "context_class", "hint", "args"]
+    def __init__(self, text, endpoint, context_class="default", hint=None,
+                 args={}):
+        self.text = text
+        self.endpoint = endpoint
+        self.context_class = context_class
+        self.hint = hint
+        self.args = {}
+
+    def render(self, toolbar):
+        return link_button(url_or_url_for(self.endpoint,
+                                          **self.args),
+                           self.text,
+                           self.context_class,
+                           toolbar.size,
+                           self.hint)
+
+class ToolbarSplitter(object):
+    def render(self, toolbar):
+        return Markup('</div><div class="btn-group" role="group">')
+    
+class Toolbar(object):
+    def __init__(self, grouped=True, size=None):
+        self.buttons = []
+        self.grouped = grouped
+        self.size = size
+
+    def add_button(self, text, endpoint,
+                   context_class="default", hint=None, args={}):
+        self.buttons.append(ToolbarButton(text, endpoint, context_class, args))
+
+    def add_splitter(self):
+        self.buttons.append(ToolbarSplitter())
+        
+    def __html__(self):
+        res = Markup("").join((i.render(self) for i in self.buttons))
+        
+        if self.grouped:
+            res = element("div", {"class": "btn-group"}, res)
+            res = element("div", {"class": "btn-toolbar"}, res)
+        else:
+            res = element("div", {}, res)
+            
+        return res
+
+    def prepend(self, content):
+        return Markup("{}{}").format(self, content)
