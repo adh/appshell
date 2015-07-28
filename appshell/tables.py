@@ -321,6 +321,15 @@ class ColumnsMixin(object):
     def column_factory(self, i, index):
         return i
 
+class FixedColumns(object):
+    def __init__(self, left=1, right=0):
+        self.left = left
+        self.right = right
+    def __html__(self):
+        return Markup("""new $.fn.dataTable.FixedColumns( t, {{
+        leftColumns: {},
+        rightColumns: {}
+    }} );""").format(self.left, self.right)
 
 class DataTable(ColumnsMixin):
     def __init__(self, 
@@ -331,6 +340,7 @@ class DataTable(ColumnsMixin):
                  filters=None, 
                  attrs=None,
                  bottom_toolbar="",
+                 extensions=[],
                  **kwargs):
         if attrs == None:
             attrs = {"cellspacing": "0",
@@ -343,7 +353,8 @@ class DataTable(ColumnsMixin):
         self.data = self.transform_data(data)
         self.filters = filters
         self.bottom_toolbar = bottom_toolbar
-
+        self.extensions = extensions
+        
     @property
     def options(self):
         o = dict(self._options)

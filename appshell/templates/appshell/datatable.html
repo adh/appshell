@@ -75,6 +75,11 @@ collected_onloads.push(function() {
       {%endfor%}
       new $.fn.dataTable.FixedHeader(t, fho);
     {%endif%}
+
+                         {%for i in table.extensions%}
+                         {{i}}
+                         {%endfor%}
+                         
     appshell.datatables[{{table.name|tojson}}] = t;
   });
 </script>
