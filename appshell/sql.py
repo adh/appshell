@@ -66,6 +66,11 @@ class SQLFilter(object):
 class SQLPrefixFilter(SQLFilter, TextFilter):
     def sql_append_where(self, column, q, filter_data):
         return q.where(self.get_column_to_filter(column).like(filter_data+'%'))
+
+class SQLCasefoldingPrefixFilter(SQLFilter, TextFilter):
+    def sql_append_where(self, column, q, filter_data):
+        col = self.get_column_to_filter(column)
+        return q.where(col.tolower().like(filter_data.tolower()+'%'))
     
 class SQLSelectFilter(SQLFilter, SelectFilter):
     def sql_append_where(self, column, q, filter_data):
