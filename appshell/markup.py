@@ -20,7 +20,7 @@ def element(name, attrs, contents):
                                          contents,
                                          name)
 
-def button(text, classes, context_class="default", size=None, attrs={}):
+def button(text, classes="", context_class="default", size=None, attrs={}):
     cls = "btn btn-"+context_class
     if size:
         cls += " btn-" + size

@@ -141,7 +141,7 @@ class SubmitButton(FormButton):
             attrs["formaction"] = self.action
             
         return button(self.content,
-                      self.context_class,
+                      context_class=self.context_class,
                       attrs=attrs)
 
 class ButtonGroup(FormButton):
