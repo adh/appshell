@@ -99,3 +99,9 @@ $(document).ready(function(){
 {%block main %}
     {{ main_content }}
 {%endblock%}
+
+{%block title%}
+  {%if page_title:%}
+  {{page_title}} - 
+  {%endif%}
+{%endblock%}
