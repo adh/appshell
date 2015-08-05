@@ -470,15 +470,19 @@ class TableDataSource(ColumnsMixin):
                 "recordsFiltered": filtered,
                 "data": jdata}
 
-    def register_view(self, f):
+    def register_view(self, f, decorators=[]):
         endpoint = "data-source/" + self.name
 
+        view_func = self.data_view
+        for i in decorators:
+            view_func = i(view_func)
+        
         f.add_url_rule("/appshell/data-source/table/{0}/{1}{2}.json"
                        .format(f.name,
                                self.name, 
                                self.param_string),
                        endpoint=endpoint,
-                       view_func=self.data_view,
+                       view_func=view_func,
         )
 
         self.endpoint = f.name + "." + endpoint
