@@ -351,7 +351,7 @@ class ColVis(Extension):
         self.fixed = fixed
         self.order = order
         if text is None:
-            text = lazy_gettext("Select columns...")
+            text = Markup('<span class="glyphicon glyphicon-th-list"></span>')
         self.text = text
     def __html__(self):
         return """(function(){for (var i = 0; i < %s; i++){
@@ -375,7 +375,7 @@ class ColVis(Extension):
                                      name=table.name,
                                      columns=columns,
                                      text=self.text))
-        table.bottom_toolbar = Markup('{}{}').format(btn, table.bottom_toolbar)
+        table.add_control(btn)
 
     
 class DataTable(ColumnsMixin):
@@ -401,6 +401,7 @@ class DataTable(ColumnsMixin):
         self.filters = filters
         self.bottom_toolbar = bottom_toolbar
         self.extensions = extensions
+        self.controls = []
         for i in self.extensions:
             i.attach_table(self)
         
@@ -409,6 +410,13 @@ class DataTable(ColumnsMixin):
         o = dict(self._options)
         o["columns"] = [ c.options for c in self.columns]
         return o
+    
+    def add_control(self, ctrl):
+        self.controls.append(ctrl)
+
+    @property
+    def top_toolbar(self):
+        return Markup("").join(self.controls)
 
     def default_filters(self):
         return [ {"search": c.filter.get_filter_value() if c.filter else None} 

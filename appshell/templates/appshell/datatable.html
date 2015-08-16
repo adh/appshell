@@ -1,5 +1,8 @@
 {%import "appshell/utils.html" as u%}
 
+{%if table.top_toolbar%}
+{{table.top_toolbar}}
+{%endif%}
 <table id="{{table.name}}" 
        class="table table-striped table-hover datatable"
        {{table.attrs|xmlattr}}>
