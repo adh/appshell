@@ -1,12 +1,16 @@
 {%import "appshell/utils.html" as u%}
 
 {%if table.top_toolbar%}
-{{table.top_toolbar}}
+<div>
+  {{table.top_toolbar}}
+</div>
 {%endif%}
+
 <table id="{{table.name}}" 
        class="table table-striped table-hover datatable"
        {{table.attrs|xmlattr}}>
         <thead>
+
           {%if table.filters == 'top' %}
             <tr>
               {%for i in table.columns: %}
