@@ -1,0 +1,21 @@
+{%import "appshell/modals.html" as m%}
+<button class="btn btn-default" 
+        type="button" 
+        data-toggle="modal"
+        data-target="#{{name}}-colvis-modal"
+        aria-expanded="true">
+  {{text}}
+</button>
+{%call m.modal(text, name+"-colvis-modal", body_attrs={})%}
+<ul class="list-unstyled">
+{%for i in columns%}
+<li>
+  <label>
+    <input type="checkbox" id="{{name}}-colvis-{{loop.index0}}">
+    {{i}}
+  </label>
+</li>
+{%endfor%}
+</ul>
+{%endcall%}
+&nbsp;

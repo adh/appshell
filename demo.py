@@ -5,7 +5,7 @@ from appshell.sql import db, SQLColumn, SQLTableDataSource, SQLPrefixFilter, \
     SQLSelectFilter, SQLMultiSelectFilter, SQLDateRangeFilter
 from appshell.login import current_user, PasswordAuthenticationModule
 from appshell.tables import PlainTable, SequenceTableDataSource, VirtualTable,\
-    CustomSelectSequenceColumn, CheckBoxSequenceColumn
+    CustomSelectSequenceColumn, CheckBoxSequenceColumn, ColReorder, ColVis
 from appshell.trees import PlainTreeGrid, TreeGridItem
 from appshell.leaflet import Map, Marker
 from appshell import table_export 
@@ -228,6 +228,7 @@ def sql_query():
                                     options={"scrollY": -220,
                                              "ordering": True,
                                              "autoWidth": False},
+                                    extensions=[ColReorder(), ColVis()]
                                     ),
                        layout='fluid')
 

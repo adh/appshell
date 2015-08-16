@@ -54,17 +54,25 @@ collected_onloads.push(function() {
            delete data.columns[i].searchable;
            delete data.columns[i].orderable;
            delete data.columns[i].name;
+           delete data.columns[i].data;
            delete data.columns[i].search.regex;
          }
-         console.log(data)
        });
     {%endif%}                                
 
+    {%if table.options["noSaveFilters"]%}
+       options.stateSaveParams = function(settings, data){
+         var columns = data.columns;
+         for (var i = 0; i < columns.length; i++){
+           delete columns[i].search;
+         }
+       }
+    {%endif%}                     
+                         
     e.parents('.dropdown').on('shown.bs.dropdown', function(){
       t.draw();
     });
     e.parents('.modal').on('shown.bs.modal', function(){
-                         console.log("foo!");
       t.draw();
     });
     var t = e.DataTable(options);
@@ -76,9 +84,9 @@ collected_onloads.push(function() {
       new $.fn.dataTable.FixedHeader(t, fho);
     {%endif%}
 
-                         {%for i in table.extensions%}
-                         {{i}}
-                         {%endfor%}
+    {%for i in table.extensions%}
+    {{i}}
+    {%endfor%}
                          
     appshell.datatables[{{table.name|tojson}}] = t;
   });

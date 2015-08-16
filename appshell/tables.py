@@ -321,7 +321,11 @@ class ColumnsMixin(object):
     def column_factory(self, i, index):
         return i
 
-class FixedColumns(object):
+class Extension(object):
+    def attach_table(self, table):
+        self.table = table
+
+class FixedColumns(Extension):
     def __init__(self, left=1, right=0):
         self.left = left
         self.right = right
@@ -331,6 +335,49 @@ class FixedColumns(object):
         rightColumns: {}
     }} );""").format(self.left, self.right)
 
+class ColReorder(Extension):
+    def __init__(self, fixed=0, fixed_right=0, order=None):
+        self.fixed_right = fixed_right
+        self.fixed = fixed
+        self.order = order
+    def __html__(self):
+        return Markup(u"""new $.fn.dataTable.ColReorder( t, {});""".format(json.dumps({"fixedColumns": self.fixed,
+                                                                                      "fixedColumnsRight": self.fixed_right,
+                                                                                      "order": self.order})))
+
+class ColVis(Extension):
+    def __init__(self, fixed=0, fixed_right=0, order=None, text=None):
+        self.fixed_right = fixed_right
+        self.fixed = fixed
+        self.order = order
+        if text is None:
+            text = lazy_gettext("Select columns...")
+        self.text = text
+    def __html__(self):
+        return """(function(){for (var i = 0; i < %s; i++){
+  if (t.column(i).visible()) { 
+    $("#%s-colvis-"+i).prop("checked", true);
+  }   
+  (function (idx){
+    $("#%s-colvis-"+i).on("change", function(){
+      console.log(idx);
+      var val = $("#%s-colvis-"+idx).prop("checked");
+      t.column(idx).visible(val);
+    });
+  })(i);
+
+}})();""" % (len(self.table.columns), self.table.name, self.table.name, self.table.name)
+
+    def attach_table(self, table):
+        super(ColVis, self).attach_table(table)
+        columns = [i.name for i in table.columns]
+        btn = Markup(render_template("appshell/datatable-colvis.html",
+                                     name=table.name,
+                                     columns=columns,
+                                     text=self.text))
+        table.bottom_toolbar = Markup('{}{}').format(btn, table.bottom_toolbar)
+
+    
 class DataTable(ColumnsMixin):
     def __init__(self, 
                  name, 
@@ -354,6 +401,8 @@ class DataTable(ColumnsMixin):
         self.filters = filters
         self.bottom_toolbar = bottom_toolbar
         self.extensions = extensions
+        for i in self.extensions:
+            i.attach_table(self)
         
     @property
     def options(self):
@@ -462,7 +511,8 @@ class TableDataSource(ColumnsMixin):
         data, total, filtered = self.get_data(start, length, search, 
                                               ordering, column_filters,
                                               **args)
-        jdata = [[c.get_json_data(i) for c in self.columns] 
+        jdata = [{"c{}".format(idx): c.get_json_data(i)
+                  for idx, c in enumerate(self.columns)}
                  for i in data]
 
         return {"draw": draw,
@@ -543,6 +593,8 @@ class VirtualTable(DataTable):
                "ordering": False,
                "searching": True,
                "deferRender": True,
+               "stateSave": True,
+               "noSaveFilters": True,
                "serverSide": True}
         if self.bottom_toolbar:
             res["scrollY"] = -180
@@ -552,6 +604,10 @@ class VirtualTable(DataTable):
                 del res[k]
             else:
                 res[k] = v
+
+        for idx, i in enumerate(res['columns']):
+            i['data'] = "c{}".format(idx)
+
         return res
 
 

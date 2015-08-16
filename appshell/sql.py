@@ -104,6 +104,7 @@ class SQLTableDataSource(TableDataSource):
     def __init__(self, name, columns, 
                  prefilter=None,
                  where=[],
+                 fake_count=False,
                  **kwargs):
         super(SQLTableDataSource, self).__init__(name, 
                                                  columns,
@@ -112,7 +113,8 @@ class SQLTableDataSource(TableDataSource):
                                                  **kwargs)
         self.prefilter = prefilter
         self.where = where
-
+        self.fake_count = fake_count
+        
     def get_selectable(self):
         if self.selectable_proc:
             return self.selectable_proc()
@@ -146,11 +148,14 @@ class SQLTableDataSource(TableDataSource):
         for i in self.where:
             q = q.where(i)
 
-        total = db.session.execute(q.alias('for_count').count()).first()[0]
+        if not self.fake_count:
+            total = db.session.execute(q.alias('for_count').count()).first()[0]
 
         q = self.apply_filters(q, column_filters)
         
         filtered = db.session.execute(q.alias('for_count').count()).first()[0]
+        if self.fake_count:
+            total = filtered
 
         for i, d in ordering:
             col = self.columns[i].get_sql_select_columns()[0]
