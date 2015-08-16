@@ -1,6 +1,6 @@
 from appshell.base import View
 from appshell.templates import confirmation, message
-from flask import request, flash
+from flask import request, flash, redirect
 from flask.ext.babelex import Babel, Domain
 
 mydomain = Domain('appshell')

@@ -7,7 +7,7 @@ from appshell.tables import TableDataSource, SequenceTableDataSource, \
     RangeFilter, DateRangeFilter, MultiSelectTreeFilter, PlainTable, \
     ObjectColumn, Action, ActionObjectColumn
 from sqlalchemy.sql import expression as ex
-from sqlalchemy import desc
+from sqlalchemy import desc, func
 import json
 from appshell.forms import FormEndpoint
 from flask.ext.babelex import Babel, Domain
@@ -70,7 +70,7 @@ class SQLPrefixFilter(SQLFilter, TextFilter):
 class SQLCasefoldingPrefixFilter(SQLFilter, TextFilter):
     def sql_append_where(self, column, q, filter_data):
         col = self.get_column_to_filter(column)
-        return q.where(col.tolower().like(filter_data.tolower()+'%'))
+        return q.where(func.lower(col).like(filter_data.lower()+'%'))
     
 class SQLSelectFilter(SQLFilter, SelectFilter):
     def sql_append_where(self, column, q, filter_data):
