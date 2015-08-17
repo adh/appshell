@@ -4,13 +4,13 @@
 {%set page_layout='fluid'%}
 
 {%block page_styles%}
-<link rel="stylesheet" href="//cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" />
+<link rel="stylesheet" href="{{res_url('appshell.static', filename='leaflet/leaflet.css')}}" />
 <link rel="stylesheet" href="{{res_url('appshell.static', filename='leaflet/MarkerCluster.css')}}" />
 <link rel="stylesheet" href="{{res_url('appshell.static', filename='leaflet/MarkerCluster.Default.css')}}" />
 {%endblock%}
 
 {%block page_scripts%}
-<script src="//cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
+<script src="{{res_url('appshell.static', filename='leaflet/leaflet.js')}}"></script>
 <script src="{{res_url('appshell.static', filename='leaflet/leaflet.markercluster-src.js')}}"></script>
 <script>
   $('#map').css('height', $(window).height() - 100);
