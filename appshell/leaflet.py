@@ -67,7 +67,6 @@ class Polyline(MapElement):
     def get_element_js(self, target='map'):
         return t.polyline(points=self.points, 
                           opts=self.options,
-                          c=self, 
                           target=target,
                           klass=self.__leaflet_class__)
 class Polygon(Polyline):
