@@ -15,7 +15,7 @@ var c = new L.MarkerClusterGroup();
 {{target}}.addLayer(c);
 {%endmacro%}
 
-{%macro polyline(points, c, opts={}, target='map', klass='polyline')%}
+{%macro polyline(points, opts={}, target='map', klass='polyline')%}
 var e = L.{{klass}}({{points|tojson}}, {{opts|tojson}});
 {{target}}.addLayer(e);
 {%endmacro%}
