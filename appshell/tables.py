@@ -465,7 +465,7 @@ class IterableDataTable(DataTable):
 
     def __init__(self, name, columns, data, options=None, **kwargs):
         if options == None:
-            options = {"paging": False, "fixed_header": {"bottom": True}}
+            options = {"paging": False}
         super(IterableDataTable, self).__init__(name, columns, data, 
                                                 options=options, 
                                                 **kwargs)
