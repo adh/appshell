@@ -14,3 +14,13 @@ var c = new L.MarkerClusterGroup();
 {%endfor%}
 {{target}}.addLayer(c);
 {%endmacro%}
+
+{%macro polyline(points, opts={}, c, target='map', klass='polyline')%}
+var e = L.{{klass}}({{points|tojson}}, {{opts|tojson}});
+{{target}}.addLayer(e);
+{%endmacro%}
+
+{%macro circle(pos, radius, opts={}, target='map')%}
+var e = L.circle({{pos|tojson}}, {{radius|tojson}}, {{opts|tojson}});
+{{target}}.addLayer(e);
+{%endmacro%}

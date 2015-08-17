@@ -7,7 +7,7 @@ from appshell.login import current_user, PasswordAuthenticationModule
 from appshell.tables import PlainTable, SequenceTableDataSource, VirtualTable,\
     CustomSelectSequenceColumn, CheckBoxSequenceColumn, ColReorder, ColVis
 from appshell.trees import PlainTreeGrid, TreeGridItem
-from appshell.leaflet import Map, Marker
+from appshell.leaflet import Map, Marker, Polyline, Polygon, Rectangle, Circle
 from appshell import table_export 
 from flask.ext.login import UserMixin
 from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, orm
@@ -248,6 +248,10 @@ def simple_map():
     m = Map()
     m.add(Marker([50,13]), fit=True)
     m.add(Marker([50,14]), fit=True)
+    m.add(Polyline([[50, 13], [50, 14], [50.5, 14.5]]), fit=True)
+    m.add(Polygon([[49.9, 13], [49.9, 14], [49, 14.5]]), fit=True)
+    m.add(Rectangle([[49.8, 13], [49.5, 14]], popup="Mnau!"), fit=True)
+    m.add(Circle([50.25,13.5], 2000), fit=True)
     return m.render()
 
 app.register_blueprint(maps)
