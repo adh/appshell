@@ -7,10 +7,11 @@ from appshell.locals import current_appshell
 from hashlib import sha256
 
 class Tab(object):
-    __slots__ = ['text', 'target']
-    def __init__(self, text, target):
+    __slots__ = ['text', 'target', 'klasses']
+    def __init__(self, text, target, klasses=""):
         self.text = text
         self.target = target
+        self.klasses = klasses
 
     def __html__(self):
         params = request.view_args
@@ -19,10 +20,12 @@ class Tab(object):
         attrs = {"role": "presentation"}
 
         if request.endpoint == self.target:
-            attrs["class"] = "active"
-
+            attrs["class"] = "active "
+        else:
+            attrs["class"] = ""
+            
         url = url_for(self.target, **params)
-        link = element('a', {'href': url}, self.text)
+        link = element('a', {'href': url, "class": self.klasses}, self.text)
         return element('li', attrs, link)
 
 class ServerSideTabbar(object):

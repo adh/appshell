@@ -192,11 +192,12 @@ class ModelTableDataSource(TableDataSource):
     def get_data(self, start, length, search, ordering, column_filters, **args):
         q = self.query_proc()
 
-        total = q.count()
+        #total = q.count()
 
         q = self.apply_filters(q, column_filters)
-        filtersed = q.count()
-
+        filtered = q.count()
+        total = filtered
+        
         return q.all(), total, filtered
 
 class UpdatingFormEndpoint(FormEndpoint):

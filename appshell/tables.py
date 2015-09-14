@@ -21,6 +21,7 @@ class Column(object):
                  filter=None,
                  options={},
                  orderable=None,
+                 default_ordering=None,
                  convert=None,
                  data_proc=None,
                  **kwargs):
@@ -29,6 +30,7 @@ class Column(object):
         self.filter = filter
         self._options = options
         self.convert = convert
+        self.default_ordering = default_ordering
         if orderable != None:
             self.orderable = orderable
         if data_proc:
@@ -112,6 +114,7 @@ class SelectFilter(Filter):
                               select_attrs={"data-tablefilter-column": column_index,
                                             "data-tablefilter-target": table.name},
                               select_classes="tablefilter input-sm")
+
     
 class MultiSelectFilter(SelectFilter):
     def get_filter_html(self, column_index, column, table):
@@ -409,6 +412,12 @@ class DataTable(ColumnsMixin):
     def options(self):
         o = dict(self._options)
         o["columns"] = [ c.options for c in self.columns]
+        order = []
+        for idx, i in enumerate(self.columns):
+            if i.default_ordering:
+                order.append((idx, i.default_ordering))
+        if order:
+            o["order"] = order
         return o
     
     def add_control(self, ctrl):
