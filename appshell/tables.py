@@ -24,6 +24,7 @@ class Column(object):
                  default_ordering=None,
                  convert=None,
                  data_proc=None,
+                 content_map={None: ''},
                  **kwargs):
         self.name = name
         self.header = Markup("<th>{0}</th>").format(name)
@@ -31,6 +32,7 @@ class Column(object):
         self._options = options
         self.convert = convert
         self.default_ordering = default_ordering
+        self.content_map = content_map
         if orderable != None:
             self.orderable = orderable
         if data_proc:
@@ -47,9 +49,14 @@ class Column(object):
 
     def get_cell_inner_html(self, row):
         if self.convert:
-            return self.convert(self.get_cell_data(row))
-
-        return self.get_cell_data(row)
+            res = self.convert(self.get_cell_data(row))
+        else:
+            res = self.get_cell_data(row)
+            
+        if res in self.content_map:
+            return self.content_map[res]
+        else:
+            return res
 
     def get_json_data(self, row):
         return unicode(self.get_cell_inner_html(row))
