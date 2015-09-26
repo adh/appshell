@@ -6,10 +6,13 @@ from itertools import chain
 t = TemplateProxy('appshell/leaflet_elements.html')
 
 def merge_bounds(*lists):
-    return [[min((i[0] for i in chain(*lists))),
-             min((i[1] for i in chain(*lists)))],
-            [max((i[0] for i in chain(*lists))),
-             max((i[1] for i in chain(*lists)))]]
+    coords = list(chain(*lists))
+    if not coords:
+        return []
+    return [[min((i[0] for i in coords)),
+             min((i[1] for i in coords))],
+            [max((i[0] for i in coords)),
+             max((i[1] for i in coords))]]
 
 class MapElement(object):
     def __init__(self, popup=None, **kwargs):
