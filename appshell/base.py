@@ -284,9 +284,9 @@ class Module(TopLevelMenu, Blueprint):
         super(Module, self).register(app, *args, **kwargs)
         
         if not hasattr(app, 'extensions'):
-            return
+            raise ValueError('Registering appshell module into non-appshell flask application')
         if not 'appshell' in app.extensions:
-            return
+            raise ValueError('Registering appshell module into non-appshell flask application')
 
         ash = app.extensions['appshell']
         for i in self.menuentries:
