@@ -97,7 +97,6 @@ class PasswordAuthenticationModule(AuthenticationModule):
         def login():
             f = PasswordLoginForm()
             if f.validate_on_submit():
-                print "POSted to login"
                 user = self.authenticate_user(f.username.data, f.password.data)
                 if not user:
                     flash(_("Invalid username or password"), "danger")
