@@ -251,7 +251,6 @@ class DeletingEndpoint(ConfirmationEndpoint):
 
     def prepare(self, id):
         self.obj = self.model_class.query.get(id)
-        print self.obj
     
     @property
     def confirmation_message(self):
