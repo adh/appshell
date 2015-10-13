@@ -4,7 +4,7 @@ import flask.views
 from flask.ext.bootstrap import Bootstrap
 from flask.ext.babelex import Babel, Domain
 from flask.ext.wtf import CsrfProtect
-from menu import MenuEntry, MainMenu
+from appshell.menu import MenuEntry, MainMenu
 from appshell.urls import url_for, url_or_url_for, res_url, url_or_res_url
 from appshell.templates import render_template, single_view
 from appshell.utils import push_block, get_pushed_blocks
@@ -113,7 +113,7 @@ class AppShell(TopLevelMenu):
                 return self.handle_forbidden_endpoint()
 
 
-        for n, f in template_globals.iteritems():
+        for n, f in template_globals.items():
             app.add_template_global(f, name=n)
 
         Bootstrap(app)
@@ -121,7 +121,7 @@ class AppShell(TopLevelMenu):
 
         Babel(app)
 
-        for k, v in self.component_config.iteritems():
+        for k, v in self.component_config.items():
             self.use_component(app, k, v)
 
     
@@ -168,7 +168,7 @@ class AppShell(TopLevelMenu):
             m.ensure_menu(menu, text)
 
     def build_menu(self):
-        return {k: v.build_real_menu() for k,v in self.menu.iteritems()}
+        return {k: v.build_real_menu() for k,v in self.menu.items()}
         
     def add_access_rule(self, endpoint, proc):
         if endpoint not in self.access_map:
@@ -293,7 +293,7 @@ class Module(TopLevelMenu, Blueprint):
             ash.add_menu_entry(*i)
         for i in self.menulabels:
             ash.add_menu_label(*i)
-        for k, v in self.base_templates.iteritems():
+        for k, v in self.base_templates.items():
             ash.add_base_template(k, v)
         for endpoint, proc in self.access_rules:
             ash.add_access_rule(self.name + "." + endpoint, proc)

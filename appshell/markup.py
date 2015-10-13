@@ -4,7 +4,7 @@ from appshell.urls import url_or_url_for
 def xmlattrs(attrs):
     res = Markup(" ").join(
         Markup('{0}="{1}"').format(k, v) 
-        for k, v in attrs.iteritems()
+        for k, v in attrs.items()
         if v != None
     )
     if res != '':
@@ -57,7 +57,7 @@ class GridColumn(object):
 
     def get_class(self):
         return " ".join(["col-{}-{}".format(k, v)
-                         for k, v in self.widths.iteritems()])
+                         for k, v in self.widths.items()])
         
     def render(self, content):
         return element("div", {"class": self.get_class()}, content)

@@ -4,7 +4,7 @@ import flask
 res_url = flask.url_for
 
 def url_for(path, **kwargs):
-    for k, v in request.args.iteritems():
+    for k, v in request.args.items():
         if k.startswith('__'):
             kwargs[k] = v
     return flask.url_for(path, **kwargs)

@@ -627,7 +627,7 @@ class VirtualTable(DataTable):
         if self.bottom_toolbar:
             res["scrollY"] = -180
 
-        for k, v in orig.iteritems():
+        for k, v in orig.items():
             if v == None:
                 del res[k]
             else:
