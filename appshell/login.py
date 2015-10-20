@@ -62,7 +62,7 @@ class AuthenticationModule(SystemModule):
     
 
     def get_system_menu_item(self):
-        if current_user.is_anonymous():
+        if current_user.is_anonymous:
             return self.get_anonymous_system_menu()
         else:
             return MenuItem(text=self.logged_in_text(),

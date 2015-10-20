@@ -96,6 +96,7 @@ class Toolbar(object):
 
     def add_splitter(self):
         self.buttons.append(ToolbarSplitter())
+        self.grouped = True
         
     def __html__(self):
         res = Markup("").join((i.render(self) for i in self.buttons))

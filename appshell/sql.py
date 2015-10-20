@@ -23,6 +23,8 @@ lazy_gettext = mydomain.lazy_gettext
 
 BaseModelForm = model_form_factory(OrderedForm)
 
+
+
 class ModelForm(BaseModelForm):
     @classmethod
     def get_session(self):
@@ -199,10 +201,11 @@ class ModelTableDataSource(TableDataSource):
         total = filtered
         
         return q.all(), total, filtered
-
+    
 class UpdatingFormEndpoint(FormEndpoint):
     def create_form(self, id):
-        self.obj = self.model_class.query.get(id)
+        #self.obj = self.model_class.query.get(id)
+        self.obj = db.session.query(self.model_class).get(id)
         form = self.form_class(request.form, self.obj)
         form.populate_obj(self.obj)
         return form
@@ -222,27 +225,29 @@ class UpdatingFormEndpoint(FormEndpoint):
 class CreatingFormEndpoint(FormEndpoint):
     detail_endpoint = None
     listing_endpoint = None
+    listing_endpoint_args = {}
     
-    def create_form(self):
+    def create_form(self, **kwargs):
         return self.form_class()
 
-    def confirm_submit(self):
+    def confirm_submit(self, **kwargs):
         flash(_("Data saved"), "success")
         if self.detail_endpoint:
             return redirect(url_for(self.detail_endpoint, id=self.obj.id))
         if self.listing_endpoint:
-            return redirect(url_for(self.listing_endpoint))
+            return redirect(url_for(self.listing_endpoint,
+                                    **self.listing_endpoint_args))
 
     def post_populate(self):
         return
                 
-    def submitted(self):
+    def submitted(self, **kwargs):
         self.obj = self.model_class()
         self.form.populate_obj(self.obj)
-        self.post_populate()
+        self.post_populate(**kwargs)
         db.session.add(self.obj)
         db.session.commit()
-        return self.confirm_submit()
+        return self.confirm_submit(**kwargs)
 
 class DeletingEndpoint(ConfirmationEndpoint):
     methods = ("GET", "POST")

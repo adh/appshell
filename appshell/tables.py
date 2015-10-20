@@ -9,6 +9,10 @@ import json
 
 from flask.ext.babelex import Babel, Domain
 
+import sys
+if sys.version_info >= (3,):
+    unicode = str
+
 mydomain = Domain('appshell')
 _ = mydomain.gettext
 lazy_gettext = mydomain.lazy_gettext
@@ -529,7 +533,7 @@ class TableDataSource(ColumnsMixin):
 
         column_filters = [ request.args["columns[{0}][search][value]"
                                         .format(i)]
-                           for i in xrange(len(self.columns))]
+                           for i in range(len(self.columns))]
         
 
         data, total, filtered = self.get_data(start, length, search, 

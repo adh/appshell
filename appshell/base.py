@@ -246,7 +246,7 @@ class Module(TopLevelMenu, Blueprint):
             return view
         return wrap
 
-    def local_menu(self, text, group=None, sort_key=None):
+    def local_menu(self, text, group="", sort_key=None):
         def wrap(view):
             name = self.name + '.' + view.__name__
             self.add_local_menu_entry(name, text, group, sort_key)
