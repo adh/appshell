@@ -1,3 +1,5 @@
 * AJAX loaded treelist
 * SQLRelationColumn (+ matching (multi)select filter)
 * Model based virtual table
+* Customizable CSS
+* Charts
