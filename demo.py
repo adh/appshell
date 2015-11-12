@@ -102,7 +102,7 @@ def virtual_data_source(start, length, search, ordering, column_filters):
     total = 1000
     filtered = 1000
     ds = [[i, i] 
-          for i in xrange(total)]
+          for i in range(total)]
     time.sleep(0.3)
     return ds[start:start+length], total, filtered
 
@@ -130,10 +130,11 @@ def dropdowns():
     tg = PlainTreeGrid("treeegrid",
                        ("Name", "Description", CustomSelectSequenceColumn("",
                                                                           index=0)), 
-                       tree_data)
+                       tree_data,
+                       search=True)
     tgm = PlainTreeGrid("mtreeegrid",
                       ("Name", "Description", CustomSelectSequenceColumn("",
-                                                                          index=0)), tree_data)
+                                                                          index=0)), tree_data, search=True)
     tgc = PlainTreeGrid("ctreeegrid",
                       (CheckBoxSequenceColumn("Name", index=0),
                        "Description"), tree_data)

@@ -12,6 +12,7 @@ from appshell.locals import current_appshell
 from appshell.skins import DefaultSkin
 import importlib
 from werkzeug.local import LocalProxy
+from appshell.assets import assets
 
 
 mydomain = Domain('appshell')
@@ -62,17 +63,20 @@ class AppShell(TopLevelMenu):
         if skin is None:
             skin = DefaultSkin()
         
-        self.menu = {"left": MainMenu(),
-                     "right": MainMenu()}
         self.system_module = None
         self.babel = mydomain
         self.root_view = root_view
         self.component_config = components
         self.search_view = None
-        self.base_templates = {"plain": "appshell/base_plain.html"}
+        self.base_templates = {}
         self.access_map = {}
         self.skin = skin
 
+        self.skin.initialize(self)
+        
+        self.menu = {i: MainMenu() for i in skin.menu_positions}
+
+        
         if app:
             self.init_app(app)
         
@@ -87,14 +91,16 @@ class AppShell(TopLevelMenu):
 
     @property
     def base_template(self):
-        t = "appshell/base.html"
-        if self.current_module and self.current_module.has_local_nav():
-            t = "appshell/local_nav.html"
-
+        t = None
+        
         if "__view" in request.args:
             vn = request.args["__view"]
             if vn in self.base_templates:
                 t = self.base_templates[vn]
+                
+        if t is None:
+            t = self.skin.get_base_template(self.current_module)
+            
         return t
 
     @property
@@ -111,6 +117,8 @@ class AppShell(TopLevelMenu):
                        static_url_path=app.static_url_path + '/appshell')
         app.register_blueprint(bp)
 
+        assets.init_app(app)
+        
         @app.context_processor
         def context_processor():
             return {"appshell": self}
@@ -131,7 +139,7 @@ class AppShell(TopLevelMenu):
 
         for k, v in self.component_config.items():
             self.use_component(app, k, v)
-
+            
     
     def root_view_url(self):
         return url_or_url_for(self.root_view)

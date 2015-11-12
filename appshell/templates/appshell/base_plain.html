@@ -2,26 +2,12 @@
 
 {% block styles %}
 {{ super() }}
+
+{%assets "appshell_css"%}
 <link rel="stylesheet" 
-      href="{{res_url('appshell.static', filename='appshell.css')}}" />
-<link rel="stylesheet" 
-      href="{{res_url('appshell.static', filename='datatables/css/dataTables.bootstrap.css')}}" />
-<link rel="stylesheet" 
-      href="{{res_url('appshell.static', filename='datatables/css/dataTables.fixedHeader.css')}}" />
-<link rel="stylesheet" 
-      href="{{res_url('appshell.static', filename='datatables/css/dataTables.fixedColumns.min.css')}}" />
-<link rel="stylesheet" 
-      href="{{res_url('appshell.static', filename='datatables/css/dataTables.scroller.min.css')}}" />
-<link rel="stylesheet" 
-      href="{{res_url('appshell.static', filename='datatables/css/dataTables.colReorder.min.css')}}" />
-<link rel="stylesheet" 
-      href="{{res_url('appshell.static', filename='treegrid/css/jquery.treegrid.css')}}" />
-<link rel="stylesheet" 
-      href="{{res_url('appshell.static', filename='datepicker/css/datepicker3.css')}}" />
-<link rel="stylesheet" 
-      href="{{res_url('appshell.static', filename='bootstrap-markdown/css/bootstrap-markdown.min.css')}}" />
-<link rel="stylesheet" 
-      href="{{res_url('appshell.static', filename='bs-select/css/bootstrap-select.min.css')}}" />
+      href="{{ ASSET_URL }}" />
+
+{%endassets%}
 
 <script>
   collected_onloads = [];
@@ -45,22 +31,11 @@
   </div>
 </div>
 {{ super() }}
-<script src="{{res_url('appshell.static', filename='datatables/js/jquery.dataTables.min.js')}}"></script>
-<script src="{{res_url('appshell.static', filename='datatables/js/dataTables.bootstrap.js')}}"></script>
-<script src="{{res_url('appshell.static', filename='datatables/js/dataTables.fixedHeader.js')}}"></script>
-<script src="{{res_url('appshell.static', filename='datatables/js/dataTables.fixedColumns.min.js')}}"></script>
-<script src="{{res_url('appshell.static', filename='datatables/js/dataTables.colReorder.min.js')}}"></script>
-<script src="{{res_url('appshell.static', filename='datatables/js/dataTables.scroller.min.js')}}"></script>
-<script src="{{res_url('appshell.static', filename='treegrid/js/jquery.cookie.js')}}"></script>
-<script src="{{res_url('appshell.static', filename='treegrid/js/jquery.treegrid.js')}}"></script>
-<script src="{{res_url('appshell.static', filename='treegrid/js/jquery.treegrid.bootstrap3.js')}}"></script>
-<script src="{{res_url('appshell.static', filename='datepicker/js/bootstrap-datepicker.js')}}"></script>
-<script src="{{res_url('appshell.static', filename='bootstrap-markdown/js/bootstrap-markdown.js')}}"></script>
-<script src="{{res_url('appshell.static', filename='bootstrap-markdown/js/markdown.js')}}"></script>
-<script src="{{res_url('appshell.static', filename='bootstrap-markdown/js/to-markdown.js')}}"></script>
-<script src="{{res_url('appshell.static', filename='bs-select/js/bootstrap-select.min.js')}}"></script>
-<script src="{{res_url('appshell.static', filename='Chart.min.js')}}"></script>
-<script src="{{res_url('appshell.static', filename='appshell.js')}}"></script>
+
+{%assets "appshell_js"%}
+<script src="{{ ASSET_URL }}"></script>
+{%endassets%}
+
 {%block page_scripts %}
 {%endblock%}
 <script>
