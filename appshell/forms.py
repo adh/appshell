@@ -340,7 +340,7 @@ class FormPart(object):
             self.fields = fields
 
         if name is None:
-            self.name = "form-part-" + sha256(title).hexdigest()
+            self.name = "form-part-" + sha256(title.encode("utf-8")).hexdigest()
         else:
             self.name = name
             
@@ -420,7 +420,7 @@ class FormPanel(FormPart):
         
         if name is None:
             name = "form-panel-" + sha256(u"{}{}".format(title,
-                                                         footer)).hexdigest()
+                                                         footer).encode("utf-8")).hexdigest()
 
         super(FormPanel, self).__init__(title, view,
                                        name=name,

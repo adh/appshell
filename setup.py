@@ -15,7 +15,7 @@ setup(
     version = "0.0.1",
     author = "Ales Hakl",
     author_email = "ales@hakl.net",
-    description = ("Bootstrap and Flask based application framework"),
+    description = ("AdminLTE and Flask based application framework"),
     license = "MIT",
     keywords = "flask bootstrap admin",
 #    url = "",
@@ -38,6 +38,7 @@ setup(
         "Flask-WTF",
         "WTForms-Alchemy",
         "iso8601",
-        "XlsxWriter"
+        "XlsxWriter",
+        "Flask-Assets"
     ]
 )

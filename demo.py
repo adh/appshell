@@ -180,7 +180,6 @@ class User(UserMixin):
 
     @classmethod
     def authenticate(cls, login, password):
-        print login, password
         if login == "test" and password == "test":
             return cls()
         else:
@@ -337,7 +336,7 @@ def init_db():
     s = db.session()
     for i in dd:
         o = DemoEntity()
-        for k, v in i.iteritems():
+        for k, v in i.items():
             if k in ("created",):
                 v = iso8601.parse_date(v)
             setattr(o, k, v)
