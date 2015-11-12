@@ -9,6 +9,7 @@ from appshell.urls import url_for, url_or_url_for, res_url, url_or_res_url
 from appshell.templates import render_template, single_view
 from appshell.utils import push_block, get_pushed_blocks
 from appshell.locals import current_appshell
+from appshell.skins import DefaultSkin
 import importlib
 from werkzeug.local import LocalProxy
 
@@ -51,10 +52,16 @@ class TopLevelMenu(object):
       
 
 class AppShell(TopLevelMenu):
-    def __init__(self, app_name, root_view, app=None, components=[]):
+    def __init__(self, app_name, root_view,
+                 app=None,
+                 components=[],
+                 skin=None):
         TopLevelMenu.__init__(self)
         self.app_name = app_name
 
+        if skin is None:
+            skin = DefaultSkin()
+        
         self.menu = {"left": MainMenu(),
                      "right": MainMenu()}
         self.system_module = None
@@ -64,6 +71,7 @@ class AppShell(TopLevelMenu):
         self.search_view = None
         self.base_templates = {"plain": "appshell/base_plain.html"}
         self.access_map = {}
+        self.skin = skin
 
         if app:
             self.init_app(app)
