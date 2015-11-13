@@ -2,16 +2,22 @@ from flask.ext.assets import Environment, Bundle
 
 assets = Environment()
 
+appshell_components_css = Bundle(
+    'appshell/datatables/css/dataTables.bootstrap.css',
+    'appshell/datatables/css/dataTables.fixedHeader.css',
+    'appshell/datatables/css/dataTables.fixedColumns.min.css',
+    'appshell/datatables/css/dataTables.scroller.min.css',
+    'appshell/datatables/css/dataTables.colReorder.min.css',
+    'appshell/treegrid/css/jquery.treegrid.css',
+    'appshell/datepicker/css/datepicker3.css',
+    'appshell/bootstrap-markdown/css/bootstrap-markdown.min.css',
+    'appshell/bs-select/css/bootstrap-select.min.css',
+    'appshell/fontawesome/css/font-awesome.min.css',
+    filters='cssutils', output="gen/appshell/styles.css")
+assets.register("appshell_components_css", appshell_components_css)
+
 appshell_css = Bundle('appshell/appshell.css',
-                      'appshell/datatables/css/dataTables.bootstrap.css',
-                      'appshell/datatables/css/dataTables.fixedHeader.css',
-                      'appshell/datatables/css/dataTables.fixedColumns.min.css',
-                      'appshell/datatables/css/dataTables.scroller.min.css',
-                      'appshell/datatables/css/dataTables.colReorder.min.css',
-                      'appshell/treegrid/css/jquery.treegrid.css',
-                      'appshell/datepicker/css/datepicker3.css',
-                      'appshell/bootstrap-markdown/css/bootstrap-markdown.min.css',
-                      'appshell/bs-select/css/bootstrap-select.min.css',
+                      appshell_components_css,
                       filters='cssutils', output="gen/appshell/styles.css")
 assets.register("appshell_css", appshell_css)
 

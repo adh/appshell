@@ -25,6 +25,7 @@ from appshell.forms import BootstrapMarkdown, FormView, VerticalFormView, \
     HorizontalFormView, DateField, TabbedFormView, PanelizedFormView, \
     FormEndpoint
 from appshell.widgets import ClientSideTabbar
+from appshell.skins.adminlte import AdminLTESkin, NavbarAdminLTESkin
 
 app = Flask(__name__)
 
@@ -32,7 +33,8 @@ app.config['SECRET_KEY'] = 'foo'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
 
 shell = AppShell('AppShell demo', 'simple.hello', app,
-                 components={'sql': {}})
+                 components={'sql': {}},
+                 skin=AdminLTESkin())
 
 simple = Module('simple', __name__, template_folder='templates')
 simple.label('Simple module')
@@ -111,7 +113,7 @@ def virtual_data_source(start, length, search, ordering, column_filters):
 @widgets.menu('Virtual table')
 def virtual():
     return single_view(VirtualTable(vt, filters='bottom', 
-                                    options={"scrollY": -200,
+                                    options={
                                              "ordering": True,
                                              "autoWidth": False}),
                        layout='fluid')

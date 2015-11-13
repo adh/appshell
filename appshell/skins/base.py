@@ -1,6 +1,7 @@
 
 class Skin(object):
     menu_positions = ["left", "right"]
+    height_decrement = 150
     
     def get_base_template(self, module):
         t = self.base_template
@@ -9,5 +10,5 @@ class Skin(object):
 
         return t
 
-    def intialize(self, appshell):
+    def initialize(self, appshell):
         pass

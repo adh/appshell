@@ -69,7 +69,7 @@ class AuthenticationModule(SystemModule):
                             items=self.logged_in_menu.build_real_menu())
 
     def handle_forbidden_endpoint(self):
-        if current_user.is_anonymous():
+        if current_user.is_anonymous:
             return self.login_manager.unauthorized()
         else:
             return self.forbidden()

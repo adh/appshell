@@ -2,6 +2,7 @@ from flask import render_template
 from appshell.templates import TemplateProxy
 from markupsafe import Markup, escape
 from itertools import chain
+from appshell import current_appshell
 
 t = TemplateProxy('appshell/leaflet_elements.html')
 

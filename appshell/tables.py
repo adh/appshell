@@ -1,5 +1,6 @@
 from flask import render_template, jsonify, request
 from markupsafe import Markup
+from appshell import current_appshell
 from appshell.markup import element, link_button, button, xmltag
 from appshell.urls import res_url, url_or_url_for
 from appshell.templates import widgets, dropdowns, modals
@@ -619,7 +620,7 @@ class VirtualTable(DataTable):
                {
                    "url": res_url(self.data_source.endpoint, **self.params),
                },
-               "scrollY": -150,
+               "scrollY": -current_appshell.skin.height_decrement,
                "scrollX": True,
                "dom": "rtS",
                "ordering": False,

@@ -41,13 +41,13 @@ class TopLevelMenu(object):
         super(TopLevelMenu, self).__init__(*args, **kwargs)
         self.menu_entry_class = MenuEntry
 
-    def add_menu_entry(self, path, entry, postion='left'):
+    def add_menu_entry(self, path, entry, postion=None):
         raise NotImplementedError
 
-    def add_menu_label(self, path, text, position='left'):
+    def add_menu_label(self, path, text, position=None):
         raise NotImplementedError
   
-    def add_menu(self, entries, position='left'):
+    def add_menu(self, entries, position=None):
         for i in entries:
             self.add_menu_entry_from_desc(*i, position=position)
       
@@ -71,6 +71,7 @@ class AppShell(TopLevelMenu):
         self.base_templates = {}
         self.access_map = {}
         self.skin = skin
+        self.default_menu_position = 'left'
 
         self.skin.initialize(self)
         
@@ -149,10 +150,7 @@ class AppShell(TopLevelMenu):
         menu, group, item = parse_menu_path(path)
         
         if not position:
-            if item:
-                position = 'left'
-            else:
-                position = 'right'
+            position = self.default_menu_position
 
         if not entry:
             target = item or menu
@@ -169,14 +167,18 @@ class AppShell(TopLevelMenu):
 
         self.add_menu_entry(menu, group, item, entry, position=position)
 
-    def add_menu_entry(self, menu, group, item, entry, position='left'):
+    def add_menu_entry(self, menu, group, item, entry, position=None):
+        if position is None:
+            position = self.default_menu_position
         if not item:
             self.menu[position].add_top_entry(menu, entry)
         else:
             self.menu[position].add_entry(menu, item, entry, group=group)
 
-    def add_menu_label(self, path, text, position='left'):
+    def add_menu_label(self, path, text, position=None):
         menu, discard, group = path.partition('/')
+        if position == None:
+            position = self.default_menu_position
         m = self.menu[position]
         if group:
             m.ensure_group(menu, group, text)
@@ -212,7 +214,7 @@ class Module(TopLevelMenu, Blueprint):
         super(Module, self).__init__(*args, **kwargs)
         self.default_menu = self.name
         self.default_group = ''
-        self.default_position = 'left'
+        self.default_position = None
         self.menuentries = []
         self.menulabels = []
         self.base_templates = {}
@@ -274,7 +276,7 @@ class Module(TopLevelMenu, Blueprint):
         self.add_menu_label(self.default_menu + '/' + self.default_group, 
                             text, position=self.default_position)
 
-    def add_menu_entry(self, menu, group, item, entry, position='left'):
+    def add_menu_entry(self, menu, group, item, entry, position=None):
         if not position:
             position = self.default_position
         self.menuentries.append((menu, group, item, entry, position))

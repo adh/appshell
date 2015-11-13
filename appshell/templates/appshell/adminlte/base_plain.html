@@ -1,0 +1,95 @@
+{%macro flashed_messages() -%}
+  {%with messages = get_flashed_messages(with_categories=True) -%}
+    {%if messages -%} {# don't output anything if there are no messages #}
+      {%for cat, msg in messages %}
+  <div class="alert alert-{{cat}} alert-dismissable" role="alert">
+    {{msg}} 
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+{%endfor -%}
+{%endif -%}
+{%endwith -%}
+{%endmacro -%}
+
+  <!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>{%block title%}{%if page_title:%}{{page_title}}{%endif%}{%endblock%}</title>
+  <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+
+  <link href="{{bootstrap_find_resource('css/bootstrap.css', cdn='bootstrap')}}" rel="stylesheet">
+
+  {%assets "appshell_adminlte_full_css"%}
+  <link rel="stylesheet" href="{{ASSET_URL}}">
+  {%endassets%}
+
+  {%assets filters="less", output="appshell/adminlte/skin.css", appshell.skin.skin_less_file %}
+  <link rel="stylesheet" href="{{ASSET_URL}}">
+  {%endassets%}
+
+  {%block page_styles %}
+  {%endblock%}
+  <script>
+    collected_onloads = [];
+  </script>
+  
+  <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+  <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+  <!--[if lt IE 9]>
+  <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+  <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+  <![endif]-->
+</head>
+
+<body class="hold-transition 
+             {{appshell.skin.skin_css_class}} 
+             {{appshell.skin.body_classes}}">
+  {%block body%}
+
+  <div class="wrapper">
+    {%block content%}
+    {%block main_wrapped %}
+    {{ flashed_messages() }}
+    {%block main %}
+    <div class="box">
+      <div class="box-body">
+        {{ main_content }}
+      </div>
+    </div>
+    {%endblock%}
+    {%endblock%}
+    {%endblock%}
+    
+  </div>
+
+  {% block scripts %}
+  {%for i in get_pushed_blocks('content')%}{{i}}{%endfor%}
+
+<script src="{{bootstrap_find_resource('jquery.js', cdn='jquery')}}"></script>
+<script src="{{bootstrap_find_resource('js/bootstrap.js', cdn='bootstrap')}}"></script>
+{%assets "appshell_adminlte_js" %}
+<script src="{{ASSET_URL}}"></script>
+{%endassets%}
+{%assets "appshell_js" %}
+<script src="{{ASSET_URL}}"></script>
+{%endassets%}
+
+{%block page_scripts %}
+{%endblock%}
+{%for i in get_pushed_blocks('scripts')%}{{i}}{%endfor%}
+<script>
+$(document).ready(function(){
+  for (i in collected_onloads){
+    collected_onloads[i]();
+  }
+});
+</script>
+{%- endblock scripts %}
+
+{%- endblock body %}
+</body>
+</html>
+

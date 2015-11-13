@@ -44,7 +44,7 @@ class ClientTab(object):
         self.title = title
         self.content = content
         if name is None:
-            self.name = "tab-" + sha256(title).hexdigest()
+            self.name = "tab-" + sha256(title.encode('utf-8')).hexdigest()
         else:
             self.name = name
 

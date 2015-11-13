@@ -13,7 +13,7 @@
 <script src="{{res_url('appshell.static', filename='leaflet/leaflet.js')}}"></script>
 <script src="{{res_url('appshell.static', filename='leaflet/leaflet.markercluster-src.js')}}"></script>
 <script>
-  $('#map').css('height', $(window).height() - 100);
+  $('#map').css('height', $(window).height() - {{appshell.skin.height_decrement - 130}});
   var map = L.map('map').setView([0, 0], 3);
   L.tileLayer({{map.tilelayer|tojson}},{{map.tile_options|tojson}}).addTo(map);
 
