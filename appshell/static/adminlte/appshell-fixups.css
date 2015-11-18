@@ -2,3 +2,7 @@
     max-height: 80vh;
     overflow: auto;
 }
+.dataTables_scrollBody thead th{
+    height: 0px;
+    overflow: hidden;
+}

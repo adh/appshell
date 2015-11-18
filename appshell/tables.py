@@ -32,6 +32,7 @@ class Column(object):
                  content_map={None: ''},
                  **kwargs):
         self.name = name
+        self.id = name
         self.header = Markup("<th>{0}</th>").format(name)
         self.filter = filter
         self._options = options
@@ -80,7 +81,10 @@ class Filter(object):
         self.filter_value = filter_value
         self.filter_value_proc = filter_value_proc
 
-    def get_filter_value(self):
+    def get_filter_value(self, column):
+        if "asdt_f_" + column.id in request.args:
+            return request.args["asdt_f" + column.id]
+        
         fs = self.filter_value
         if self.filter_value_proc:
             fs= self.filter_value_proc()
@@ -97,7 +101,7 @@ class TextFilter(Filter):
                                 data-tablefilter-column="{0}"
                                 data-tablefilter-target="{1}"/>''')\
             .format(column_index, table.name, 
-                    self.get_filter_value())
+                    self.get_filter_value(column))
 
 
 class SelectFilter(Filter):
@@ -120,7 +124,7 @@ class SelectFilter(Filter):
 
     def get_filter_html(self, column_index, column, table):
         return widgets.select("filter_" + str(id(self)), 
-                              self.get_filter_value(), 
+                              self.get_filter_value(column), 
                               [('', '')] + 
                               [ (json.dumps(v), n) for v, n in self.get_filter_data()],
                               select_attrs={"data-tablefilter-column": column_index,
@@ -131,7 +135,7 @@ class SelectFilter(Filter):
 class MultiSelectFilter(SelectFilter):
     def get_filter_html(self, column_index, column, table):
         return modals.modal_checklist("filter_"+str(id(self)),
-                                      self.get_filter_value(),
+                                      self.get_filter_value(column),
                                       self.get_filter_data(),
                                       input_attrs={"data-tablefilter-column": column_index,
                                                    "data-tablefilter-target": table.name},
@@ -140,7 +144,7 @@ class MultiSelectFilter(SelectFilter):
 class MultiSelectTreeFilter(MultiSelectFilter):
     def get_filter_html(self, column_index, column, table):
         return modals.modal_checktree("filter_"+str(id(self)),
-                                      self.get_filter_value(),
+                                      self.get_filter_value(column),
                                       self.get_filter_data(),
                                       input_attrs={"data-tablefilter-column": column_index,
                                                    "data-tablefilter-target": table.name},
@@ -148,8 +152,8 @@ class MultiSelectTreeFilter(MultiSelectFilter):
     
 
 class RangeFilter(Filter):
-    def get_filter_value(self):
-        v = super(RangeFilter, self).get_filter_value()
+    def get_filter_value(self, column):
+        v = super(RangeFilter, self).get_filter_value(column)
         if v:
             return v
         else:
@@ -162,7 +166,7 @@ class RangeFilter(Filter):
             return [None, None]
     def get_filter_html(self, column_index, column, table):
         return widgets.rangeinput("filter_"+str(id(self)),
-                                  self.parse_filter_data(self.get_filter_value()),
+                                  self.parse_filter_data(self.get_filter_value(column)),
                                   classes="tablefilter-range",
                                   root_attrs={"data-tablefilter-column": column_index,
                                               "data-tablefilter-target": table.name})
@@ -173,8 +177,8 @@ class DateRangeFilter(RangeFilter):
                                               **kwargs)
         self.default_last = default_last
 
-    def get_filter_value(self):
-        v = super(DateRangeFilter, self).get_filter_value()
+    def get_filter_value(self, column):
+        v = super(DateRangeFilter, self).get_filter_value(column)
         if v and v != ';':
             return v
         if self.default_last:
@@ -191,7 +195,7 @@ class DateRangeFilter(RangeFilter):
 
     def get_filter_html(self, column_index, column, table):
         return widgets.daterange("filter_"+str(id(self)),
-                                 self.parse_filter_data(self.get_filter_value()),
+                                 self.parse_filter_data(self.get_filter_value(column)),
                                  classes="tablefilter-range",
                                  root_attrs={"data-tablefilter-column": column_index,
                                              "data-tablefilter-target": table.name})
@@ -201,6 +205,7 @@ class SequenceColumn(Column):
     def __init__(self, name, index, **kwargs):
         super(SequenceColumn, self).__init__(name, index=index, **kwargs)
         self.index = index
+        self.id = str(index)
     def get_cell_data(self, row):
         return row[self.index]
 
@@ -208,6 +213,7 @@ class ObjectColumn(Column):
     def __init__(self, name, attr, **kwargs):
         super(ObjectColumn, self).__init__(name, attr=attr, **kwargs)
         self.attr = attr
+        self.id = attr
     def get_cell_data(self, row):
         r = row
         for i in self.attr.split('.'):
@@ -289,12 +295,14 @@ class Action(object):
         if is_visible:
             self.is_visible = is_visible
 
-    def get_url(self, data):
+    def get_url(self, data=None):
         params = dict(self.params)
-        params[self.data_param] = data
+        if data is not None:
+            params[self.data_param] = data
+            
         return url_or_url_for(self.endpoint, **params)
 
-    def get_button(self, data, size=None):
+    def get_button(self, data=None, size=None):
         return link_button(self.get_url(data),
                            self.text,
                            context_class=self.context_class,
@@ -401,6 +409,7 @@ class DataTable(ColumnsMixin):
                  options={}, 
                  filters=None, 
                  attrs=None,
+                 toolbar=None,
                  bottom_toolbar="",
                  extensions=[],
                  **kwargs):
@@ -419,7 +428,10 @@ class DataTable(ColumnsMixin):
         self.controls = []
         for i in self.extensions:
             i.attach_table(self)
-        
+            
+        self.toolbar = toolbar
+
+            
     @property
     def options(self):
         o = dict(self._options)
@@ -436,11 +448,26 @@ class DataTable(ColumnsMixin):
         self.controls.append(ctrl)
 
     @property
+    def has_top_toolbar(self):
+        return self.controls or self.toolbar
+        
+    @property
     def top_toolbar(self):
-        return Markup("").join(self.controls)
+        ct = ""
+        if self.controls:
+            ct = Markup('<div class="btn-group">{}</div>')\
+                 .format(Markup("").join(self.controls))
 
+        tt = ""
+        if self.toolbar:
+            tt = Markup('<div class="btn-group">{}</div>')\
+                 .format(self.toolbar.render('sm'))
+
+        return Markup('<div class="btn-toolbar">{}{}</div>').format(ct, tt)
+
+         
     def default_filters(self):
-        return [ {"search": c.filter.get_filter_value() if c.filter else None} 
+        return [ {"search": c.filter.get_filter_value(c) if c.filter else None} 
                  for c in self.columns ]
 
     def __html__(self):
@@ -580,6 +607,7 @@ class TableDataSource(ColumnsMixin):
             return Markup("").join((button(i[1], 
                                            "datatable-action",
                                            context_class=i[2],
+                                           size="xs",
                                            attrs={"data-target": self.name,
                                                   "data-action": i[0]})
                                     for i in self.action_list))
@@ -629,8 +657,10 @@ class VirtualTable(DataTable):
                "stateSave": True,
                "noSaveFilters": True,
                "serverSide": True}
+        if self.top_toolbar:
+            res["scrollY"] = res["scrollY"] - 25
         if self.bottom_toolbar:
-            res["scrollY"] = -180
+            res["scrollY"] = res["scrollY"] - 40
 
         for k, v in orig.items():
             if v == None:
