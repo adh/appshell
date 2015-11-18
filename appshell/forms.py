@@ -457,8 +457,35 @@ class FormPanel(FormPart):
             content = self.column.render(content)
             
         return content
-        
+
+class FormBox(FormPanel):
+    def panel_wrapper(self, content):
+        if self.border is not None:
+            content = element("div",
+                              {"class": "box-body"},
+                              content)
+
+            if self.title is not None:
+                content = element("div",
+                                  {"class": "box-header with-border"},
+                                  element("h3",
+                                          {"class": "box-title"},
+                                          self.title)) + content
+            
+            content = element("div",
+                              {"class": "box box-{}".format(self.border)},
+                              content)
+
+
+        if self.column:
+            content = self.column.render(content)
+            
+        return content
+    
+    
 class PanelizedFormView(HierarchicalFormView):
+    PanelClass = FormPanel
+    
     def __init__(self, breakpoint='md', **kwargs):
         super(PanelizedFormView, self).__init__(**kwargs)
         self.breakpoint = breakpoint
@@ -475,14 +502,14 @@ class PanelizedFormView(HierarchicalFormView):
         if view is None:
             view = VerticalFormView()
             
-        self.add_part(FormPanel(view,
-                                title=title,
-                                footer=footer,
-                                fields=fields,
-                                name=name,
-                                border=border,
-                                width=width,
-                                column=column))
+        self.add_part(self.PanelClass(view,
+                                      title=title,
+                                      footer=footer,
+                                      fields=fields,
+                                      name=name,
+                                      border=border,
+                                      width=width,
+                                      column=column))
 
     def render_fields(self, fields, form_info=None):
         f = fields
@@ -517,7 +544,9 @@ class PanelizedFormView(HierarchicalFormView):
                                   Markup("").join(to_wrap)))
                 
         return Markup("").join(output)
-            
+
+class BoxedFormView(PanelizedFormView):
+    PanelClass = FormBox
         
         
 class FormEndpoint(View):

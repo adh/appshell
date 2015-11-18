@@ -23,7 +23,7 @@ from wtforms.validators import DataRequired, Required, EqualTo, ValidationError
 from flask_wtf import Form
 from appshell.forms import BootstrapMarkdown, FormView, VerticalFormView, \
     HorizontalFormView, DateField, TabbedFormView, PanelizedFormView, \
-    FormEndpoint
+    FormEndpoint, BoxedFormView
 from appshell.widgets import ClientSideTabbar
 from appshell.skins.adminlte import AdminLTESkin, NavbarAdminLTESkin
 
@@ -318,6 +318,18 @@ def panelized_form():
     f = ArticleForm()
     f.validate_on_submit()
     return single_view(pfv(f))
+
+
+bfv = BoxedFormView(rest_view=HorizontalFormView())
+bfv.add_panel("Title", ["title", "slug", "summary"], border="primary", width=6)
+bfv.add_panel("Metadata", ["author", "published", "checkbox", "radio"], width=6)
+bfv.add_panel("Content", ["content"], border="success")
+@forms.route('/forms/BoxedFormView', methods=("GET", "POST"))
+@forms.menu("BoxedFormView")
+def boxe_form():
+    f = ArticleForm()
+    f.validate_on_submit()
+    return single_view(bfv(f), wrap=False)
 
 
 class MyFormEndpoint(FormEndpoint):
