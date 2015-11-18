@@ -18,11 +18,22 @@ assets.register("appshell_adminlte_full_css", adminlte_full_css)
 class BaseAdminLTESkin(Skin):
     height_decrement = 290
 
-    def __init__(self, colorscheme='blue'):
-        self.colorscheme = colorscheme
-        self.skin_less_file = "appshell/adminlte/build/less/skins/skin-{}.less"\
-            .format(self.colorscheme)
-        self.skin_css_class = "skin-{}".format(self.colorscheme)
+    def __init__(self, colorscheme='blue',
+                 skin_filename=None, skin_class=None, footer=True):
+
+        if skin_filename is not None:
+            self.skin_less_file = skin_filename
+            self.skin_css_class = skin_class
+        else:
+            self.colorscheme = colorscheme
+            self.skin_less_file = "appshell/adminlte/build/less/skins/skin-{}.less"\
+                .format(self.colorscheme)
+            self.skin_css_class = "skin-{}".format(self.colorscheme)
+
+        self.want_footer = footer
+        if not footer:
+            self.height_decrement -= 45
+
         
     @property
     def footer_data(self):
@@ -52,6 +63,7 @@ class AdminLTESkin(BaseAdminLTESkin):
         return res
         
 class NavbarAdminLTESkin(BaseAdminLTESkin):
+    height_decrement = 300
     def initialize(self, appshell):
         super(NavbarAdminLTESkin, self).initialize(appshell)
         self.want_sidebar = False
