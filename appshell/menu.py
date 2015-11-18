@@ -7,7 +7,7 @@ class MenuItem(object):
     def __init__(self, text, target=None, url=None,
                  active=False, disabled=False, items=None, values={}):
         if target:
-            active = request.endpoint == target
+            active = current_appshell.is_active_for_menu(target)
             url = url_for(target, **values)
 
         self.text = text
