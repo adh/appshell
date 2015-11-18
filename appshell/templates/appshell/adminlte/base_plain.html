@@ -17,7 +17,7 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>{%block title%}{%if page_title:%}{{page_title}}{%endif%}{%endblock%}</title>
+  <title>{%block title%}{%endblock%}</title>
   <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
 
   <link href="{{bootstrap_find_resource('css/bootstrap.css', cdn='bootstrap')}}" rel="stylesheet">
@@ -26,7 +26,7 @@
   <link rel="stylesheet" href="{{ASSET_URL}}">
   {%endassets%}
 
-  {%assets filters="less", output="appshell/adminlte/skin.css", appshell.skin.skin_less_file %}
+  {%assets filters="less", output="appshell/adminlte/skin"+appshell.skin.skin_css_class+".css", appshell.skin.skin_less_file %}
   <link rel="stylesheet" href="{{ASSET_URL}}">
   {%endassets%}
 

@@ -20,7 +20,8 @@
           {%endif%}
           <tr>
             {%for i in table.columns: %}
-              {{ i.header }}
+            {{ i.header }}
+            <!-- {{i.id}} -->
             {%endfor%}
           </tr>
         </thead>

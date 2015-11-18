@@ -1,7 +1,15 @@
 {%extends "appshell/adminlte/base_plain.html" %}
 {%import "appshell/dropdowns.html" as dropdowns %}
 
-
+{%block title%}
+  {%if page_title:%}
+  {{page_title}} - 
+  {%endif%}
+  {%if appshell.current_module.title_text:%}
+  {{ appshell.current_module.title_text }} - 
+  {%endif%}
+  {{ appshell.app_name }}
+{%endblock%}
 
 {%block navbar%}
   {%set menu = appshell.build_menu() %}
@@ -234,10 +242,10 @@
         <small>{{page_description}}</small>
         {%endif%}
       </h1>
-      <ol class="breadcrumb">
+      <!--<ol class="breadcrumb">
         <li><a href="#"><i class="fa fa-dashboard"></i> Level</a></li>
         <li class="active">Here</li>
-      </ol>
+      </ol>-->
     </section>
 
     <!-- Main content -->
@@ -250,6 +258,7 @@
   <!-- /.content-wrapper -->
 
   <!-- Main Footer -->
+  {%if appshell.skin.want_footer%}
   <footer class="main-footer">
     <!-- To the right -->
     <div class="pull-right hidden-xs">
@@ -258,6 +267,7 @@
     <!-- Default to the left -->
     <strong>Copyright &copy; 2015 <a href="#">Company</a>.</strong> All rights reserved.
   </footer>
+  {%endif%}
 
   {%if appshell.skin.want_control_sidebar%}
   {{ self.control_sidebar() }}

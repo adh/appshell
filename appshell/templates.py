@@ -18,8 +18,8 @@ def render_template(path,
                     **kwargs):
     return flask.render_template(path, **kwargs)
 
-def single_view(main_content, title=None, template=None, layout=None,
-                heading=False):
+def single_view(main_content, title='', template=None, layout=None,
+                heading=False, description=''):
     if not template:
         template = current_app.extensions['appshell'].base_template
 
@@ -29,6 +29,7 @@ def single_view(main_content, title=None, template=None, layout=None,
     return render_template(template, 
                            main_content=main_content,
                            page_title=title,
+                           page_description=description,
                            page_layout=layout)
 
 def message(message, severity='primary', title=None, status=None):
