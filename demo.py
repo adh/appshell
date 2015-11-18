@@ -326,7 +326,7 @@ bfv.add_panel("Metadata", ["author", "published", "checkbox", "radio"], width=6)
 bfv.add_panel("Content", ["content"], border="success")
 @forms.route('/forms/BoxedFormView', methods=("GET", "POST"))
 @forms.menu("BoxedFormView")
-def boxe_form():
+def boxed_form():
     f = ArticleForm()
     f.validate_on_submit()
     return single_view(bfv(f), wrap=False)
