@@ -13,6 +13,7 @@ from appshell.skins import DefaultSkin
 import importlib
 from werkzeug.local import LocalProxy
 from appshell.assets import assets
+from hashlib import sha256
 
 
 mydomain = Domain('appshell')
@@ -119,6 +120,12 @@ class AppShell(TopLevelMenu):
         app.register_blueprint(bp)
 
         assets.init_app(app)
+
+        app.config['SESSION_COOKIE_NAME'] = "as_session_{}"\
+           .format(sha256("{}, {}, {}"
+                          .format(self.app_name,
+                                  app.config['APPLICATION_ROOT'],
+                                  app.name).encode('utf-8')).hexdigest())
         
         @app.context_processor
         def context_processor():
