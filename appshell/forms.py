@@ -353,10 +353,16 @@ class FormPart(object):
         rest = []
 
         for i in self.get_owned_fields():
-            for j in fields:
-                if j.name == i:
-                    own.append(j)
-                    own_set.add(j)
+            if i[-1] == '*':
+                for j in fields:
+                    if j.name.startswith(i[:-1]):
+                        own.append(j)
+                        own_set.add(j)
+            else:
+                for j in fields:
+                    if j.name == i:
+                        own.append(j)
+                        own_set.add(j)
 
         rest = [i for i in fields if i not in own_set]
 
