@@ -19,11 +19,12 @@ from wtforms import StringField, PasswordField, SubmitField, SelectField, \
     TextField, TextAreaField, BooleanField, RadioField, FormField
 from wtforms.widgets import TextArea, CheckboxInput, ListWidget, CheckboxInput
 from wtforms.ext.sqlalchemy.fields import QuerySelectMultipleField
-from wtforms.validators import DataRequired, Required, EqualTo, ValidationError
+from wtforms.validators import DataRequired, Required, EqualTo, ValidationError, Email
 from flask_wtf import Form
 from appshell.forms import BootstrapMarkdown, FormView, VerticalFormView, \
     HorizontalFormView, DateField, TabbedFormView, PanelizedFormView, \
-    FormEndpoint, BoxedFormView
+    FormEndpoint, BoxedFormView, CollectionField, CollectionAddFormMixin, \
+    CollectionEntryFormMixin, TabularCollectionWidget
 from appshell.widgets import ClientSideTabbar
 from appshell.skins.adminlte import AdminLTESkin, NavbarAdminLTESkin
 
@@ -264,7 +265,7 @@ forms.label('Forms')
 
 class AuthorForm(Form):
     name = TextField("Name")
-    email = TextField("Email")
+    email = TextField("Email", [Email()])
     affiliation = SelectField("Affiliation", choices=[('0', "None"),
                                                       ('1', "Academic"),
                                                       ('2', "Industry")])
@@ -330,6 +331,35 @@ def boxed_form():
     f = ArticleForm()
     f.validate_on_submit()
     return single_view(bfv(f), wrap=False)
+
+class ColEntryForm(CollectionEntryFormMixin, AuthorForm):
+    pass
+    
+class ColAddForm(CollectionAddFormMixin, AuthorForm):
+    pass
+    
+class CollectionForm(Form):
+    items = CollectionField(ColEntryForm, add_class=ColAddForm,
+                            widget=TabularCollectionWidget(headers=[
+                                "",
+                                "Name",
+                                "Author",
+                                "Affiliation"],
+                                                           field_order=[
+                                                               "collection_action",
+                                                               "name",
+                                                               "email",
+                                                               "affiliation"
+                                                           ]))
+
+@forms.route('/forms/CollectionField', methods=("GET", "POST"))
+@forms.menu("CollectionField")
+def collection_form():
+    f = CollectionForm()
+    if f.validate_on_submit():
+        flash('Form submitted', 'success')
+
+    return single_view(HorizontalFormView()(f))
 
 
 class MyFormEndpoint(FormEndpoint):

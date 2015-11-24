@@ -1,5 +1,5 @@
-* AJAX loaded treelist
-* SQLRelationColumn (+ matching (multi)select filter)
-* Model based virtual table
-* Customizable CSS
-* Charts
+ * AJAX loaded treelist
+ * SQLRelationFilter
+ * Charts
+ * AJAX loaded table in modal
+ * buttons inside form fields

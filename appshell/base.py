@@ -96,8 +96,6 @@ class AppShell(TopLevelMenu):
         if request.endpoint == endpoint:
             return True
 
-        print(repr(self.subendpoint_aliases))
-        
         if request.endpoint in self.subendpoint_aliases:
             return endpoint in self.subendpoint_aliases[request.endpoint]
         

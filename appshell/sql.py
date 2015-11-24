@@ -219,6 +219,10 @@ class ModelTableDataSource(TableDataSource):
         return q.all(), total, filtered
     
 class UpdatingFormEndpoint(FormEndpoint):
+    detail_endpoint = None
+    listing_endpoint = None
+    listing_endpoint_args = {}
+
     def create_form(self, id):
         #self.obj = self.model_class.query.get(id)
         self.obj = db.session.query(self.model_class).get(id)
@@ -231,7 +235,11 @@ class UpdatingFormEndpoint(FormEndpoint):
         return self.do_redirect()
 
     def do_redirect(self):
-        pass
+        if self.detail_endpoint:
+            return redirect(url_for(self.detail_endpoint, id=self.obj.id))
+        if self.listing_endpoint:
+            return redirect(url_for(self.listing_endpoint,
+                                    **self.listing_endpoint_args))
         
     def post_populate(self):
         return
