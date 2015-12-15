@@ -2,6 +2,8 @@ from appshell.skins import Skin
 from appshell.assets import assets, appshell_components_css
 from flask.ext.assets import Bundle
 from appshell import current_appshell
+from subprocess import check_output
+from markupsafe import Markup
 
 adminlte_js = Bundle('appshell/adminlte/dist/js/app.min.js',
                      output="appshell/adminlte.js")
@@ -15,14 +17,39 @@ adminlte_full_css = Bundle(adminlte_css, appshell_components_css,
                            output='appshell/adminlte-full.css')
 assets.register("appshell_adminlte_full_css", adminlte_full_css)
 
+def get_version():
+    return check_output("git describe --always --tags",
+                        shell=True).decode("utf-8")
+
 class BaseAdminLTESkin(Skin):
     height_decrement = 290
+    footer_right = None
+    footer_left = Markup("&nbsp;")
+    
+    def __init__(self, colorscheme='blue',
+                 skin_filename=None,
+                 skin_class=None,
+                 footer=True,
+                 footer_right=None,
+                 footer_left=None,
+                 get_version=get_version):
 
-    def __init__(self, colorscheme='blue'):
-        self.colorscheme = colorscheme
-        self.skin_less_file = "appshell/adminlte/build/less/skins/skin-{}.less"\
-            .format(self.colorscheme)
-        self.skin_css_class = "skin-{}".format(self.colorscheme)
+        if skin_filename is not None:
+            self.skin_less_file = skin_filename
+            self.skin_css_class = skin_class
+        else:
+            self.colorscheme = colorscheme
+            self.skin_less_file = "appshell/adminlte/build/less/skins/skin-{}.less"\
+                .format(self.colorscheme)
+            self.skin_css_class = "skin-{}".format(self.colorscheme)
+
+        self.want_footer = footer
+        if not footer:
+            self.height_decrement -= 45
+        else:
+            if self.footer_right is None:
+                self.footer_right = "v. " + get_version()
+
         
     @property
     def footer_data(self):
@@ -52,6 +79,7 @@ class AdminLTESkin(BaseAdminLTESkin):
         return res
         
 class NavbarAdminLTESkin(BaseAdminLTESkin):
+    height_decrement = 300
     def initialize(self, appshell):
         super(NavbarAdminLTESkin, self).initialize(appshell)
         self.want_sidebar = False

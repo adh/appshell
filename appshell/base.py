@@ -13,6 +13,7 @@ from appshell.skins import DefaultSkin
 import importlib
 from werkzeug.local import LocalProxy
 from appshell.assets import assets
+from hashlib import sha256
 
 
 mydomain = Domain('appshell')
@@ -72,6 +73,7 @@ class AppShell(TopLevelMenu):
         self.access_map = {}
         self.skin = skin
         self.default_menu_position = 'left'
+        self.subendpoint_aliases = {}
 
         self.skin.initialize(self)
         
@@ -90,6 +92,22 @@ class AppShell(TopLevelMenu):
     def add_base_template(self, name, filename):
         self.base_templates[name] = filename
 
+    def is_active_for_menu(self, endpoint):
+        if request.endpoint == endpoint:
+            return True
+
+        if request.endpoint in self.subendpoint_aliases:
+            return endpoint in self.subendpoint_aliases[request.endpoint]
+        
+        return False
+
+    def add_subendpoint_alias(self, endpoint, alias):
+        if endpoint not in self.subendpoint_aliases:
+            self.subendpoint_aliases[endpoint] = []
+            
+        self.subendpoint_aliases[endpoint].append(alias)
+        
+    
     @property
     def base_template(self):
         t = None
@@ -119,6 +137,12 @@ class AppShell(TopLevelMenu):
         app.register_blueprint(bp)
 
         assets.init_app(app)
+
+        app.config['SESSION_COOKIE_NAME'] = "as_session_{}"\
+           .format(sha256("{}, {}, {}"
+                          .format(self.app_name,
+                                  app.config['APPLICATION_ROOT'],
+                                  app.name).encode('utf-8')).hexdigest())
         
         @app.context_processor
         def context_processor():
@@ -221,7 +245,8 @@ class Module(TopLevelMenu, Blueprint):
         self.local_nav = {}
         self.title_text = None
         self.access_rules = []
-
+        self.subendpoint_aliases = []
+        
     def has_local_nav(self):
         return len(self.local_nav) > 0
 
@@ -315,7 +340,10 @@ class Module(TopLevelMenu, Blueprint):
             ash.add_base_template(k, v)
         for endpoint, proc in self.access_rules:
             ash.add_access_rule(self.name + "." + endpoint, proc)
+        for ep, a in self.subendpoint_aliases:
+            ash.add_subendpoint_alias(self.name + "." + ep, a)
 
+            
     def add_access_rule(self, endpoint, proc):
         self.access_rules.append((endpoint, proc))
 
@@ -324,6 +352,16 @@ class Module(TopLevelMenu, Blueprint):
             self.add_access_rule(f.__name__, proc)
             return f
         return wrap
+
+    def add_subendpoint_alias(self, endpoint, alias):
+        self.subendpoint_aliases.append((endpoint, alias))
+        
+    def subendpoint(self, endpoint):
+        def wrap(f):
+            self.add_subendpoint_alias(f.__name__, endpoint)
+            return f
+        return wrap
+        
 
 class SystemModule(Module):
     def register(self, app, *args, **kwargs):

@@ -39,6 +39,7 @@ class SQLColumn(Column):
                                         expression=expression, 
                                         **kwargs)
         self.expression = expression
+        self.id = str(expression).replace('.', '__')
         
     def get_sql_select_columns(self):
         return [self.expression]
@@ -46,9 +47,22 @@ class SQLColumn(Column):
     def get_cell_data(self, row):
         return row[self.expression]
 
+    def sql_append_where(self, q):
+        return q
+    
 class SQLActionColumn(ActionColumnMixin, SQLColumn):
     pass
-    
+
+class SQLFKColumn(SQLColumn):
+    def __init__(self, name, expression, fk, pk, **kwargs):
+        super(SQLFKColumn, self).__init__(name, expression=expression, **kwargs)
+        self.fk = fk.label(str(fk))
+        self.pk = pk.label(str(fk))
+
+    def sql_append_where(self, q):
+        return q.where(self.fk == self.pk)
+
+        
 class SQLFilter(object):
     def __init__(self, filter_expr=None,
                  **kwargs):
@@ -100,13 +114,15 @@ class SQLLeafMultiSelectTreeFilter(SQLFilter, MultiSelectTreeFilter):
     def sql_append_where(self, column, q, filter_data):
         fl = [i.rpartition("/")[2] for i in filter_data.split(';') if i != '']
         return q.where(self.get_column_to_filter(column).in_(fl))
-    
+
+
 
 class SQLTableDataSource(TableDataSource):
     def __init__(self, name, columns, 
                  prefilter=None,
                  where=[],
                  fake_count=False,
+                 select_from=None,
                  **kwargs):
         super(SQLTableDataSource, self).__init__(name, 
                                                  columns,
@@ -116,13 +132,8 @@ class SQLTableDataSource(TableDataSource):
         self.prefilter = prefilter
         self.where = where
         self.fake_count = fake_count
+        self.select_from = select_from
         
-    def get_selectable(self):
-        if self.selectable_proc:
-            return self.selectable_proc()
-        else:
-            return self.selectable
-
     def get_sql_columns(self):
         cs = []
 
@@ -132,7 +143,12 @@ class SQLTableDataSource(TableDataSource):
         return cs
 
     def get_select(self):
-        return ex.select(self.get_sql_columns())
+        q = ex.select(self.get_sql_columns(), use_labels=True)
+        if self.select_from is not None:
+            q = q.select_from(self.select_from)
+        for i in self.columns:
+            q = i.sql_append_where(q)
+        return q
 
     def apply_filters(self, q, filter_data):
         for idx, i in enumerate(self.columns):
@@ -203,6 +219,10 @@ class ModelTableDataSource(TableDataSource):
         return q.all(), total, filtered
     
 class UpdatingFormEndpoint(FormEndpoint):
+    detail_endpoint = None
+    listing_endpoint = None
+    listing_endpoint_args = {}
+
     def create_form(self, id):
         #self.obj = self.model_class.query.get(id)
         self.obj = db.session.query(self.model_class).get(id)
@@ -212,7 +232,15 @@ class UpdatingFormEndpoint(FormEndpoint):
 
     def confirm_submit(self):
         flash(_("Data saved"), "success")
+        return self.do_redirect()
 
+    def do_redirect(self):
+        if self.detail_endpoint:
+            return redirect(url_for(self.detail_endpoint, id=self.obj.id))
+        if self.listing_endpoint:
+            return redirect(url_for(self.listing_endpoint,
+                                    **self.listing_endpoint_args))
+        
     def post_populate(self):
         return
         
@@ -232,12 +260,16 @@ class CreatingFormEndpoint(FormEndpoint):
 
     def confirm_submit(self, **kwargs):
         flash(_("Data saved"), "success")
+        return self.do_redirect()
+
+    def do_redirect(self):
         if self.detail_endpoint:
             return redirect(url_for(self.detail_endpoint, id=self.obj.id))
         if self.listing_endpoint:
             return redirect(url_for(self.listing_endpoint,
                                     **self.listing_endpoint_args))
 
+        
     def post_populate(self):
         return
                 
