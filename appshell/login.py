@@ -123,7 +123,7 @@ class PasswordAuthenticationModule(AuthenticationModule):
             username = request.form['username']
             password = request.form['password']
             
-            user = self.authenticate_user(username, data)
+            user = self.authenticate_user(username, password)
             if not user:
                 flash(_("Invalid username or password"), "danger")
                 return redirect(url_for(".login"))
