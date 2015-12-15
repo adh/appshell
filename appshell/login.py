@@ -116,6 +116,24 @@ class PasswordAuthenticationModule(AuthenticationModule):
             flash(_("You have logged out"), "info")
             return redirect(url_for(current_appshell.root_view))
 
+        @self.route('/ext-login', methods=('POST', ))
+        def ext_login():
+            logout_user()
+            
+            username = request.form['username']
+            password = request.form['password']
+            
+            user = self.authenticate_user(username, data)
+            if not user:
+                flash(_("Invalid username or password"), "danger")
+                return redirect(url_for(".login"))
+            else:
+                login_user(user)
+                flash(_("Login successful"), "success")
+
+            return redirect(url_for(current_appshell.root_view))
+            
+
     def load_user(self, user_id):
         return self.userclass.load_user(user_id)
 
