@@ -39,6 +39,7 @@ setup(
         "WTForms-Alchemy",
         "iso8601",
         "XlsxWriter",
-        "Flask-Assets"
+        "Flask-Assets",
+        "cssutils"
     ]
 )
