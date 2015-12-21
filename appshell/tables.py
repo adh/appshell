@@ -543,7 +543,9 @@ class TableDataSource(ColumnsMixin):
             ah = self.action_handlers[request.args["action"]]
             return ah(self.get_data_from_request_args(args), self)
         else:
-            return jsonify(self.get_data_from_request_args(args))
+            d = self.get_data_from_request_args(args)
+            del d["raw_data"]
+            return jsonify(d)
 
 
     def get_data_from_request_args(self, args):
@@ -574,6 +576,7 @@ class TableDataSource(ColumnsMixin):
         return {"draw": draw,
                 "recordsTotal": total,
                 "recordsFiltered": filtered,
+                "raw_data": data,
                 "data": jdata}
 
     def register_view(self, f, decorators=[]):
