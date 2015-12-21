@@ -33,7 +33,7 @@
 
 {%macro action_button(text, target, context_class='default', size=None)%}
 {%if endpoint_accessible(target, kwargs) %}
-<a href="{{url_for(target, **kwargs)}}"
+<a href="{{url_or_url_for(target, **kwargs)}}"
    class="btn btn-{{context_class}}{%if size%} btn-{{size}}{%endif%}"
    role="button">
   {{text}}
