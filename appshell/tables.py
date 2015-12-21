@@ -569,6 +569,7 @@ class TableDataSource(ColumnsMixin):
         data, total, filtered = self.get_data(start, length, search, 
                                               ordering, column_filters,
                                               **args)
+        data = list(data)
         jdata = [{"c{}".format(idx): c.get_json_data(i)
                   for idx, c in enumerate(self.columns)}
                  for i in data]
