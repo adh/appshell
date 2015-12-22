@@ -530,6 +530,12 @@ class PlainTable(SequenceColumnMixin, IterableDataTable):
 class ObjectTable(ObjectColumnMixin, IterableDataTable):
     pass
 
+def int_or_zero(s):
+    try:
+        return int(s)
+    except:
+        return 0
+
 class TableDataSource(ColumnsMixin):
     def __init__(self, name, columns, param_string="", **kwargs):
         self.name = name
@@ -549,9 +555,9 @@ class TableDataSource(ColumnsMixin):
 
 
     def get_data_from_request_args(self, args):
-        draw = int(request.args["draw"])
-        start = int(request.args["start"])
-        length = int(request.args["length"])
+        draw = int_or_zero(request.args["draw"])
+        start = int_or_zero(request.args["start"])
+        length = int_or_zero(request.args["length"])
         search = unicode(request.args["search[value]"])
 
         ordering = []
