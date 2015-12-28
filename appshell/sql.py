@@ -392,7 +392,9 @@ class ModelCRUDEditor:
         if self.create_base:
             if self.toolbar is None:
                 self.toolbar = Toolbar()
-            self.toolbar.add_button(self.create_text, "."+self.create_endpoint)
+            self.toolbar.add_button(self.create_text,
+                                    "."+self.create_endpoint,
+                                    context_class="success")
             
     @property
     def table_endpoint(self):
@@ -425,14 +427,14 @@ class ModelCRUDEditor:
         return XCreatingFormEndpoint
 
     def make_edit_endpoint(self):
-        class XUpdatingFormEndpoint(self.create_base):
+        class XUpdatingFormEndpoint(self.edit_base):
             form_class = self.form_class
             model_class = self.model_class
             listing_endpoint = "." + self.table_endpoint
         return XUpdatingFormEndpoint
 
     def make_delete_endpoint(self):
-        class XDeletingEndpoint(self.create_base):
+        class XDeletingEndpoint(self.delete_base):
             model_class = self.model_class
             listing_endpoint = "." + self.table_endpoint
         return XDeletingEndpoint
