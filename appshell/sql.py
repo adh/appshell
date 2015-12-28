@@ -14,6 +14,7 @@ from flask.ext.babelex import Babel, Domain
 from appshell import View, url_for
 from flask import flash, request, redirect
 from appshell.endpoints import ConfirmationEndpoint
+from appshell.markup import Toolbar
 
 db = SQLAlchemy()
 
@@ -309,6 +310,7 @@ class ModelTableEndpoint(View):
     action_column_name = lazy_gettext('Actions')
     primary_key_attr = 'id'
     action_factory=Action
+    table_args = {}
     
     def transform_actions(self, actions):
         return [i if isinstance(i, Action) else self.action_factory(*i)
@@ -321,16 +323,20 @@ class ModelTableEndpoint(View):
         data = self.get_data(**kwargs)
         if self.actions:
             columns = list(self.columns)
+            print(repr(self.columns))
             actions = self.transform_actions(self.actions)
             columns.append(ActionObjectColumn(self.action_column_name,
                                               attr=self.primary_key_attr,
                                               actions=actions))
         else:
             columns = self.columns
-        
+
+        print(repr(columns))
+            
         t = PlainTable(self.__class__.__name__,
                        columns,
-                       data)
+                       data,
+                       **self.table_args)
         t = self.wrap(t)
         return t
 
@@ -339,3 +345,142 @@ class ModelTableEndpoint(View):
     
     def dispatch_request(self, **kwargs):
         return self.render_template(self.build_table(**kwargs))
+
+class ModelCRUDEditor:
+    columns = []
+    actions = []
+
+    toolbar = None
+
+    table_base = ModelTableEndpoint
+    
+    delete_base = DeletingEndpoint
+    delete_text = lazy_gettext('Delete')
+    
+    edit_base = UpdatingFormEndpoint
+    edit_text = lazy_gettext('Edit')
+    
+    create_base = CreatingFormEndpoint
+    create_text = lazy_gettext('Create...')
+
+    form_class = None
+    create_form_class = None
+    model_class = None
+    
+    decorators = []
+    table_decorators = []
+    create_decorators = []
+    delete_decorators = []
+    edit_decorators = []
+    
+    def __init__(self, basename):
+        self.basename = basename
+
+        if self.create_form_class is None:
+            self.create_form_class = self.form_class
+        
+        if self.edit_base:
+            self.actions = self.actions\
+                           + [self.table_base.action_factory(self.edit_text,
+                                                             "."+self.edit_endpoint)]
+
+        if self.delete_base:
+            self.actions = self.actions\
+                           + [self.table_base.action_factory(self.delete_text,
+                                                             "."+self.delete_endpoint)]
+            
+        if self.create_base:
+            if self.toolbar is None:
+                self.toolbar = Toolbar()
+            self.toolbar.add_button(self.create_text, "."+self.create_endpoint)
+            
+    @property
+    def table_endpoint(self):
+        return self.basename + "_table"
+    @property
+    def create_endpoint(self):
+        return self.basename + "_create"
+    @property
+    def edit_endpoint(self):
+        return self.basename + "_edit"
+    @property
+    def delete_endpoint(self):
+        return self.basename + "_delete"
+            
+    def make_table_endpoint(self):
+        ta = dict(self.table_base.table_args)
+        ta["toolbar"] = self.toolbar
+        class XModelTableEndpoint(self.table_base):
+            table_args = ta
+            columns = self.columns
+            actions = self.actions
+            model_class = self.model_class
+        return XModelTableEndpoint
+
+    def make_create_endpoint(self):
+        class XCreatingFormEndpoint(self.create_base):
+            form_class = self.create_form_class
+            model_class = self.model_class
+            listing_endpoint = "." + self.table_endpoint
+        return XCreatingFormEndpoint
+
+    def make_edit_endpoint(self):
+        class XUpdatingFormEndpoint(self.create_base):
+            form_class = self.form_class
+            model_class = self.model_class
+            listing_endpoint = "." + self.table_endpoint
+        return XUpdatingFormEndpoint
+
+    def make_delete_endpoint(self):
+        class XDeletingEndpoint(self.create_base):
+            model_class = self.model_class
+            listing_endpoint = "." + self.table_endpoint
+        return XDeletingEndpoint
+
+    def register_route(self, bp, route, decorators=[], **kwargs):
+        t = self.make_table_endpoint()
+        t.route(bp,
+                route,
+                name=self.table_endpoint,
+                decorators=(decorators
+                            + self.decorators
+                            + self.table_decorators),
+                **kwargs)
+
+        if self.create_base:
+            c = self.make_create_endpoint()
+            c.route(bp,
+                    route + 'create',
+                    decorators=(decorators
+                                + self.decorators
+                                + self.table_decorators),
+                    name=self.create_endpoint,
+                    **kwargs)
+
+        if self.edit_base:
+            c = self.make_edit_endpoint()
+            c.route(bp,
+                    route + '<id>/edit',
+                    name=self.edit_endpoint,
+                    decorators=(decorators
+                                + self.decorators
+                                + self.table_decorators),
+                    **kwargs)
+
+        if self.delete_base:
+            c = self.make_delete_endpoint()
+            c.route(bp,
+                    route + '<id>/delete',
+                    name=self.delete_endpoint,
+                    decorators=(decorators
+                                + self.decorators
+                                + self.table_decorators),
+                    **kwargs)
+    
+    @classmethod
+    def route(cls, bp, route, name=None, decorators=[], **kwargs):
+        if name is None:
+            name = cls.__name__
+
+        i = cls(name)
+        i.register_route(bp, route, decorators, **kwargs)
