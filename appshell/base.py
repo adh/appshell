@@ -354,6 +354,8 @@ class Module(TopLevelMenu, Blueprint):
         return wrap
 
     def add_subendpoint_alias(self, endpoint, alias):
+        if alias[0] == '.':
+            alias = self.name + alias
         self.subendpoint_aliases.append((endpoint, alias))
         
     def subendpoint(self, endpoint):

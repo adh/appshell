@@ -454,8 +454,9 @@ class ModelCRUDEditor:
             c.route(bp,
                     route + 'create',
                     decorators=(decorators
+                                + [bp.subendpoint('.'+self.table_endpoint)]
                                 + self.decorators
-                                + self.table_decorators),
+                                + self.create_decorators),
                     name=self.create_endpoint,
                     **kwargs)
 
@@ -465,8 +466,9 @@ class ModelCRUDEditor:
                     route + '<id>/edit',
                     name=self.edit_endpoint,
                     decorators=(decorators
+                                + [bp.subendpoint('.'+self.table_endpoint)]
                                 + self.decorators
-                                + self.table_decorators),
+                                + self.edit_decorators),
                     **kwargs)
 
         if self.delete_base:
@@ -475,8 +477,9 @@ class ModelCRUDEditor:
                     route + '<id>/delete',
                     name=self.delete_endpoint,
                     decorators=(decorators
+                                + [bp.subendpoint('.'+self.table_endpoint)]
                                 + self.decorators
-                                + self.table_decorators),
+                                + self.delete_decorators),
                     **kwargs)
     
     @classmethod
