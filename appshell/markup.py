@@ -31,12 +31,12 @@ def button(text, classes="", context_class="default", size=None, attrs={}):
                    a,
                    text)
 
-def link_button(url, text, context_class="default", size=None, hint=None):
+def link_button(url, text, context_class="default", size=None, hint=None, link_target=None):
     cls = "btn btn-"+context_class
     if size:
         cls += " btn-" + size
     return element("a", 
-                   {"class": cls, "role": "button", "href": url, "title": hint},
+                   {"class": cls, "role": "button", "href": url, "title": hint, "target": link_target},
                    text)
     
 

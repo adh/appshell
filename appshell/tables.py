@@ -285,6 +285,7 @@ class Action(object):
                  context_class='default', 
                  is_visible=None,
                  hint=None,
+                 new_window=False,
                  **params):
         self.text = text
         self.endpoint = endpoint
@@ -292,6 +293,7 @@ class Action(object):
         self.context_class = context_class
         self.params = params
         self.hint = hint
+        self.new_window = new_window
         if is_visible:
             self.is_visible = is_visible
 
@@ -307,7 +309,8 @@ class Action(object):
                            self.text,
                            context_class=self.context_class,
                            size=size,
-                           hint=self.hint)
+                           hint=self.hint,
+                           link_target="_blank" if self.new_window else None)
 
     def is_visible(self, data, orig_data=None):
         return True
