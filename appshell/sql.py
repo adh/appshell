@@ -225,7 +225,6 @@ class UpdatingFormEndpoint(FormEndpoint):
     listing_endpoint_args = {}
 
     def create_form(self, id):
-        #self.obj = self.model_class.query.get(id)
         self.obj = db.session.query(self.model_class).get(id)
         form = self.form_class(request.form, self.obj)
         form.populate_obj(self.obj)
@@ -287,9 +286,15 @@ class DeletingEndpoint(ConfirmationEndpoint):
     confirmation_format = lazy_gettext("Really delete {}?")
     flash_format = lazy_gettext("{} was deleted")
 
+    listing_endpoint = None
+    listing_endpoint_args = {}
+
     def prepare(self, id):
-        self.obj = self.model_class.query.get(id)
-    
+        self.obj = db.session.query(self.model_class).get(id)
+        if self.listing_endpoint:
+            self.redirect_to = url_for(self.listing_endpoint,
+                                       **self.listing_endpoint_args)
+        
     @property
     def confirmation_message(self):
         return self.confirmation_format.format(self.obj)

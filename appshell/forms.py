@@ -1,7 +1,7 @@
 from flask.ext.wtf import Form
 from flask import render_template
 from wtforms.widgets import TextArea, TextInput
-from wtforms.fields import HiddenField, FileField
+from wtforms.fields import HiddenField, FileField, SelectMultipleField
 from wtforms import fields, widgets, Form
 from appshell.markup import element, button, link_button, GridColumn
 from markupsafe import Markup
@@ -12,6 +12,7 @@ from appshell.widgets import ClientSideTabbar
 from appshell import View
 from appshell.templates import single_view
 from wtforms.validators import StopValidation
+from wtforms.utils import unset_value
 
 mydomain = Domain('appshell')
 _ = mydomain.gettext
@@ -848,3 +849,63 @@ class CollectionAddFormMixin(object):
 class CollectionEntryFormMixin(object):
     collection_action = CollectionDeleteButton("Remove")
     
+class ModelSelectMultipleField(SelectMultipleField):
+    def __init__(self, label=None,
+                 validators=None, coerce=int,
+                 name_attr=None, name_map=None,
+                 choices=None, choices_proc=None,
+                 id_attr='id', id_map=None,
+                 **kwargs):
+        
+        if name_map is None:
+            if name_attr is not None:
+                name_map = lambda x: getattr(x, name_attr)
+            else:
+                name_map = repr
+
+        if id_map is None:
+            if id_attr is not None:
+                id_map = lambda x: getattr(x, id_attr)
+            else:
+                raise ValueError("No id_map specified")
+                
+
+        self.id_map = id_map
+            
+        if choices_proc is not None:
+            choices = choices_proc()
+
+        self.choices_map = {}
+        real_choices = []
+        
+        for i in choices:
+            c_value = id_map(i)
+            c_label = name_map(i)
+            self.choices_map[c_value] = i
+            real_choices.append((c_value, c_label))
+        
+        super(ModelSelectMultipleField, self).__init__(label=label,
+                                                       validators=validators,
+                                                       choices=real_choices,
+                                                       coerce=coerce,
+                                                       **kwargs)
+
+
+        print(repr(choices))
+
+    def process_data(self, value):
+        if value is not None:
+            super(ModelSelectMultipleField,
+                  self).process_data([self.id_map(i) for i in value])
+        else:
+            super(ModelSelectMultipleField,
+                  self).process_data(value)
+
+    def populate_obj(self, obj, name):
+        if self.data is not None:
+            data = [self.choices_map[i] for i in self.data]
+        else:
+            data = None
+        setattr(obj, name, data)
+
+        
