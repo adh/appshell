@@ -609,9 +609,9 @@ class TableDataSource(ColumnsMixin):
     def data_source(self, fn):
         self.get_data = fn
 
-    def register_action(self, name, text, handler, context_class="default"):
+    def register_action(self, name, text, handler, context_class="default", new_window=False):
         self.action_handlers[name] = handler
-        self.action_list.append((name, text, context_class))
+        self.action_list.append((name, text, context_class, new_window))
 
     def get_toolbar_data(self):
         if len(self.action_list) == 0:
@@ -622,6 +622,7 @@ class TableDataSource(ColumnsMixin):
                                            context_class=i[2],
                                            size="xs",
                                            attrs={"data-target": self.name,
+                                                  "data-new-window": "new-window" if i[3] else None,
                                                   "data-action": i[0]})
                                     for i in self.action_list))
 

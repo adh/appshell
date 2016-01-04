@@ -151,13 +151,20 @@ $(document).ready(function(){
         var id = tgt.data('target');
         var action = tgt.data('action');
         var t = appshell.datatables[id];
-        var url = t.ajax.url()
+        var url = t.ajax.url();
         var paramstring = $.param(t.ajax.params());
-
-        window.location = (url + 
+        var new_window = tgt.data('new-window');
+        
+        var action_url = (url + 
                            ((url.indexOf('?') == -1) ? '?' : '&') + 
                            'action=' + action + 
-                           '&' + paramstring);
+                          '&' + paramstring);
+
+        if (new_window){
+            window.open(action_url);
+        } else {
+            window.location = action_url;
+        }
     });
 
     function treegrid_expand_all(tgt){
