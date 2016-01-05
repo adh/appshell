@@ -134,8 +134,9 @@ class SelectFilter(Filter):
     
 class MultiSelectFilter(SelectFilter):
     def get_filter_html(self, column_index, column, table):
+        val = self.get_filter_value(column)
         return modals.modal_checklist("filter_"+str(id(self)),
-                                      self.get_filter_value(column),
+                                      val,
                                       self.get_filter_data(),
                                       input_attrs={"data-tablefilter-column": column_index,
                                                    "data-tablefilter-target": table.name},

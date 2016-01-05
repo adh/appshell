@@ -61,7 +61,7 @@ $(document).ready(function(){
         
     $('.checklist').each(function(i, e){
         var name = $(e).data('custom-select-name');
-        function value_from_checks(){
+        function value_from_checks(trig){
             var value = ""
             var text = ""
             
@@ -78,15 +78,30 @@ $(document).ready(function(){
             
 
             $("#"+name+"-text").text(text);
-            $("#"+name).val(value)
-            $("#"+name).trigger('change');
+            $("#"+name).val(value);
+            if (trig){
+                $("#"+name).trigger('change');
+            }
         }
         function checks_from_value(){
+            var val = $("#"+name).val();
+            var list = val.split(";")
+            console.log(list);
+            $(e).find('input[type="checkbox"]').each(function(i, c){
+                var value = $(c).val();
+                console.log(value);
+                console.log(value in list);
+                if (list.indexOf(value) != -1){
+                    $(c).prop('checked', true);
+                }
+            });
             
         }
+        checks_from_value();
+        value_from_checks(false);
         console.log(e);
         $(e).find('input[type="checkbox"]').on("change", function f(){
-            value_from_checks();
+            value_from_checks(true);
         });
     });
 

@@ -285,7 +285,6 @@ class DeletingEndpoint(ConfirmationEndpoint):
     methods = ("GET", "POST")
     confirmation_format = lazy_gettext("Really delete {}?")
     flash_format = lazy_gettext("{} was deleted")
-
     listing_endpoint = None
     listing_endpoint_args = {}
 
