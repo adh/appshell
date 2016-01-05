@@ -46,7 +46,7 @@
 
 <body class="hold-transition 
              {{appshell.skin.skin_css_class}} 
-             {{appshell.skin.body_classes}}">
+             {{appshell.skin.body_classes(page_layout if page_layout is defined else None)}}">
   {%block body%}
 
   <div class="wrapper">

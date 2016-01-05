@@ -80,8 +80,16 @@ class AdminLTESkin(BaseAdminLTESkin):
         
 class NavbarAdminLTESkin(BaseAdminLTESkin):
     height_decrement = 300
-    def initialize(self, appshell):
+    def initialize(self, appshell, boxed=True):
         super(NavbarAdminLTESkin, self).initialize(appshell)
         self.want_sidebar = False
-        self.body_classes = "layout-top-nav layout-boxed"
+        self.boxed = boxed
         
+    def body_classes(self, page_layout=None):
+        if page_layout == 'fluid':
+            return "layout-top-nav"
+        
+        if self.boxed:
+            return "layout-top-nav layout-boxed"
+        else:
+            return "layout-top-nav"
