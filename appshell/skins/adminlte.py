@@ -69,8 +69,10 @@ class AdminLTESkin(BaseAdminLTESkin):
         appshell.default_menu_position = 'primary'
         self.menu_positions = ['left', 'right', 'primary']
         self.want_sidebar = True
-        self.body_classes = "fixed"
 
+    def body_classes(self, page_layout=None):
+        return "fixed"
+        
     def build_sidebar_menus(self):
         res = []
 
