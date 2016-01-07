@@ -49,7 +49,7 @@ class BaseAdminLTESkin(Skin):
         else:
             if self.footer_right is None:
                 self.footer_right = "v. " + get_version()
-
+            self.footer_left = footer_left
         
     @property
     def footer_data(self):
