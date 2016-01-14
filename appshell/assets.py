@@ -8,11 +8,11 @@ appshell_components_css = Bundle(
     'appshell/datatables/css/dataTables.fixedColumns.min.css',
     'appshell/datatables/css/dataTables.scroller.min.css',
     'appshell/datatables/css/dataTables.colReorder.min.css',
+    'appshell/fontawesome/css/font-awesome.css',
     'appshell/treegrid/css/jquery.treegrid.css',
     'appshell/datepicker/css/datepicker3.css',
     'appshell/bootstrap-markdown/css/bootstrap-markdown.min.css',
     'appshell/bs-select/css/bootstrap-select.min.css',
-    'appshell/fontawesome/css/font-awesome.css',
     filters='cssutils', output="gen/appshell/styles.css")
 assets.register("appshell_components_css", appshell_components_css)
 
