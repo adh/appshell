@@ -21,7 +21,6 @@ def xlsx_exporter(data, ds):
     row = 1
     for i in data["raw_data"]:
         for col, j in enumerate(i):
-            print(repr(j))
             try:
                 ws.write(row, col, j)
             except TypeError:
