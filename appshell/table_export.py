@@ -21,7 +21,11 @@ def xlsx_exporter(data, ds):
     row = 1
     for i in data["raw_data"]:
         for col, j in enumerate(i):
-            ws.write(row, col, j)
+            print(repr(j))
+            try:
+                ws.write(row, col, j)
+            except TypeError:
+                ws.write(row, col, str(j))
         row += 1
 
     wb.close()
@@ -33,14 +37,15 @@ def xlsx_exporter(data, ds):
              "attachment; filename={0}.xlsx".format(ds.name)})
 
 def csv_exporter(data, ds):
-    f = BytesIO()
+    f = StringIO()
     w = csv.writer(f)
 
     w.writerow([i.name for i in ds.columns])
     
     for i in data["raw_data"]:
         w.writerow([j for j in i])
-    return (f.getvalue(), 200, 
+        
+    return (f.getvalue().encode("utf-8"), 200, 
             {"Content-Type": "text/csv",
              "Content-Disposition": 
              "attachment; filename={0}.csv".format(ds.name)})
