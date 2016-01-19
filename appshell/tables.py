@@ -551,17 +551,19 @@ class TableDataSource(ColumnsMixin):
     def data_view(self, **args):
         if "action" in request.args:
             ah = self.action_handlers[request.args["action"]]
-            return ah(self.get_data_from_request_args(args), self)
+            return ah(self.get_data_from_request_args(args, for_export=True), self)
         else:
             d = self.get_data_from_request_args(args)
             del d["raw_data"]
             return jsonify(d)
 
 
-    def get_data_from_request_args(self, args):
+    def get_data_from_request_args(self, args, for_export=False):
         draw = int_or_zero(request.args["draw"])
         start = int_or_zero(request.args["start"])
         length = int_or_zero(request.args["length"])
+        if for_export:
+            length = None
         search = unicode(request.args["search[value]"])
 
         ordering = []

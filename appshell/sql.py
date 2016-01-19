@@ -182,7 +182,9 @@ class SQLTableDataSource(TableDataSource):
                 col = desc(col)
             q =q.order_by(col)
 
-        q = q.limit(length).offset(start)
+        if length is not None:
+            q = q.limit(length).offset(start)
+            
         return db.session.execute(q), total, filtered
 
 class ModelTableDataSource(TableDataSource):
