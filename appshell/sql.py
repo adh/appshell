@@ -72,7 +72,7 @@ class SQLFilter(object):
         self.filter_expr = filter_expr
 
     def get_column_to_filter(self, column):
-        if self.filter_expr:
+        if self.filter_expr is not None:
             return self.filter_expr
         else:
             return column.get_sql_select_columns()[0]
