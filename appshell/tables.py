@@ -541,14 +541,19 @@ def int_or_zero(s):
         return 0
 
 class TableDataSource(ColumnsMixin):
-    def __init__(self, name, columns, param_string="", **kwargs):
+    def __init__(self, name, columns, param_string="", params=None, **kwargs):
         self.name = name
         self.columns = self.transform_columns(columns)
         self.param_string = param_string
+        self.params = params
         self.action_handlers = {}
         self.action_list = []
 
     def data_view(self, **args):
+        for i in self.params:
+            if i in request.args:
+                args[i] = request.args[i]
+            
         if "action" in request.args:
             ah = self.action_handlers[request.args["action"]]
             return ah(self.get_data_from_request_args(args, for_export=True), self)
@@ -601,7 +606,7 @@ class TableDataSource(ColumnsMixin):
         
         f.add_url_rule("/appshell/data-source/table/{0}/{1}{2}.json"
                        .format(f.name,
-                               self.name, 
+                               self.name,
                                self.param_string),
                        endpoint=endpoint,
                        view_func=view_func,
