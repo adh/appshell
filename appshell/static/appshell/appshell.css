@@ -1,8 +1,6 @@
-
-body.with-nav {
-  padding-top: 50px;
+body.with-navbar {
+  padding-top: 40px;
 }
-
 
 /*
  * Global add-ons
@@ -79,5 +77,90 @@ body.with-nav {
 .main .page-header {
   margin-top: 0;
 }
+.main-full{
+    padding: 20px;
+}
 
 
+.dropdown-select {
+    padding-left: 15px;
+    padding-right: 15px;
+    padding-top: 5px;
+    padding-bottom: 0px;
+    max-height: 650px;
+    overflow: auto;
+}
+.modal-body {
+    max-height: 80vh;
+    overflow: auto;
+}
+
+.dataTables_scrollBody thead th{
+    height: 0px;
+    overflow: hidden;
+}
+
+.dropdown-select .checkbox label {
+    width: 100%;
+}
+
+.tablefilter.form-control{
+    width: 100%;
+}
+
+.appshell-spinner {
+    position: fixed;
+    left:50%;
+    top:50%;
+    margin-top: -35px;
+    margin-left: -150px;
+    width: 300px;
+    //height: 70px;
+    box-shadow: 0 5px 15px rgba(0,0,0,.5);
+    border-color: rgba(0,0,0,.2);
+    z-index: 10000;
+    display: none;
+}
+
+.main-container {
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 1170px;
+}
+
+.appshell-tabs {
+    margin-bottom: 10px;
+}
+
+.image-enlarge {
+    position: relative;
+}
+
+.image-enlarge span {
+    display: none;
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    z-index: 99;
+    box-shadow: black 0px 0px 10px;
+    background: white;
+}
+.image-enlarge:hover span {
+    display: inline-block;
+}
+
+.treegrid-search-panel {
+    text-align: right;
+}
+.treegrid-search-panel label{
+    font-weight: normal;
+    whitespace: nowrap;
+    text-align: left;
+}
+.treegrid-search-hidden {
+    display: none;
+}
+
+.tab-content {
+    padding-top: 15px;
+}
