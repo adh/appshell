@@ -12,7 +12,7 @@ lazy_gettext = mydomain.lazy_gettext
 def xlsx_exporter(data, ds):
     f = BytesIO()
 
-    wb = xlsxwriter.Workbook(f)
+    wb = xlsxwriter.Workbook(f, {"default_date_format": "yyyy-mm-dd hh:mm:ss"})
     ws = wb.add_worksheet()
     
     for col, j in enumerate(ds.columns):
