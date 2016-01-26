@@ -541,7 +541,7 @@ def int_or_zero(s):
         return 0
 
 class TableDataSource(ColumnsMixin):
-    def __init__(self, name, columns, param_string="", params=None, **kwargs):
+    def __init__(self, name, columns, param_string="", params=(), **kwargs):
         self.name = name
         self.columns = self.transform_columns(columns)
         self.param_string = param_string
