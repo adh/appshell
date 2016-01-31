@@ -34,5 +34,7 @@
 
 {%block main%}
 <div id="map"></div>
-{{map.after}}
+{%for i in map.after%}
+{{i}}
+{%endfor%}
 {%endblock%}
