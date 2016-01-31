@@ -233,7 +233,7 @@ $(document).ready(function(){
 (function(){
     var timeout;
     $(document).ajaxStart(function(){
-        timeout = setTimeout("$('.appshell-spinner').show()", 200);
+        timeout = setTimeout("$('.appshell-spinner').show()", 50);
     });
     $(document).ajaxStop(function(){
         if (timeout){
