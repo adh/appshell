@@ -49,3 +49,7 @@
 .treegrid-search-hidden {
     display: none;
 }
+
+.box-body {
+    overflow-x: auto;
+}
