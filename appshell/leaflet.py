@@ -24,25 +24,17 @@ class MapElement(object):
 
     def get_bounds(self):
         return []
-    def get_js(self, target='map'):
-        return self.get_element_js(target=target) + self.get_popup_js()
+    
+    def get_js(self):
+        return t.element((self.get_element_js(), self.get_popup_js()))
     def get_popup_js(self):
         if self.popup is None:
             return ""
         else:
             return t.popup(self.popup)
 
-class Marker(MapElement):
-    def __init__(self, pos, options={}, **kwargs):
-        super(Marker, self).__init__(pos=pos, **kwargs);
-        self.pos = pos
-        self.options = options
-    def get_element_js(self, target='map'):
-        return t.marker(self.pos, self.options, target=target)
-    def get_bounds(self):
-        return [self.pos]
-
-class MarkerCluster(MapElement):
+class LayerGroup(MapElement):
+    __leaflet_class__ = "LayerGroup"
     def __init__(self, **kwargs):
         self.elements = []
         self.fit_to = []
@@ -52,8 +44,25 @@ class MarkerCluster(MapElement):
             self.fit_to = merge_bounds(self.fit_to, el.get_bounds())
     def get_bounds(self):
         return self.fit_to
-    def get_js(self, target='map'):
-        return t.marker_cluster(c=self, target=target)
+    def get_js(self):
+        return t.group(c=self,
+                       klass=self.__leaflet_class__)
+
+class FeatureGroup(LayerGroup):
+    __leaflet_class__ = "FeatureGroup"
+        
+class Marker(MapElement):
+    def __init__(self, pos, options={}, **kwargs):
+        super(Marker, self).__init__(pos=pos, **kwargs);
+        self.pos = pos
+        self.options = options
+    def get_element_js(self):
+        return t.marker(self.pos, self.options)
+    def get_bounds(self):
+        return [self.pos]
+
+class MarkerCluster(FeatureGroup):
+    __leaflet_class__ = "MarkerClusterGroup"
 
 class Polyline(MapElement):
     __leaflet_class__ = "polyline"
@@ -68,10 +77,9 @@ class Polyline(MapElement):
     def get_bounds(self):
         return merge_bounds(self.points)
 
-    def get_element_js(self, target='map'):
+    def get_element_js(self):
         return t.polyline(points=self.points, 
                           opts=self.options,
-                          target=target,
                           klass=self.__leaflet_class__)
 class Polygon(Polyline):
     __leaflet_class__ = "polygon"
@@ -89,10 +97,23 @@ class Circle(MapElement):
     def get_bounds(self):
         return [self.pos]
 
-    def get_element_js(self, target='map'):
-        return t.circle(self.pos, self.radius, self.options, target=target)
-        
+    def get_element_js(self):
+        return t.circle(self.pos, self.radius, self.options)
 
+class MapControl(MapElement):
+    pass
+    
+class LayerControl(MapControl):
+    def __init__(self):
+        self.overlays = []
+    
+    def get_js(self):
+        return t.layer_control(self)
+
+    def add_overlay(self, l, name, visible=False):
+        self.overlays.append((l, name, visible))
+        
+    
 class Map(object):
     def __init__(self, x=0, y=0, z=0, tilelayer=None, tile_options={}, after=""):
         self.x = x

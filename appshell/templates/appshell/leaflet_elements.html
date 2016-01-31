@@ -1,26 +1,49 @@
-{%macro marker(pos, opts={}, target='map')%}
+{%macro element(items)%}
+(function(){
+{%for i in items%}
+{{i}}
+{%endfor%}
+return e;
+})
+{%endmacro%}
+
+{%macro marker(pos, opts={})%}
 var e = L.marker({{pos|tojson}}, {{opts|tojson}});
-{{target}}.addLayer(e);
 {%endmacro%}
 
 {%macro popup(popup)%}
 e.bindPopup({{popup|tojson}});
 {%endmacro%}
 
-{%macro marker_cluster(c, target='map')%}
-var c = new L.MarkerClusterGroup();
+{%macro group(c, klass)%}
+(function(){
+var e = new L.{{klass}}();
 {%for i in c.elements%}
-{{i.get_js('c')}}
+e.addLayer(({{i.get_js()}}()));
 {%endfor%}
-{{target}}.addLayer(c);
+return e;
+})
 {%endmacro%}
 
-{%macro polyline(points, opts={}, target='map', klass='polyline')%}
+{%macro polyline(points, opts={}, klass='polyline')%}
 var e = L.{{klass}}({{points|tojson}}, {{opts|tojson}});
-{{target}}.addLayer(e);
 {%endmacro%}
 
-{%macro circle(pos, radius, opts={}, target='map')%}
+{%macro circle(pos, radius, opts={})%}
 var e = L.circle({{pos|tojson}}, {{radius|tojson}}, {{opts|tojson}});
-{{target}}.addLayer(e);
+{%endmacro%}
+
+{%macro layer_control(self)%}
+(function(map){
+overlays = {};
+{%for i in self.overlays%}
+var ie = ({{i[0].get_js()}})();
+overlays[{{i[1]|tojson}}] = ie;
+{%if i[2]%}
+  map.addLayer(ie);
+{%endif%}
+{%endfor%}
+var e = L.control.layers(null, overlays);
+return e;
+})
 {%endmacro%}

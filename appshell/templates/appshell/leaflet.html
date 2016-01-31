@@ -21,7 +21,7 @@
 
   (function(){
   {%for i in map.elements%}
-    {{i.get_js()}}
+    ({{i.get_js()}}(map)).addTo(map);
   {%endfor%}
   })();
 
@@ -34,5 +34,5 @@
 
 {%block main%}
 <div id="map"></div>
-{{maps.after}}
+{{map.after}}
 {%endblock%}
