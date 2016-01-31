@@ -94,7 +94,7 @@ class Circle(MapElement):
         
 
 class Map(object):
-    def __init__(self, x=0, y=0, z=0, tilelayer=None, tile_options={}):
+    def __init__(self, x=0, y=0, z=0, tilelayer=None, tile_options={}, after=""):
         self.x = x
         self.y = y
         self.z = z
