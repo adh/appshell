@@ -32,8 +32,11 @@ class BaseAdminLTESkin(Skin):
                  footer=True,
                  footer_right=None,
                  footer_left=None,
-                 get_version=get_version):
+                 get_version=get_version,
+                 top_nav_add=''):
 
+        self.top_nav_add = top_nav_add
+        
         if skin_filename is not None:
             self.skin_less_file = skin_filename
             self.skin_css_class = skin_class

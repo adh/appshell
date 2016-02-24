@@ -55,10 +55,19 @@
       {%endif%}
       <ul class="nav navbar-nav navbar-left">
         {{ top_menu_items(menu.left) }}
+      {%block top_nav_add%}
+      {{ appshell.skin.top_nav_add }}
+      {%endblock%}
       </ul>
+
+
       <!-- Navbar Right Menu -->
+
       <div class="navbar-custom-menu">
         <ul class="nav navbar-nav navbar-left">
+
+          
+
           {{ top_menu_items(menu.right) }}
           {%if appshell.system_module%}
           {%set sysmenu = appshell.system_module.get_system_menu_item()%}
