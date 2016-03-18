@@ -61,7 +61,16 @@ class DateWidget(TextInput):
 
 class DateField(fields.DateField):
     widget = DateWidget()
-    
+
+class MultiCheckboxField(SelectMultipleField):
+    """
+    A multiple-select, except displays a list of checkboxes.
+
+    Iterating the field will produce subfields, allowing custom rendering of
+    the enclosed checkbox fields.
+    """
+    widget = widgets.ListWidget(prefix_label=False)
+    option_widget = widgets.CheckboxInput()
     
 
 field_renderers = {}
@@ -334,6 +343,14 @@ class FormFieldRenderer(FieldRenderer):
         
     def render_errors(self):
         return ""
+
+@field_renderer('MultiCheckboxField')
+class MultiCheckboxFieldRenderer(FieldRenderer):
+    def render_input(self):
+        c = Markup("").join(Markup('<li class="checkbox"><label>{} {}</label></li>')\
+                            .format(i(),
+                                    i.label.text) for i in self.field)
+        return element("ul", {"class": "unstyled"}, c)
     
 class VerticalFormView(FormView):
     formfield_view = None
