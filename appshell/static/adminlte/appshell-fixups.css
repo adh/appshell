@@ -7,6 +7,11 @@
     overflow: hidden;
 }
 
+.DTFC_LeftWrapper thead th{
+    height: 0px;
+    overflow: hidden;
+}
+
 .appshell-spinner {
     position: fixed;
     left:50%;
