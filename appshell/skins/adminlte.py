@@ -33,7 +33,7 @@ class BaseAdminLTESkin(Skin):
                  footer_right=None,
                  footer_left=None,
                  get_version=get_version,
-                 top_nav_add=''):
+                 top_nav_add=[]):
 
         self.top_nav_add = top_nav_add
         

@@ -56,7 +56,9 @@
       <ul class="nav navbar-nav navbar-left">
         {{ top_menu_items(menu.left) }}
       {%block top_nav_add%}
-      {{ appshell.skin.top_nav_add }}
+        {%for i in appshell.skin.top_nav_add %}
+        {{i}}
+        {%endfor%}
       {%endblock%}
       </ul>
 
