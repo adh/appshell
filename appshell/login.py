@@ -150,3 +150,5 @@ class AdminPasswordAuthenticationModule(AdminOnlyAuthenticationMixin,
                                         PasswordAuthenticationModule):
     pass
 
+def logged_in():
+    return current_user and not current_user.is_anonymous
