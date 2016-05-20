@@ -336,13 +336,18 @@ class BooleanFieldRenderer(FieldRenderer):
 class FormFieldRenderer(FieldRenderer):
     def render_input(self):
         v = self.view.get_formfield_view()
-        c = Markup("{}{}").format(self.field.hidden_tag(),
-                                     v.render_fields(self.field,
-                                                     form_info=self.form_info))
+        c = v.render_fields(self.field,
+                            form_info=self.form_info)
         return element("div", v.form_attrs, c)
         
     def render_errors(self):
         return ""
+
+    def render_label(self):
+        if self.field.label.text == "":
+            return None
+        else:
+            return self.field.label(**self.view.label_args)
 
 @field_renderer('MultiCheckboxField')
 class MultiCheckboxFieldRenderer(FieldRenderer):
