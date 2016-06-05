@@ -336,8 +336,9 @@ class BooleanFieldRenderer(FieldRenderer):
 class FormFieldRenderer(FieldRenderer):
     def render_input(self):
         v = self.view.get_formfield_view()
-        c = v.render_fields(self.field,
-                            form_info=self.form_info)
+        c = Markup("{}{}").format(self.field.hidden_tag(),
+                                     v.render_fields(self.field,
+                                                     form_info=self.form_info))
         return element("div", v.form_attrs, c)
         
     def render_errors(self):
