@@ -14,9 +14,14 @@ def xlsx_exporter(data, ds):
 
     wb = xlsxwriter.Workbook(f, {"default_date_format": "yyyy-mm-dd hh:mm:ss"})
     ws = wb.add_worksheet()
+
+    widths = [0 for i in ds.columns]
     
     for col, j in enumerate(ds.columns):
         ws.write(0, col, j.name)
+        w = len(str(j.name))
+        if w > widths[col]:
+            widths[col] = w
 
     row = 1
     for i in data["raw_data"]:
@@ -25,7 +30,13 @@ def xlsx_exporter(data, ds):
                 ws.write(row, col, j)
             except TypeError:
                 ws.write(row, col, str(j))
+            w = len(str(j))
+            if w > widths[col]:
+                widths[col] = w
         row += 1
+
+    for x, i in enumerate(widths):
+        ws.set_column('{0}:{0}'.format(chr(x + ord('A'))), i + 2)
 
     wb.close()
 
