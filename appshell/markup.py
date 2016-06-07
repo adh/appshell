@@ -43,7 +43,7 @@ def form_button(url, text, classes="", context_class="default", size=None, attrs
     return element("form",
                    {"method": "POST",
                     "action": url},
-                   button(test, classes=classes, context_class=context_class,
+                   button(text, classes=classes, context_class=context_class,
                           size=size, attrs=attrs))
 
 
