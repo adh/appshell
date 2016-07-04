@@ -35,9 +35,10 @@ class MapElement(object):
 
 class LayerGroup(MapElement):
     __leaflet_class__ = "LayerGroup"
-    def __init__(self, **kwargs):
+    def __init__(self, options={}, **kwargs):
         self.elements = []
         self.fit_to = []
+        self.options = options
     def add(self, el, fit=False):
         self.elements.append(el)
         if fit:
@@ -46,6 +47,7 @@ class LayerGroup(MapElement):
         return self.fit_to
     def get_js(self):
         return t.group(c=self,
+                       options=self.options,
                        klass=self.__leaflet_class__)
 
 class FeatureGroup(LayerGroup):

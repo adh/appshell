@@ -15,9 +15,9 @@ var e = L.marker({{pos|tojson}}, {{opts|tojson}});
 e.bindPopup({{popup|tojson}});
 {%endmacro%}
 
-{%macro group(c, klass)%}
+{%macro group(c, options, klass)%}
 (function(){
-var e = new L.{{klass}}();
+var e = new L.{{klass}}({{options|tojson}});
 {%for i in c.elements%}
 e.addLayer(({{i.get_js()}}()));
 {%endfor%}
