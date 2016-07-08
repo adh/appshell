@@ -7,8 +7,11 @@ return e;
 })
 {%endmacro%}
 
-{%macro marker(pos, opts={})%}
+{%macro marker(m, pos, opts={})%}
 var e = L.marker({{pos|tojson}}, {{opts|tojson}});
+{%if m.divicon%}
+e.setIcon(L.divIcon({{m.divicon|tojson}}));
+{%endif%}
 {%endmacro%}
 
 {%macro popup(popup)%}

@@ -54,12 +54,13 @@ class FeatureGroup(LayerGroup):
     __leaflet_class__ = "FeatureGroup"
         
 class Marker(MapElement):
-    def __init__(self, pos, options={}, **kwargs):
+    def __init__(self, pos, options={}, divicon=None, **kwargs):
         super(Marker, self).__init__(pos=pos, **kwargs);
         self.pos = pos
         self.options = options
+        self.divicon = divicon
     def get_element_js(self):
-        return t.marker(self.pos, self.options)
+        return t.marker(self, self.pos, self.options)
     def get_bounds(self):
         return [self.pos]
 
