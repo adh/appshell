@@ -20,12 +20,12 @@ def element(name, attrs, contents):
                                          contents,
                                          name)
 
-def button(text, classes="", context_class="default", size=None, attrs={}):
+def button(text, classes="", context_class="default", size=None, attrs={}, type="button"):
     cls = "btn btn-"+context_class
     if size:
         cls += " btn-" + size
     a = {"class": cls + " " + classes, 
-         "type": "button"}
+         "type": type}
     a.update(attrs)
     return element("button", 
                    a,
@@ -44,7 +44,7 @@ def form_button(url, text, classes="", context_class="default", size=None, attrs
                    {"method": "POST",
                     "action": url},
                    button(text, classes=classes, context_class=context_class,
-                          size=size, attrs=attrs))
+                          size=size, attrs=attrs, type="submit"))
 
 
 def glyphicon(icon):
