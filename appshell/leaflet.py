@@ -33,6 +33,19 @@ class MapElement(object):
         else:
             return t.popup(self.popup)
 
+class Icon(object):
+    __leaflet_class__ = "L.icon"
+    def __init__(self, options):
+        self.options = options
+    def __html__(self):
+        return t.icon(klass=self.__leaflet_class__,
+                      options=self.options)
+
+class AwesomeMarker(Icon):
+    __leaflet_class__ = "L.AwesomeMarkers.icon"
+class DivIcon(Icon):
+    __leaflet_class__ = "L.divIcon"
+        
 class LayerGroup(MapElement):
     __leaflet_class__ = "LayerGroup"
     def __init__(self, options={}, **kwargs):
@@ -54,11 +67,13 @@ class FeatureGroup(LayerGroup):
     __leaflet_class__ = "FeatureGroup"
         
 class Marker(MapElement):
-    def __init__(self, pos, options={}, divicon=None, **kwargs):
+    def __init__(self, pos, options={}, icon=None, divicon=None, **kwargs):
         super(Marker, self).__init__(pos=pos, **kwargs);
         self.pos = pos
         self.options = options
-        self.divicon = divicon
+        self.icon = icon
+        if divicon:
+            self.icon = DivIcon(divicon)
     def get_element_js(self):
         return t.marker(self, self.pos, self.options)
     def get_bounds(self):
