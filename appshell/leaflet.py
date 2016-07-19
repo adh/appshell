@@ -67,10 +67,13 @@ class FeatureGroup(LayerGroup):
     __leaflet_class__ = "FeatureGroup"
         
 class Marker(MapElement):
-    def __init__(self, pos, options={}, icon=None, divicon=None, **kwargs):
+    def __init__(self, pos, options={}, icon=None, divicon=None,
+                 name=None, **kwargs):
         super(Marker, self).__init__(pos=pos, **kwargs);
         self.pos = pos
         self.options = options
+        self.name = name
+
         self.icon = icon
         if divicon:
             self.icon = DivIcon(divicon)

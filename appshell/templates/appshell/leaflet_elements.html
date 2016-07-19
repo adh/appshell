@@ -16,6 +16,9 @@ var e = L.marker({{pos|tojson}}, {{opts|tojson}});
 {%if m.icon%}
 e.setIcon({{m.icon}});
 {%endif%}
+{%if m.name%}
+leaflet_named_markers[{{m.name|tojson}}] = e;
+{%endif%}
 {%endmacro%}
 
 {%macro popup(popup)%}

@@ -15,6 +15,8 @@
 <script src="{{res_url('appshell.static', filename='leaflet/leaflet.markercluster-src.js')}}"></script>
 <script src="{{res_url('appshell.static', filename='leaflet-awesome-markers/leaflet.awesome-markers.min.js')}}"></script>
 <script>
+  leaflet_named_markers = {};
+  
   $('#map').css('height', $(window).height() - {{appshell.skin.height_decrement - 130}});
   var map = L.map('map').setView([{{map.x|tojson}}, {{map.y|tojson}}], {{map.z|tojson}});
   L.tileLayer({{map.tilelayer|tojson}},{{map.tile_options|tojson}}).addTo(map);
