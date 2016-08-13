@@ -32,6 +32,7 @@ app = Flask(__name__)
 
 app.config['SECRET_KEY'] = 'foo'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
+app.config['SQLALCHEMY_ECHO'] = True
 
 shell = AppShell('AppShell demo', 'simple.hello', app,
                  components={'sql': {}},

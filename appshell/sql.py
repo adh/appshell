@@ -5,7 +5,7 @@ from wtforms_alchemy import model_form_factory
 from appshell.tables import TableDataSource, SequenceTableDataSource, \
     SelectFilter, MultiSelectFilter, Column, TextFilter, ActionColumnMixin,\
     RangeFilter, DateRangeFilter, MultiSelectTreeFilter, PlainTable, \
-    ObjectColumn, Action, ActionObjectColumn
+    ObjectColumn, Action, ActionObjectColumn, Filter
 from sqlalchemy.sql import expression as ex
 from sqlalchemy import desc, func
 import json
@@ -34,9 +34,9 @@ class ModelForm(BaseModelForm):
 def register_in_app(appshell, app):
     db.init_app(app)
 
-class SQLColumn(Column):
+class SQLAlchemyColumn(Column):
     def __init__(self, name, expression, **kwargs):
-        super(SQLColumn, self).__init__(name, 
+        super(SQLAlchemyColumn, self).__init__(name, 
                                         expression=expression, 
                                         **kwargs)
         self.expression = expression
@@ -48,6 +48,8 @@ class SQLColumn(Column):
     def get_cell_data(self, row):
         return row[self.expression]
 
+
+class SQLColumn(SQLAlchemyColumn):
     def sql_append_where(self, q):
         return q
     
@@ -63,14 +65,17 @@ class SQLFKColumn(SQLColumn):
     def sql_append_where(self, q):
         return q.where(self.fk == self.pk)
 
-        
-class SQLFilter(object):
+class SQLAlchemyFilter(Filter):
     def __init__(self, filter_expr=None,
                  **kwargs):
-        super(SQLFilter, self).__init__(filter_expr=filter_expr,
-                                        **kwargs)
+        super(SQLAlchemyFilter, self).__init__(filter_expr=filter_expr,
+                                               **kwargs)
         self.filter_expr = filter_expr
 
+    def get_filter_clause(self, column, filter_data):
+        raise NotImplemented
+        
+class SQLFilter(SQLAlchemyFilter):
     def get_column_to_filter(self, column):
         if self.filter_expr is not None:
             return self.filter_expr
@@ -78,16 +83,25 @@ class SQLFilter(object):
             return column.get_sql_select_columns()[0]
 
     def sql_append_where(self, column, q, filter_data):
-        raise NotImplemented
+        return q.where(self.get_filter_clause(column, filter_data))
+    
+class PrefixFilter(TextFilter):
+    #def sql_append_where(self, column, q, filter_data):
+    #    return q.where(self.get_column_to_filter(column).like(filter_data+'%'))
 
-class SQLPrefixFilter(SQLFilter, TextFilter):
-    def sql_append_where(self, column, q, filter_data):
-        return q.where(self.get_column_to_filter(column).like(filter_data+'%'))
+    def get_filter_clause(self, column, filter_data):
+        return self.get_column_to_filter(column).like(filter_data+'%')
 
-class SQLCasefoldingPrefixFilter(SQLFilter, TextFilter):
-    def sql_append_where(self, column, q, filter_data):
+class SQLPrefixFilter(PrefixFilter, SQLFilter):
+    pass
+    
+class CasefoldingPrefixFilter(SQLFilter, TextFilter):
+    def sql_get_filter_clause(self, column, filter_data):
         col = self.get_column_to_filter(column)
-        return q.where(func.lower(col).like(filter_data.lower()+'%'))
+        return func.lower(col).like(filter_data.lower()+'%')
+
+class SQLCasefolfingPrefixFilter(CasefoldingPrefixFilter, SQLFilter):
+    pass
     
 class SQLSelectFilter(SQLFilter, SelectFilter):
     def sql_append_where(self, column, q, filter_data):
@@ -192,7 +206,7 @@ class ModelTableDataSource(TableDataSource):
                  query=None,
                  query_proc=None,
                  **kwargs):
-        super(SQLTableDataSource, self).__init__(name, 
+        super(ModelTableDataSource, self).__init__(name, 
                                                  columns,
                                                  prefilter=prefilter,
                                                  where=where,
