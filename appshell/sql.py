@@ -100,7 +100,7 @@ class CasefoldingPrefixFilter(SQLFilter, TextFilter):
         col = self.get_column_to_filter(column)
         return func.lower(col).like(filter_data.lower()+'%')
 
-class SQLCasefolfingPrefixFilter(CasefoldingPrefixFilter, SQLFilter):
+class SQLCasefoldingPrefixFilter(CasefoldingPrefixFilter, SQLFilter):
     pass
     
 class SQLSelectFilter(SQLFilter, SelectFilter):
