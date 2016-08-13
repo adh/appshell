@@ -85,10 +85,9 @@ class Marker(MapElement):
 class MarkerCluster(FeatureGroup):
     __leaflet_class__ = "MarkerClusterGroup"
 
-class Polyline(MapElement):
-    __leaflet_class__ = "polyline"
+class PathElement(MapElement):
     def __init__(self, points=[], options={}, **kwargs):
-        super(Polyline, self).__init__(**kwargs);
+        super(PathElement, self).__init__(**kwargs);
         self.points = points
         self.options = options
 
@@ -99,15 +98,22 @@ class Polyline(MapElement):
         return merge_bounds(self.points)
 
     def get_element_js(self):
-        return t.polyline(points=self.points, 
-                          opts=self.options,
-                          klass=self.__leaflet_class__)
-class Polygon(Polyline):
+        return t.pathelement(points=self.points, 
+                             opts=self.options,
+                             klass=self.__leaflet_class__)
+    
+class Polyline(PathElement):
+    __leaflet_class__ = "polyline"
+
+class Polygon(PathElement):
     __leaflet_class__ = "polygon"
 
-class Rectangle(Polygon):
+class Rectangle(PathElement):
     __leaflet_class__ = "rectangle"
 
+class HeatLayer(PathElement):
+    __leaflet_class__ = "heatLayer"
+    
 class Circle(MapElement):
     def __init__(self, pos, radius, options={}, **kwargs):
         super(Circle, self).__init__(**kwargs);

@@ -35,7 +35,7 @@ return e;
 })
 {%endmacro%}
 
-{%macro polyline(points, opts={}, klass='polyline')%}
+{%macro pathelement(points, opts={}, klass='polyline')%}
 var e = L.{{klass}}({{points|tojson}}, {{opts|tojson}});
 {%endmacro%}
 
