@@ -58,11 +58,13 @@ class Column(object):
             res = self.convert(self.get_cell_data(row))
         else:
             res = self.get_cell_data(row)
-            
-        if res in self.content_map:
-            return self.content_map[res]
-        else:
-            return res
+
+        try:
+            if res in self.content_map:
+                return self.content_map[res]
+        except:
+            pass
+        return res
 
     def get_json_data(self, row):
         return unicode(self.get_cell_inner_html(row))
@@ -223,6 +225,13 @@ class ObjectColumn(Column):
                 return None
         return r
 
+class ObjectOrNoneColumn(ObjectColumn):
+    def get_cell_data(self, row):
+        try:
+            return super(self, ObjectColumn).get_cell_data(row)
+        except:
+            return None
+    
 class DescriptorColumn(Column):
     def __init__(self, name, descriptor, **kwargs):
         super(ObjectColumn, self).__init__(name, attr=attr, **kwargs)
