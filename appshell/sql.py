@@ -95,8 +95,8 @@ class PrefixFilter(TextFilter):
 class SQLPrefixFilter(PrefixFilter, SQLFilter):
     pass
     
-class CasefoldingPrefixFilter(SQLFilter, TextFilter):
-    def sql_get_filter_clause(self, column, filter_data):
+class CasefoldingPrefixFilter(TextFilter):
+    def get_filter_clause(self, column, filter_data):
         col = self.get_column_to_filter(column)
         return func.lower(col).like(filter_data.lower()+'%')
 
