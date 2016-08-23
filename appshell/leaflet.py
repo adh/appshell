@@ -115,17 +115,18 @@ class HeatLayer(PathElement):
     __leaflet_class__ = "heatLayer"
     
 class Circle(MapElement):
-    def __init__(self, pos, radius, options={}, **kwargs):
-        super(Circle, self).__init__(**kwargs);
+    def __init__(self, pos, radius, options={}, name=None, **kwargs):
+        super(Circle, self).__init__(name=name, **kwargs);
         self.pos = pos
         self.options = options
         self.radius = radius
+        self.name = name
 
     def get_bounds(self):
         return [self.pos]
 
     def get_element_js(self):
-        return t.circle(self.pos, self.radius, self.options)
+        return t.circle(self.pos, self.radius, self.options, name=self.name)
 
 class MapControl(MapElement):
     pass

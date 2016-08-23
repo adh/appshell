@@ -39,8 +39,11 @@ return e;
 var e = L.{{klass}}({{points|tojson}}, {{opts|tojson}});
 {%endmacro%}
 
-{%macro circle(pos, radius, opts={})%}
+{%macro circle(pos, radius, opts={}, name=None)%}
 var e = L.circle({{pos|tojson}}, {{radius|tojson}}, {{opts|tojson}});
+{%if name%}
+leaflet_named_markers[{{name|tojson}}] = e;
+{%endif%}
 {%endmacro%}
 
 {%macro layer_control(self)%}
