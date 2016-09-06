@@ -75,8 +75,8 @@ class PieChart(Chart):
             s = 1
             
         for i in dr:
-            i["label"] = "{}% {}".format(int(i["value"] * 100 / s),
-                                         i["label"])
+            i["label"] = Markup("{}% {}").format(int(i["value"] * 100 / s),
+                                                 i["label"])
 
         return dr
         
