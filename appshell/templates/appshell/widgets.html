@@ -8,20 +8,26 @@
 </div>
 {%endmacro%}
 
-{%macro rangeinput(name, value, classes='', root_attrs={}, input_attrs={})%}
+{%macro rangeinput(name, value, classes='', root_attrs={}, input_attrs={}, has_submit=False)%}
 <div class="input-daterange input-group {{classes}}" 
       {{root_attrs|xmlattr}}>
     <input type="text" class="input-sm form-control range-from" name="{{name}}_from" value="{{value[0]}}" {{input_attrs|xmlattr}}/>
     <span class="input-group-addon">-</span>
     <input type="text" class="input-sm form-control range-to" name="{{name}}_to" value="{{value[1]}}" {{input_attrs|xmlattr}}/>
+    {%if has_submit%}
+    <span class="input-group-btn">
+      <button class="btn btn-success btn-sm"><i class="glyphicon glyphicon-ok"></i></button>
+    </span>
+    {%endif%}
 </div>
 {%endmacro%}
 
-{%macro daterange(name, value, classes='', root_attrs={})%}
+{%macro daterange(name, value, classes='', root_attrs={}, has_submit=False)%}
 {%set new_attrs = {"data-provide": "datepicker", "data-date-format": "yyyy-mm-dd"}%}
 {%set dummy = new_attrs.update(root_attrs) %}
-{{ rangeinput(name, value, classes, new_attrs, input_attrs={"onkeydown": "return false;"}) }}
+{{ rangeinput(name, value, classes, new_attrs, input_attrs={"onkeydown": "return false;"}, has_submit=has_submit) }}
 {%endmacro%}
+
 
 {%macro select(name, value, data, select_attrs={}, select_classes="") %}
 <select name="{{name}}" class="form-control {{select_classes}}" {{select_attrs|xmlattr}}>
