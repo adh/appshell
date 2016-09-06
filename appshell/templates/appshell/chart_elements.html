@@ -1,0 +1,25 @@
+{%import "appshell/utils.html" as u%}
+{%macro chart(ch)%}
+<div>
+  <canvas id="{{ch.name}}" height="{{ch.height}}" class="{{ch.canvas_class}}" style="{{ch.canvas_style}}"></canvas>
+  {{ch.legend_html}}
+</div>
+  {%call u.script()%}
+<script>
+  (function(){
+  var ctx = document.getElementById("{{ch.name}}").getContext("2d");
+  var ch = new Chart(ctx).{{ch.__chart_class__}}({{ch.data|tojson}}, {{ch.options|tojson}})
+  })();
+</script>
+{%endcall%}
+{%endmacro%}
+
+{%macro legend(data)%}
+<div class="legend">
+  <ul class="list-unstyled">
+    {%for i in data%}
+    <li><span style="color: {{i["color"]}};">&#9608;</span> {{i["label"]}} <b>{{i["value"]}}</b></li>
+    {%endfor%}
+  </ul>
+</div>
+{%endmacro%}
