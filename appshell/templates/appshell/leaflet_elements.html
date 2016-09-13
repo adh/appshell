@@ -56,7 +56,15 @@ overlays[{{i[1]|tojson}}] = ie;
   map.addLayer(ie);
 {%endif%}
 {%endfor%}
-var e = L.control.layers(null, overlays);
+bases = {}
+{%for i in self.bases%}
+var ie = ({{i[0].get_js()}})();
+bases[{{i[1]|tojson}}] = ie;
+{%if i[2]%}
+  map.addLayer(ie);
+{%endif%}
+{%endfor%}
+var e = L.control.layers(bases, overlays, {{self.options|tojson}});
 return e;
 })
 {%endmacro%}

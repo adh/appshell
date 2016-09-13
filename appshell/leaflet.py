@@ -132,10 +132,16 @@ class MapControl(MapElement):
     pass
     
 class LayerControl(MapControl):
-    def __init__(self):
+    def __init__(self, options=None):
         self.overlays = []
         self.fit_to = []
-    
+        self.bases = []
+        if options is not None:
+            self.options = options
+        else:
+            self.options = {}
+            
+        
     def get_js(self):
         return t.layer_control(self)
 
@@ -143,8 +149,13 @@ class LayerControl(MapControl):
         self.overlays.append((l, name, visible))
         if fit:
             self.fit_to = merge_bounds(self.fit_to, l.get_bounds())
-        print(self.fit_to)
 
+    def add_base(self, l, name, visible=False, fit=False):
+        self.bases.append((l, name, visible))
+        if fit:
+            self.fit_to = merge_bounds(self.fit_to, l.get_bounds())
+        
+        
     def get_bounds(self):
         return self.fit_to
         
