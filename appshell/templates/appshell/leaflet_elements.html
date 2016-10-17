@@ -68,3 +68,20 @@ var e = L.control.layers(bases, overlays, {{self.options|tojson}});
 return e;
 })
 {%endmacro%}
+
+{%macro drawing_selector(ps)%}
+// Initialise the draw control and pass it the FeatureGroup of editable layers
+var drawControl = new L.Control.Draw({
+   draw: {
+     polyline: false,
+     circle: false,
+     marker: {{ps.allow_point|tojson}}
+   }
+});
+map.addControl(drawControl);
+
+map.on("draw:created", function(e){
+$({{ps.handler_field|tojson}}).val(JSON.stringify(e.layer.getLatLngs()));
+$({{ps.handler_modal|tojson}}).modal();
+});
+{%endmacro%}

@@ -8,6 +8,7 @@
 <link rel="stylesheet" href="{{res_url('appshell.static', filename='leaflet/MarkerCluster.css')}}" />
 <link rel="stylesheet" href="{{res_url('appshell.static', filename='leaflet/MarkerCluster.Default.css')}}" />
 <link rel="stylesheet" href="{{res_url('appshell.static', filename='leaflet-awesome-markers/leaflet.awesome-markers.css')}}" />
+<link rel="stylesheet" href="{{res_url('appshell.static', filename='leaflet-draw/leaflet.draw.css')}}" />
 {%endblock%}
 
 {%block page_scripts%}
@@ -15,6 +16,7 @@
 <script src="{{res_url('appshell.static', filename='leaflet/leaflet.markercluster-src.js')}}"></script>
 <script src="{{res_url('appshell.static', filename='leaflet-awesome-markers/leaflet.awesome-markers.min.js')}}"></script>
 <script src="{{res_url('appshell.static', filename='leaflet-heat/leaflet-heat.js')}}"></script>
+<script src="{{res_url('appshell.static', filename='leaflet-draw/leaflet.draw.js')}}"></script>
 <script>
   leaflet_named_markers = {};
   
@@ -30,6 +32,10 @@
   {%endfor%}
   })();
 
+  {%for i in map.extensions%}
+  (function(map){ {{i.get_js()}} })(map);
+  {%endfor%}
+  
   {%if map.fit_to%}
   map.fitBounds({{map.fit_to|tojson}});
   {%endif%}

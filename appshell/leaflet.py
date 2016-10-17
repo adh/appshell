@@ -15,6 +15,9 @@ def merge_bounds(*lists):
             [max((i[0] for i in coords)),
              max((i[1] for i in coords))]]
 
+class MapExtension(object):
+    pass
+
 class MapElement(object):
     def __init__(self, popup=None, **kwargs):
         if popup is not None:
@@ -27,6 +30,7 @@ class MapElement(object):
     
     def get_js(self):
         return t.element((self.get_element_js(), self.get_popup_js()))
+
     def get_popup_js(self):
         if self.popup is None:
             return ""
@@ -176,6 +180,7 @@ class Map(object):
             self.tileoptions = tile_options
 
         self.elements = []
+        self.extensions = []
         self.fit_to = []
         if after:
             self.after = [after]
@@ -189,6 +194,21 @@ class Map(object):
         self.elements.append(el)
         if fit:
             self.fit_to = merge_bounds(self.fit_to, el.get_bounds())
+
+    def add_extension(self, ex):
+        self.extensions.append(ex)
             
     def render(self):
         return render_template('appshell/leaflet.html', map=self)
+
+class DrawingSelector(MapElement):
+    def __init__(self, allow_point=False,
+                 handler_modal='#selector_modal',
+                 handler_field='#selector_shape'):
+        self.handler_modal = handler_modal
+        self.handler_field = handler_field
+        self.allow_point = allow_point
+    
+    def get_js(self):
+        return t.drawing_selector(self)
+        
