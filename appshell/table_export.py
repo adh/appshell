@@ -36,7 +36,7 @@ def xlsx_exporter(data, ds):
         row += 1
 
     for x, i in enumerate(widths):
-        ws.set_column('{0}:{0}'.format(chr(x + ord('A'))), i + 2)
+        ws.set_column(x, i + 2)
 
     wb.close()
 
