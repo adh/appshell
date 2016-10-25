@@ -1,7 +1,7 @@
 from flask import render_template, jsonify, request
 from markupsafe import Markup
 from appshell import current_appshell
-from appshell.markup import element, link_button, button, xmltag
+from appshell.markup import element, link_button, button, xmltag, form_button
 from appshell.urls import res_url, url_or_url_for
 from appshell.templates import widgets, dropdowns, modals
 import iso8601
@@ -314,6 +314,14 @@ class Action(object):
             
         return url_or_url_for(self.endpoint, **params)
 
+    def is_accessible(self, data=None):
+        params = dict(self.params)
+        if data is not None:
+            params[self.data_param] = data
+            
+        return current_appshell.endpoint_accessible(self.endpoint, params)
+        
+    
     def get_button(self, data=None, size=None):
         return link_button(self.get_url(data),
                            self.text,
@@ -323,8 +331,16 @@ class Action(object):
                            link_target="_blank" if self.new_window else None)
 
     def is_visible(self, data, orig_data=None):
-        return True
+        return self.is_accessible(data)
 
+class FormAction(Action):
+    def get_button(self, data=None, size=None):
+        return form_button(self.get_url(data),
+                           self.text,
+                           context_class=self.context_class,
+                           size=size)
+
+    
 class ActionColumnMixin(object):
     orderable = False
     actions = []
