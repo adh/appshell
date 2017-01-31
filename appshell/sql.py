@@ -1,4 +1,4 @@
-from flask.ext.wtf import Form
+from flask.ext.wtf import FlaskForm
 from appshell.forms import OrderedForm
 from flask.ext.sqlalchemy import SQLAlchemy
 from wtforms_alchemy import model_form_factory
@@ -242,7 +242,7 @@ class UpdatingFormEndpoint(FormEndpoint):
 
     def create_form(self, id):
         self.obj = db.session.query(self.model_class).get(id)
-        form = self.form_class(request.form, self.obj)
+        form = self.form_class(obj=self.obj)
         form.populate_obj(self.obj)
         return form
 

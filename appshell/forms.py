@@ -1,4 +1,4 @@
-from flask.ext.wtf import Form
+from flask.ext.wtf import FlaskForm
 from flask import render_template
 from wtforms.widgets import TextArea, TextInput
 from wtforms.fields import HiddenField, FileField, SelectMultipleField
@@ -19,7 +19,7 @@ _ = mydomain.gettext
 lazy_gettext = mydomain.lazy_gettext
 
 
-class OrderedForm(Form):
+class OrderedForm(FlaskForm):
     def __iter__(self):
         fields = list(super(OrderedForm, self).__iter__())
         field_order = getattr(self, 'field_order', None)
