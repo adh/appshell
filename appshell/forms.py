@@ -13,6 +13,7 @@ from appshell import View
 from appshell.templates import single_view
 from wtforms.validators import StopValidation
 from wtforms.utils import unset_value
+import json
 
 mydomain = Domain('appshell')
 _ = mydomain.gettext
@@ -62,6 +63,31 @@ class DateWidget(TextInput):
 class DateField(fields.DateField):
     widget = DateWidget()
 
+class JSONField(fields.Field):
+    widget = TextArea()
+
+    def __init__(self, label=None, validators=None, **kwargs):
+        super(JSONField, self).__init__(label, validators, **kwargs)
+        
+    def _value(self):
+        if self.raw_data:
+            return self.raw_data[0]
+        elif self.data is not None:
+            return json.dumps(self.data, indent=2)
+        else:
+            return ''
+
+    def process_formdata(self, valuelist):
+        if valuelist:
+            try:
+                if valuelist[0] == '':
+                    return None
+                self.data = json.loads(valuelist[0])
+            except ValueError as ex:
+                self.data = None
+                raise ValueError(self.gettext('Not a valid JSON: {}').format(ex))
+
+    
 class MultiCheckboxField(SelectMultipleField):
     """
     A multiple-select, except displays a list of checkboxes.
