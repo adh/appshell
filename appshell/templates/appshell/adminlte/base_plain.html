@@ -44,7 +44,7 @@
   <![endif]-->
 </head>
 
-<body class="hold-transition 
+<body class="hold-transition {{page_layout}}
              {{appshell.skin.skin_css_class}} 
              {{appshell.skin.body_classes(page_layout if page_layout is defined else None)}}">
   {%block body%}
@@ -86,6 +86,9 @@
 
 <script src="{{bootstrap_find_resource('jquery.js', cdn='jquery')}}"></script>
 <script src="{{bootstrap_find_resource('js/bootstrap.js', cdn='bootstrap')}}"></script>
+<script>
+var AdminLTEOptions = {navbarMenuSlimscroll: true, navbarMenuSlimscrollWidth: "3px"};
+</script>
 {%assets "appshell_adminlte_js" %}
 <script src="{{ASSET_URL}}"></script>
 {%endassets%}
