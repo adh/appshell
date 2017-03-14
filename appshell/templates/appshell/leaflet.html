@@ -1,7 +1,9 @@
 {% extends appshell.base_template %}
 {%import "appshell/widgets.html" as w%}
 
+{%if page_layout is not defined%}
 {%set page_layout='fluid'%}
+{%endif%}
 
 {%block page_styles%}
 <link rel="stylesheet" href="{{res_url('appshell.static', filename='leaflet/leaflet.css')}}" />
