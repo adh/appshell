@@ -5,7 +5,8 @@ from appshell import current_appshell
 from subprocess import check_output
 from markupsafe import Markup
 
-adminlte_js = Bundle('appshell/adminlte/dist/js/app.min.js',
+adminlte_js = Bundle('appshell/adminlte/plugins/jquery.slimscroll.min.js',
+                     'appshell/adminlte/dist/js/app.min.js',
                      output="appshell/adminlte.js")
 assets.register("appshell_adminlte_js", adminlte_js)
 adminlte_css = Bundle('appshell/adminlte/build/less/AdminLTE.less',
