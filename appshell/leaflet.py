@@ -200,8 +200,8 @@ class Map(object):
     def add_extension(self, ex):
         self.extensions.append(ex)
             
-    def render(self):
-        return render_template('appshell/leaflet.html', map=self)
+    def render(self, **kwargs):
+        return render_template('appshell/leaflet.html', map=self, **kwargs)
 
 class DrawingSelector(MapElement):
     def __init__(self, allow_point=False,

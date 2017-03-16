@@ -1,3 +1,11 @@
+{%if page_layout is defined%}
+{%if page_layout%}
+{%if 'fluid' in page_layout%}
+{%set page_layout = page_layout + ' sidebar-collapse'%}
+{%endif%}
+{%endif%}
+{%endif%}
+
 {%macro flashed_messages() -%}
   {%with messages = get_flashed_messages(with_categories=True) -%}
     {%if messages -%} {# don't output anything if there are no messages #}
@@ -44,7 +52,7 @@
   <![endif]-->
 </head>
 
-<body class="hold-transition 
+<body class="hold-transition {{page_layout}}
              {{appshell.skin.skin_css_class}} 
              {{appshell.skin.body_classes(page_layout if page_layout is defined else None)}}">
   {%block body%}
@@ -86,6 +94,9 @@
 
 <script src="{{bootstrap_find_resource('jquery.js', cdn='jquery')}}"></script>
 <script src="{{bootstrap_find_resource('js/bootstrap.js', cdn='bootstrap')}}"></script>
+<script>
+var AdminLTEOptions = {navbarMenuSlimscroll: true, navbarMenuSlimscrollWidth: "3px"};
+</script>
 {%assets "appshell_adminlte_js" %}
 <script src="{{ASSET_URL}}"></script>
 {%endassets%}
