@@ -49,7 +49,9 @@ class AwesomeMarker(Icon):
     __leaflet_class__ = "L.AwesomeMarkers.icon"
 class DivIcon(Icon):
     __leaflet_class__ = "L.divIcon"
-        
+class BeautifyMarker(Icon):
+    __leaflet_class__ = "L.BeautifyIcon.icon"
+    
 class LayerGroup(MapElement):
     __leaflet_class__ = "LayerGroup"
     def __init__(self, options={}, **kwargs):

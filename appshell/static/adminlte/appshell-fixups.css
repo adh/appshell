@@ -55,6 +55,11 @@
     display: none;
 }
 
-.box-body {
+/*.box-body {
+    overflow-x: auto;
+    overflow-y: visible;
+}*/
+
+.dt-bootstrap {
     overflow-x: auto;
 }
