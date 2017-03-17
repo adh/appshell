@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 from flask.ext.login import LoginManager, current_user
 from flask.ext.login import login_user, logout_user, login_fresh, \
     login_required, fresh_login_required, current_user, login_url
