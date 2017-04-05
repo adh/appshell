@@ -33,10 +33,12 @@ class BaseAdminLTESkin(Skin):
                  footer=True,
                  footer_right=None,
                  footer_left=None,
+                 favicon=None,
                  get_version=get_version,
                  top_nav_add=[]):
 
         self.top_nav_add = top_nav_add
+        self.favicon = favicon
         
         if skin_filename is not None:
             self.skin_less_file = skin_filename
@@ -59,6 +61,11 @@ class BaseAdminLTESkin(Skin):
     def footer_data(self):
         pass
 
+    def get_extra_head(self):
+        if self.favicon:
+            return (Markup('<link rel="shortcut icon" href="{}" />')
+                    .format(self.favicon))
+    
     def get_base_template(self, module):
         return "appshell/adminlte/base.html"
 

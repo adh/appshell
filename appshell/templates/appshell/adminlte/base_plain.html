@@ -30,6 +30,8 @@
 
   <link href="{{bootstrap_find_resource('css/bootstrap.css', cdn='bootstrap')}}" rel="stylesheet">
 
+  {{appshell.skin.get_extra_head()}}
+  
   {%assets "appshell_adminlte_full_css"%}
   <link rel="stylesheet" href="{{ASSET_URL}}">
   {%endassets%}
