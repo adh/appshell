@@ -74,6 +74,8 @@ return e;
 var drawControl = new L.Control.Draw({
    draw: {
      polyline: false,
+     polygon: {{ps.allow_polygon|tojson}},
+     rectangle: {{ps.allow_rectangle|tojson}},
      circle: false,
      marker: {{ps.allow_point|tojson}}
    }
@@ -81,7 +83,12 @@ var drawControl = new L.Control.Draw({
 map.addControl(drawControl);
 
 map.on("draw:created", function(e){
-$({{ps.handler_field|tojson}}).val(JSON.stringify(e.layer.getLatLngs()));
+console.log(e);
+if (e.layer.getLatLngs){
+  $({{ps.handler_field|tojson}}).val(JSON.stringify(e.layer.getLatLngs()));
+} else if (e.layer.getLatLng){
+  $({{ps.handler_field|tojson}}).val(JSON.stringify(e.layer.getLatLng()));
+}
 $({{ps.handler_modal|tojson}}).modal();
 });
 {%endmacro%}

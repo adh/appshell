@@ -204,12 +204,17 @@ class Map(object):
         return render_template('appshell/leaflet.html', map=self, **kwargs)
 
 class DrawingSelector(MapElement):
-    def __init__(self, allow_point=False,
+    def __init__(self,
+                 allow_point=False,
+                 allow_rectangle=True,
+                 allow_polygon=True,
                  handler_modal='#selector_modal',
                  handler_field='#selector_shape'):
         self.handler_modal = handler_modal
         self.handler_field = handler_field
         self.allow_point = allow_point
+        self.allow_polygon = allow_polygon
+        self.allow_rectangle = allow_rectangle
     
     def get_js(self):
         return t.drawing_selector(self)
