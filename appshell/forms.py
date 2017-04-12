@@ -15,10 +15,7 @@ from wtforms.validators import StopValidation
 from wtforms.utils import unset_value
 import json
 
-mydomain = Domain('appshell')
-_ = mydomain.gettext
-lazy_gettext = mydomain.lazy_gettext
-
+from .l10n import lazy_gettext, _
 
 class OrderedForm(FlaskForm):
     def __iter__(self):

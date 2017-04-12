@@ -14,9 +14,7 @@ import importlib
 from werkzeug.local import LocalProxy
 from appshell.assets import assets
 from hashlib import sha256
-
-
-mydomain = Domain('appshell')
+from .l10n import babel_domain
 
 def endpoint_accessible(target, values):
     return current_appshell.endpoint_accessible(target, values)
@@ -65,7 +63,6 @@ class AppShell(TopLevelMenu):
             skin = DefaultSkin()
         
         self.system_module = None
-        self.babel = mydomain
         self.root_view = root_view
         self.component_config = components
         self.search_view = None
