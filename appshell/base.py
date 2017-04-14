@@ -6,7 +6,7 @@ from flask.ext.babelex import Babel, Domain
 from flask.ext.wtf import CsrfProtect
 from appshell.menu import MenuEntry, MainMenu
 from appshell.urls import url_for, url_or_url_for, res_url, url_or_res_url
-from appshell.templates import render_template, single_view
+from appshell.templates import single_view, render_template
 from appshell.utils import push_block, get_pushed_blocks
 from appshell.locals import current_appshell
 from appshell.skins import DefaultSkin
@@ -14,7 +14,7 @@ import importlib
 from werkzeug.local import LocalProxy
 from appshell.assets import assets
 from hashlib import sha256
-from .l10n import babel_domain
+from .l10n import babel_domain, gettext, ngettext
 
 def endpoint_accessible(target, values):
     return current_appshell.endpoint_accessible(target, values)
@@ -24,6 +24,8 @@ template_globals = {"url_for": url_for,
                     "url_or_res_url": url_or_res_url,
                     "res_url": res_url,
                     "push_block": push_block,
+                    "appshell_gettext": gettext,
+                    "appshell_ngettext": ngettext,
                     "get_pushed_blocks": get_pushed_blocks,
                     "endpoint_accessible": endpoint_accessible}
 
@@ -73,6 +75,9 @@ class AppShell(TopLevelMenu):
         self.subendpoint_aliases = {}
 
         self.skin.initialize(self)
+
+        self.gettext = gettext
+        self.ngettext = ngettext
         
         self.menu = {i: MainMenu() for i in skin.menu_positions}
 
@@ -156,8 +161,6 @@ class AppShell(TopLevelMenu):
 
         Bootstrap(app)
         app.config['BOOTSTRAP_SERVE_LOCAL'] = True
-
-        Babel(app)
 
         for k, v in self.component_config.items():
             self.use_component(app, k, v)

@@ -65,6 +65,7 @@ class BaseAdminLTESkin(Skin):
         if self.favicon:
             return (Markup('<link rel="shortcut icon" href="{}" />')
                     .format(self.favicon))
+        return ''
     
     def get_base_template(self, module):
         return "appshell/adminlte/base.html"

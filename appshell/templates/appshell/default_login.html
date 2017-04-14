@@ -7,7 +7,7 @@
 {%endblock%}
 
 {%block title%}
-{%trans%}Login to{%endtrans%} {{appshell.app_name}}
+{{appshell.gettext("Login to {app_name}").format(app_name=appshell.app_name)}}
 {%endblock%}
 
 {%block main%}
@@ -15,7 +15,10 @@
 
       <form class="form-signin" method="POST">
          {{ form.hidden_tag() }}
-        <h3 class="form-signin-heading">{%trans%}Login to{%endtrans%} {{appshell.app_name}}</h3>
+         <h3 class="form-signin-heading">
+           {{appshell.gettext("Login to {app_name}").format(
+           app_name=appshell.app_name)}}
+         </h3>
         {{form.username.label}}
         {{form.username(class="form-control")}}
         {%- if form.username.errors %}

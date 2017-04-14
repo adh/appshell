@@ -14,9 +14,7 @@ from appshell import templates
 
 from functools import wraps
 
-mydomain = Domain('appshell')
-_ = mydomain.gettext
-lazy_gettext = mydomain.lazy_gettext
+from .l10n import _, gettext, ngettext, lazy_gettext
 
 class AuthenticationModule(SystemModule):
     def __init__(self, *args, **kwargs):
@@ -25,8 +23,8 @@ class AuthenticationModule(SystemModule):
         self.login_manager.login_message_category = "warning"
         self.login_manager.user_loader(self.load_user)
         self.logged_in_menu = DropdownMenu()
-        self.login_text = mydomain.lazy_gettext('Login...')
-        self.logged_in_user_text = mydomain.lazy_gettext('User: ')
+        self.login_text = lazy_gettext('Login...')
+        self.logged_in_user_text = lazy_gettext('User: ')
 
     def load_user(self, user_id):
         raise NotImplementedError

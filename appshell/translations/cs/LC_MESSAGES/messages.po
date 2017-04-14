@@ -1,0 +1,136 @@
+# Czech translations for appshell.
+# Copyright (C) 2017 ORGANIZATION
+# This file is distributed under the same license as the appshell project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2017.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: appshell 0.0.1\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2017-04-15 00:53+0200\n"
+"PO-Revision-Date: 2017-04-13 18:41+0200\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: cs\n"
+"Language-Team: cs <LL@li.org>\n"
+"Plural-Forms: nplurals=3; plural=((n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.4.0\n"
+
+#: appshell/endpoints.py:32
+msgid "Done"
+msgstr "Hotovo"
+
+#: appshell/forms.py:85
+msgid "Not a valid JSON: {}"
+msgstr "{} není platný JSON"
+
+#: appshell/forms.py:230
+msgid "OK"
+msgstr "Budiž"
+
+#: appshell/login.py:28
+msgid "Login..."
+msgstr "Přihlásit..."
+
+#: appshell/login.py:29
+msgid "User: "
+msgstr "Uživatel:"
+
+#: appshell/login.py:87
+msgid "Username:"
+msgstr "Přihlašovací jméno"
+
+#: appshell/login.py:88
+msgid "Password:"
+msgstr "Heslo:"
+
+#: appshell/login.py:103 appshell/login.py:129
+msgid "Invalid username or password"
+msgstr "Neplatné přihlašovací údaje"
+
+#: appshell/login.py:106 appshell/login.py:133
+msgid "Login successful"
+msgstr "Uživatel úspěšně přihlášen"
+
+#: appshell/login.py:114
+msgid "Logout"
+msgstr "Odhlásit"
+
+#: appshell/login.py:117
+msgid "You have logged out"
+msgstr "Uživatel byl odhlášen"
+
+#: appshell/login.py:145
+msgid "You don't have enough permissions to access this page"
+msgstr "Nemáte právo zubrazit tuto stránku"
+
+#: appshell/login.py:147
+msgid "Permission error"
+msgstr "Chyba"
+
+#: appshell/sql.py:250 appshell/sql.py:278
+msgid "Data saved"
+msgstr "Uloženo"
+
+#: appshell/sql.py:302
+msgid "Really delete {}?"
+msgstr "Opravdu smazat {}?"
+
+#: appshell/sql.py:303
+msgid "{} was deleted"
+msgstr "{} bylo smazáno"
+
+#: appshell/sql.py:330
+msgid "Actions"
+msgstr "Akce"
+
+#: appshell/sql.py:378
+msgid "Delete"
+msgstr "Smazat"
+
+#: appshell/sql.py:381
+msgid "Edit"
+msgstr "Upravit"
+
+#: appshell/sql.py:384
+msgid "Create..."
+msgstr "Nový..."
+
+#: appshell/table_export.py:71
+msgid "XLSX Export"
+msgstr "Export XLSX"
+
+#: appshell/table_export.py:74
+msgid "CSV Export"
+msgstr "Export CSV"
+
+#: appshell/table_export.py:77
+msgid "JSON Export"
+msgstr "Export JSON"
+
+#: appshell/tables.py:250
+msgid "Select"
+msgstr "Vybrat"
+
+#: appshell/templates/appshell/base.html:29
+msgid "Toggle navigation"
+msgstr "Navigace"
+
+#: appshell/templates/appshell/base.html:42
+msgid "Search..."
+msgstr "Hledat..."
+
+#: appshell/templates/appshell/default_login.html:10
+#: appshell/templates/appshell/default_login.html:19
+msgid "Login to {app_name}"
+msgstr "Přihlásit do {app_name}"
+
+#: appshell/templates/appshell/modals.html:15
+msgid "Please select..."
+msgstr "Prosím vyberte..."
+
+msgid "Login to"
+msgstr "Přihlásit do"
+

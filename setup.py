@@ -28,9 +28,17 @@ setup(
         "Topic :: Software Development :: Libraries :: Application Frameworks"
     ],
     include_package_data=True,
-    zip_safe=False,    
+    zip_safe=False,
+    message_extractors = {
+        'appshell': [
+            ('**.py',                'python', None),
+            ('**/templates/**.html',  'jinja2', {
+                'extensions': 'jinja2.ext.autoescape,jinja2.ext.with_'
+            })
+        ],
+    }, 
     install_requires = [
-        "flask",
+        "Flask",
         "Flask-BabelEx",
         "Flask-Bootstrap",
         "Flask-Login",
