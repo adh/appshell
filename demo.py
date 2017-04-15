@@ -28,7 +28,6 @@ from appshell.forms import BootstrapMarkdown, FormView, VerticalFormView, \
 from appshell.widgets import ClientSideTabbar
 from appshell.skins.adminlte import AdminLTESkin, NavbarAdminLTESkin
 import random
-from appshell.l10n import Babel
 
 app = Flask(__name__)
 
@@ -37,14 +36,14 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
 app.config['SQLALCHEMY_ECHO'] = False
 app.config['BABEL_DEFAULT_LOCALE'] = 'cs'
 
-babel = Babel(app)
-@babel.localeselector
-def get_locale():
-    return 'cs'
 
 shell = AppShell('AppShell demo', 'simple.hello', app,
                  components={'sql': {}},
                  skin=AdminLTESkin())
+
+@shell.babel.localeselector
+def get_locale():
+    return 'cs'
 
 simple = Module('simple', __name__, template_folder='templates')
 simple.label('Simple module')
