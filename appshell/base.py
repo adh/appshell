@@ -14,7 +14,8 @@ import importlib
 from werkzeug.local import LocalProxy
 from appshell.assets import assets
 from hashlib import sha256
-from .l10n import babel_domain, gettext, ngettext
+from .internals.l10n import gettext, ngettext
+from flask.ext.babelex import Babel
 
 def endpoint_accessible(target, values):
     return current_appshell.endpoint_accessible(target, values)
@@ -57,6 +58,7 @@ class AppShell(TopLevelMenu):
     def __init__(self, app_name, root_view,
                  app=None,
                  components=[],
+                 babel=None,
                  skin=None):
         TopLevelMenu.__init__(self)
         self.app_name = app_name
@@ -78,6 +80,11 @@ class AppShell(TopLevelMenu):
 
         self.gettext = gettext
         self.ngettext = ngettext
+
+        if babel is not None:
+            self.babel = babel
+        else:
+            self.babel = Babel()
         
         self.menu = {i: MainMenu() for i in skin.menu_positions}
 
@@ -162,6 +169,8 @@ class AppShell(TopLevelMenu):
         Bootstrap(app)
         app.config['BOOTSTRAP_SERVE_LOCAL'] = True
 
+        self.babel.init_app(app)
+        
         for k, v in self.component_config.items():
             self.use_component(app, k, v)
             

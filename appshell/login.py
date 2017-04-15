@@ -14,7 +14,7 @@ from appshell import templates
 
 from functools import wraps
 
-from .l10n import _, gettext, ngettext, lazy_gettext
+from .internals.l10n import _, gettext, ngettext, lazy_gettext
 
 class AuthenticationModule(SystemModule):
     def __init__(self, *args, **kwargs):

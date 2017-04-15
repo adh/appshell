@@ -15,7 +15,7 @@ from wtforms.validators import StopValidation
 from wtforms.utils import unset_value
 import json
 
-from .l10n import lazy_gettext, _
+from .internals.l10n import lazy_gettext, _
 
 class OrderedForm(FlaskForm):
     def __iter__(self):
