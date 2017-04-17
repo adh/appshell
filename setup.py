@@ -19,7 +19,7 @@ setup(
     license = "MIT",
     keywords = "flask bootstrap admin",
 #    url = "",
-    packages=['appshell', 'appshell.skins', 'appshell.internals'],
+    packages=['appshell', 'appshell.skins', 'appshell.internals', 'appshell.translations'],
     long_description=read('README'),
     classifiers=[
         "Development Status :: 2 - Pre-Alpha",
