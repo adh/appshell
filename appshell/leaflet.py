@@ -111,6 +111,13 @@ class PathElement(MapElement):
 class Polyline(PathElement):
     __leaflet_class__ = "polyline"
 
+class ArrowPolyline(Polyline):
+    def get_element_js(self):
+        return t.arrowpolyline(points=self.points, 
+                               opts=self.options,
+                               klass=self.__leaflet_class__)
+    
+    
 class Polygon(PathElement):
     __leaflet_class__ = "polygon"
 
