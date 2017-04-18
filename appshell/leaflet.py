@@ -73,6 +73,8 @@ class FeatureGroup(LayerGroup):
     __leaflet_class__ = "FeatureGroup"
         
 class Marker(MapElement):
+    __leaflet_class__ = "marker"
+    
     def __init__(self, pos, options={}, icon=None, divicon=None,
                  name=None, **kwargs):
         super(Marker, self).__init__(pos=pos, **kwargs);
@@ -84,9 +86,12 @@ class Marker(MapElement):
         if divicon:
             self.icon = DivIcon(divicon)
     def get_element_js(self):
-        return t.marker(self, self.pos, self.options)
+        return t.marker(self, self.pos, self.options, klass=self.__leaflet_class__)
     def get_bounds(self):
         return [self.pos]
+
+class CircleMarker(Marker):
+    __leaflet_class__ = "circleMarker"
 
 class MarkerCluster(FeatureGroup):
     __leaflet_class__ = "MarkerClusterGroup"

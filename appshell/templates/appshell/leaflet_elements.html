@@ -11,8 +11,8 @@ return e;
 {{klass}}({{options|tojson}})
 {%endmacro%}
 
-{%macro marker(m, pos, opts={})%}
-var e = L.marker({{pos|tojson}}, {{opts|tojson}});
+{%macro marker(m, pos, opts={}, klass='marker')%}
+var e = L.{{klass}}({{pos|tojson}}, {{opts|tojson}});
 {%if m.icon%}
 e.setIcon({{m.icon}});
 {%endif%}
