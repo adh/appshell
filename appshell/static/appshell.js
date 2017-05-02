@@ -228,6 +228,9 @@ $(document).ready(function(){
     });
 
     $('select[multiple]').selectpicker({"selectedTextFormat": "count > 3"});
+    $('select[data-search]').selectpicker({"liveSearch": true,
+					   "liveSearchNormalize": true});
+    
 });
 
 (function(){
