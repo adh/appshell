@@ -126,7 +126,7 @@ class SelectFilter(Filter):
 
     def get_filter_html(self, column_index, column, table):
         return widgets.select("filter_" + str(id(self)), 
-                              self.get_filter_value(column), 
+                              json.dumps(self.get_filter_value(column)), 
                               [('', '')] + 
                               [ (json.dumps(v), n) for v, n in self.get_filter_data()],
                               select_attrs={"data-tablefilter-column": column_index,
