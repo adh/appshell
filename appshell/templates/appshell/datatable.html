@@ -11,7 +11,7 @@
        {{table.attrs|xmlattr}}>
         <thead>
 
-          {%if table.filters == 'top' %}
+          {%if table.filters == 'extreme-top' %}
             <tr>
               {%for i in table.columns: %}
                 <td>{{ i.get_filter_html(loop.index0, table) }}</td>
@@ -24,6 +24,13 @@
             <!-- {{i.id}} -->
             {%endfor%}
           </tr>
+          {%if table.filters == 'top' %}
+            <tr>
+              {%for i in table.columns: %}
+                <th>{{ i.get_filter_html(loop.index0, table) }}</th>
+              {%endfor%}
+            </tr>
+          {%endif%}
         </thead>
         <tbody>
           {%for i in table.data: %}
