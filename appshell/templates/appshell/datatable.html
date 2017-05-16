@@ -27,7 +27,7 @@
           {%if table.filters == 'top' %}
             <tr>
               {%for i in table.columns: %}
-                <th>{{ i.get_filter_html(loop.index0, table) }}</th>
+                <td>{{ i.get_filter_html(loop.index0, table) }}</td>
               {%endfor%}
             </tr>
           {%endif%}
