@@ -133,7 +133,10 @@ class AppShell(TopLevelMenu):
 
     @property
     def current_module(self):
-        return current_app.blueprints[request.blueprint]
+        try:
+            return current_app.blueprints[request.blueprint]
+        except KeyError:
+            return None
 
     def init_app(self, app):
         if not hasattr(app, 'extensions'):
