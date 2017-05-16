@@ -87,9 +87,16 @@ class Column(object):
             return ""
 
 class Filter(object):
-    def __init__(self, filter_value=None, filter_value_proc=None, **kwargs):
+    def __init__(self,
+                 filter_value=None,
+                 filter_value_proc=None,
+                 min_length=3,
+                 timeout=500,
+                 **kwargs):
         self.filter_value = filter_value
         self.filter_value_proc = filter_value_proc
+        self.min_length = min_length
+        self.timeout = timeout
 
     def get_filter_value(self, column):
         if "asdt_f_" + column.id in request.args:
@@ -109,9 +116,15 @@ class TextFilter(Filter):
                                 value="{2}"
                                 class="tablefilter form-control input-sm" 
                                 data-tablefilter-column="{0}"
-                                data-tablefilter-target="{1}"/>''')\
-            .format(column_index, table.name, 
-                    self.get_filter_value(column))
+                                data-tablefilter-target="{1}"
+                                data-tablefilter-timeout="{3}"
+                                data-tablefilter-min-length="{4}"/>''')\
+            .format(column_index,
+                    table.name, 
+                    self.get_filter_value(column),
+                    self.timeout,
+                    self.min_length
+            )
 
 
 class SelectFilter(Filter):
