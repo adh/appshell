@@ -19,6 +19,10 @@ mydomain = Domain('appshell')
 _ = mydomain.gettext
 lazy_gettext = mydomain.lazy_gettext
 
+default_content_map = {True: glyphicon('ok'),
+                       False: glyphicon('remove'),
+                       None: glyphicon('ban-circle')}
+
 class Column(object):
     orderable = True
 
@@ -30,7 +34,7 @@ class Column(object):
                  default_ordering=None,
                  convert=None,
                  data_proc=None,
-                 content_map={None: ''},
+                 content_map=default_content_map,
                  **kwargs):
         self.name = name
         self.id = name
@@ -40,7 +44,9 @@ class Column(object):
         if convert:
             self.convert = convert
         self.default_ordering = default_ordering
+        
         self.content_map = content_map
+            
         if orderable != None:
             self.orderable = orderable
         if data_proc:
@@ -56,13 +62,6 @@ class Column(object):
         return element("td", {}, self.get_cell_inner_html(row))
 
     def convert(self, data):
-        if data is True:
-            return glyphicon('ok')
-        if data is False:
-            return glyphicon('remove')
-        if data is None:
-            return glyphicon('ban-circle')
-
         return data
     
     def get_cell_inner_html(self, row):
