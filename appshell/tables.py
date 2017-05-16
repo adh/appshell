@@ -19,9 +19,7 @@ mydomain = Domain('appshell')
 _ = mydomain.gettext
 lazy_gettext = mydomain.lazy_gettext
 
-default_content_map = {True: glyphicon('ok'),
-                       False: glyphicon('remove'),
-                       None: glyphicon('ban-circle')}
+default_content_map = {}
 
 class Column(object):
     orderable = True
@@ -73,6 +71,14 @@ class Column(object):
                 return self.content_map[res]
         except:
             pass
+
+        if res is True:
+            res = glyphicon('ok')
+        elif res is False:
+            res = glyphicon('remove')
+        elif res is None:
+            res = glyphicon('ban-circle')
+        
         return res
 
     def get_json_data(self, row):
