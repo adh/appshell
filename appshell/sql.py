@@ -5,7 +5,7 @@ from wtforms_alchemy import model_form_factory
 from appshell.tables import TableDataSource, SequenceTableDataSource, \
     SelectFilter, MultiSelectFilter, Column, TextFilter, ActionColumnMixin,\
     RangeFilter, DateRangeFilter, MultiSelectTreeFilter, PlainTable, \
-    ObjectColumn, Action, ActionObjectColumn, Filter
+    ObjectColumn, Action, ActionObjectColumn, Filter, BooleanFilter
 from sqlalchemy.sql import expression as ex
 from sqlalchemy import desc, func
 import json
@@ -107,6 +107,9 @@ class SQLSelectFilter(SQLFilter, SelectFilter):
     def sql_append_where(self, column, q, filter_data):
         filter_data = json.loads(filter_data)
         return q.where(self.get_column_to_filter(column) == filter_data)
+
+class SQLBooleanFilter(BooleanFilter, SQLSelectFilter):
+    pass
 
 class SQLRangeFilter(SQLFilter, RangeFilter):
     def sql_append_where(self, column, q, filter_data):

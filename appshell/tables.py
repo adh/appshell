@@ -1,7 +1,8 @@
 from flask import render_template, jsonify, request
 from markupsafe import Markup
 from appshell import current_appshell
-from appshell.markup import element, link_button, button, xmltag, form_button
+from appshell.markup import (element, link_button, button, xmltag,
+                             form_button, glyphicon)
 from appshell.urls import res_url, url_or_url_for
 from appshell.templates import widgets, dropdowns, modals
 import iso8601
@@ -36,7 +37,8 @@ class Column(object):
         self.header = Markup("<th>{0}</th>").format(name)
         self.filter = filter
         self._options = options
-        self.convert = convert
+        if convert:
+            self.convert = convert
         self.default_ordering = default_ordering
         self.content_map = content_map
         if orderable != None:
@@ -53,11 +55,19 @@ class Column(object):
     def get_cell_html(self, row):
         return element("td", {}, self.get_cell_inner_html(row))
 
+    def convert(self, data):
+        if data is True:
+            return glyphicon('ok')
+        if data is False:
+            return glyphicon('remove')
+        if data is None:
+            return glyphicon('ban-circle')
+
+        return data
+    
     def get_cell_inner_html(self, row):
-        if self.convert:
-            res = self.convert(self.get_cell_data(row))
-        else:
-            res = self.get_cell_data(row)
+        res = self.get_cell_data(row)
+        res = self.convert(res)
 
         try:
             if res in self.content_map:
@@ -76,7 +86,6 @@ class Column(object):
                                                table)
         else:
             return ""
-
 
 class Filter(object):
     def __init__(self, filter_value=None, filter_value_proc=None, **kwargs):
@@ -133,6 +142,10 @@ class SelectFilter(Filter):
                                             "data-tablefilter-target": table.name},
                               select_classes="tablefilter input-sm")
 
+class BooleanFilter(SelectFilter):
+    def get_filter_data(self):
+        return [(True, lazy_gettext("Yes")),
+                (False, lazy_gettext("No"))]
     
 class MultiSelectFilter(SelectFilter):
     def get_filter_html(self, column_index, column, table):
@@ -699,6 +712,7 @@ class VirtualTable(DataTable):
                "scrollX": True,
                "dom": "rtS",
                "ordering": False,
+               "orderCellsTop": True,
                "searching": True,
                "deferRender": True,
                "stateSave": True,
