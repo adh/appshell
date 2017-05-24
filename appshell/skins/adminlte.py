@@ -53,9 +53,13 @@ class BaseAdminLTESkin(Skin):
         if not footer:
             self.height_decrement -= 45
         else:
-            if self.footer_right is None:
+            if footer_right is None:
                 self.footer_right = "v. " + get_version()
-            self.footer_left = footer_left
+            else:
+                self.footer_right = footer_right
+
+            if footer_left is not None:
+                self.footer_left = footer_left
         
     @property
     def footer_data(self):

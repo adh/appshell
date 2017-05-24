@@ -11,8 +11,8 @@ return e;
 {{klass}}({{options|tojson}})
 {%endmacro%}
 
-{%macro marker(m, pos, opts={})%}
-var e = L.marker({{pos|tojson}}, {{opts|tojson}});
+{%macro marker(m, pos, opts={}, klass='marker')%}
+var e = L.{{klass}}({{pos|tojson}}, {{opts|tojson}});
 {%if m.icon%}
 e.setIcon({{m.icon}});
 {%endif%}
@@ -38,6 +38,13 @@ return e;
 {%macro pathelement(points, opts={}, klass='polyline')%}
 var e = L.{{klass}}({{points|tojson}}, {{opts|tojson}});
 {%endmacro%}
+
+{%macro arrowpolyline(points, opts={}, klass='polyline')%}
+var e = L.layerGroup()
+var pl = L.polyline({{points|tojson}}, {{opts|tojson}}).addTo(e);
+e.addLayer(L.polylineDecorator(pl, {patterns: [{offset: 0, repeat: 90, symbol: L.Symbol.arrowHead({pixelSize: 20, polygon: false, pathOptions: {stroke: true}})}]}));
+{%endmacro%}
+
 
 {%macro circle(pos, radius, opts={}, name=None)%}
 var e = L.circle({{pos|tojson}}, {{radius|tojson}}, {{opts|tojson}});

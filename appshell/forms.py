@@ -1,6 +1,6 @@
 from flask.ext.wtf import FlaskForm
 from flask import render_template
-from wtforms.widgets import TextArea, TextInput
+from wtforms.widgets import TextArea, TextInput, Select
 from wtforms.fields import HiddenField, FileField, SelectMultipleField
 from wtforms import fields, widgets, Form
 from appshell.markup import element, button, link_button, GridColumn
@@ -60,6 +60,15 @@ class DateWidget(TextInput):
 class DateField(fields.DateField):
     widget = DateWidget()
 
+class SearchSelect(Select):
+    def __call__(self, field, **kwargs):
+        return super(SearchSelect, self).__call__(field,
+                                                  data_search=True,
+                                                  **kwargs)
+    
+class SearchSelectField(fields.SelectField):
+    widget = SearchSelect()
+    
 class JSONField(fields.Field):
     widget = TextArea()
 

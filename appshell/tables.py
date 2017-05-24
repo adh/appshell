@@ -1,7 +1,8 @@
 from flask import render_template, jsonify, request
 from markupsafe import Markup
 from appshell import current_appshell
-from appshell.markup import element, link_button, button, xmltag, form_button
+from appshell.markup import (element, link_button, button, xmltag,
+                             form_button, glyphicon)
 from appshell.urls import res_url, url_or_url_for
 from appshell.templates import widgets, dropdowns, modals
 import iso8601
@@ -18,6 +19,8 @@ mydomain = Domain('appshell')
 _ = mydomain.gettext
 lazy_gettext = mydomain.lazy_gettext
 
+default_content_map = {}
+
 class Column(object):
     orderable = True
 
@@ -29,16 +32,19 @@ class Column(object):
                  default_ordering=None,
                  convert=None,
                  data_proc=None,
-                 content_map={None: ''},
+                 content_map=default_content_map,
                  **kwargs):
         self.name = name
         self.id = name
         self.header = Markup("<th>{0}</th>").format(name)
         self.filter = filter
         self._options = options
-        self.convert = convert
+        if convert:
+            self.convert = convert
         self.default_ordering = default_ordering
+        
         self.content_map = content_map
+            
         if orderable != None:
             self.orderable = orderable
         if data_proc:
@@ -53,17 +59,26 @@ class Column(object):
     def get_cell_html(self, row):
         return element("td", {}, self.get_cell_inner_html(row))
 
+    def convert(self, data):
+        return data
+    
     def get_cell_inner_html(self, row):
-        if self.convert:
-            res = self.convert(self.get_cell_data(row))
-        else:
-            res = self.get_cell_data(row)
+        res = self.get_cell_data(row)
+        res = self.convert(res)
 
         try:
             if res in self.content_map:
                 return self.content_map[res]
         except:
             pass
+
+        if res is True:
+            res = glyphicon('ok')
+        elif res is False:
+            res = glyphicon('remove')
+        elif res is None:
+            res = glyphicon('ban-circle')
+        
         return res
 
     def get_json_data(self, row):
@@ -77,11 +92,17 @@ class Column(object):
         else:
             return ""
 
-
 class Filter(object):
-    def __init__(self, filter_value=None, filter_value_proc=None, **kwargs):
+    def __init__(self,
+                 filter_value=None,
+                 filter_value_proc=None,
+                 min_length=3,
+                 timeout=500,
+                 **kwargs):
         self.filter_value = filter_value
         self.filter_value_proc = filter_value_proc
+        self.min_length = min_length
+        self.timeout = timeout
 
     def get_filter_value(self, column):
         if "asdt_f_" + column.id in request.args:
@@ -101,9 +122,15 @@ class TextFilter(Filter):
                                 value="{2}"
                                 class="tablefilter form-control input-sm" 
                                 data-tablefilter-column="{0}"
-                                data-tablefilter-target="{1}"/>''')\
-            .format(column_index, table.name, 
-                    self.get_filter_value(column))
+                                data-tablefilter-target="{1}"
+                                data-tablefilter-timeout="{3}"
+                                data-tablefilter-min-length="{4}"/>''')\
+            .format(column_index,
+                    table.name, 
+                    self.get_filter_value(column),
+                    self.timeout,
+                    self.min_length
+            )
 
 
 class SelectFilter(Filter):
@@ -126,13 +153,17 @@ class SelectFilter(Filter):
 
     def get_filter_html(self, column_index, column, table):
         return widgets.select("filter_" + str(id(self)), 
-                              self.get_filter_value(column), 
+                              json.dumps(self.get_filter_value(column)), 
                               [('', '')] + 
                               [ (json.dumps(v), n) for v, n in self.get_filter_data()],
                               select_attrs={"data-tablefilter-column": column_index,
                                             "data-tablefilter-target": table.name},
                               select_classes="tablefilter input-sm")
 
+class BooleanFilter(SelectFilter):
+    def get_filter_data(self):
+        return [(True, lazy_gettext("Yes")),
+                (False, lazy_gettext("No"))]
     
 class MultiSelectFilter(SelectFilter):
     def get_filter_html(self, column_index, column, table):
@@ -706,6 +737,7 @@ class VirtualTable(DataTable):
                "scrollX": True,
                "dom": "rtS",
                "ordering": False,
+               "orderCellsTop": True,
                "searching": True,
                "deferRender": True,
                "stateSave": True,
