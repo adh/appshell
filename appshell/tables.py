@@ -296,6 +296,7 @@ class Action(object):
                  is_visible=None,
                  hint=None,
                  new_window=False,
+                 fragment=None,
                  **params):
         self.text = text
         self.endpoint = endpoint
@@ -304,6 +305,7 @@ class Action(object):
         self.params = params
         self.hint = hint
         self.new_window = new_window
+        self.fragment = fragment
         if is_visible:
             self.is_visible = is_visible
 
@@ -311,8 +313,13 @@ class Action(object):
         params = dict(self.params)
         if data is not None:
             params[self.data_param] = data
+
+        url = url_or_url_for(self.endpoint, **params)
             
-        return url_or_url_for(self.endpoint, **params)
+        if self.fragment:
+            url += '#' + self.fragment
+            
+        return url
 
     def is_accessible(self, data=None):
         params = dict(self.params)
