@@ -111,6 +111,15 @@ class SQLSelectFilter(SQLFilter, SelectFilter):
 class SQLBooleanFilter(BooleanFilter, SQLSelectFilter):
     pass
 
+class SQLNullFilter(BooleanFilter, SQLSelectFilter):
+    def sql_append_where(self, column, q, filter_data):
+        filter_data = json.loads(filter_data)
+        if filter_data:
+            return q.where(self.get_column_to_filter(column) != None)
+        else:
+            return q.where(self.get_column_to_filter(column) == None)
+    
+
 class SQLRangeFilter(SQLFilter, RangeFilter):
     def sql_append_where(self, column, q, filter_data):
         f, t = self.parse_filter_data(filter_data)
