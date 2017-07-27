@@ -161,7 +161,7 @@ class SelectFilter(Filter):
                               select_classes="tablefilter input-sm")
 
 class BooleanFilter(SelectFilter):
-    def filter_data_proc(self):
+    def get_filter_data(self):
         return [(True, lazy_gettext("Yes")),
                 (False, lazy_gettext("No"))]
     

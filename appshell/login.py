@@ -149,5 +149,5 @@ class AdminPasswordAuthenticationModule(AdminOnlyAuthenticationMixin,
                                         PasswordAuthenticationModule):
     pass
 
-def logged_in():
+def logged_in(**kwargs):
     return current_user and not current_user.is_anonymous
