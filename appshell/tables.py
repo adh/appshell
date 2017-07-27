@@ -653,6 +653,9 @@ class TableDataSource(ColumnsMixin):
         jdata = [{"c{}".format(idx): c.get_json_data(i)
                   for idx, c in enumerate(self.columns)}
                  for i in data]
+        data = [(c.get_cell_data(i)
+                  for idx, c in enumerate(self.columns))
+                 for i in data]
 
         return {"draw": draw,
                 "recordsTotal": total,
