@@ -24,7 +24,7 @@ def xlsx_exporter(data, ds):
             widths[col] = w
 
     row = 1
-    for i in data["raw_data"]:
+    for i in data["cell_data"]:
         for col, j in enumerate(i):
             try:
                 ws.write(row, col, j)
@@ -52,7 +52,7 @@ def csv_exporter(data, ds):
 
     w.writerow([i.name for i in ds.columns])
     
-    for i in data["raw_data"]:
+    for i in data["cell_data"]:
         w.writerow([j for j in i])
         
     return (f.getvalue().encode("utf-8"), 200, 
@@ -61,7 +61,7 @@ def csv_exporter(data, ds):
              "attachment; filename={0}.csv".format(ds.name)})
 
 def json_exporter(data, ds):
-    return (json.dumps(data["raw_data"]), 200, 
+    return (json.dumps(data["cell_data"]), 200, 
             {"Content-Type": "application/json",
              "Content-Disposition": 
              "attachment; filename={0}.json".format(ds.name)})

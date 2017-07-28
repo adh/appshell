@@ -623,6 +623,7 @@ class TableDataSource(ColumnsMixin):
         else:
             d = self.get_data_from_request_args(args)
             del d["raw_data"]
+            del d["cell_data"]
             return jsonify(d)
 
 
@@ -653,14 +654,15 @@ class TableDataSource(ColumnsMixin):
         jdata = [{"c{}".format(idx): c.get_json_data(i)
                   for idx, c in enumerate(self.columns)}
                  for i in data]
-        data = [(c.get_cell_data(i)
-                  for idx, c in enumerate(self.columns))
+        cdata = [[c.get_cell_data(i)
+                  for idx, c in enumerate(self.columns)]
                  for i in data]
 
         return {"draw": draw,
                 "recordsTotal": total,
                 "recordsFiltered": filtered,
                 "raw_data": data,
+                "cell_data": cdata,
                 "data": jdata}
 
     def register_view(self, f, decorators=[]):
