@@ -567,7 +567,7 @@ class TableRow(object):
 
     def get_element_classes(self):
         return []
-        
+
 
 class SequenceColumnMixin(object):
     column_factory=SequenceColumn
@@ -576,17 +576,19 @@ class ObjectColumnMixin(object):
     column_factory=ObjectColumn
     
 class IterableDataTable(DataTable):
-    row_factory = TableRow
-
     def __init__(self, name, columns, data, options=None, row_factory=None,
                  **kwargs):
         if options == None:
             options = {"paging": False}
+        if row_factory:
+            self.row_factory = row_factory
+        else:
+            self.row_factory = TableRow
         super(IterableDataTable, self).__init__(name, columns, data, 
                                                 options=options, 
                                                 **kwargs)
-        if row_factory:
-            self.row_factory = row_factory
+    
+            
 
     def transform_data(self, data):
         return [self.row_factory(i, self.columns) for i in data]
