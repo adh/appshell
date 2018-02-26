@@ -49,7 +49,9 @@
 {%macro modal_checklist (name, value, data, text="", title="", input_attrs={}, input_classes="")%}
   {%set discard = input_attrs.update({"data-custom-select-name": name}) %}
   {%call modal_select(name, value, text, title, input_attrs=input_attrs, input_classes=input_classes) %}
-    <div class="checklist" data-custom-select-name="{{name}}">
+<div class="checklist" data-custom-select-name="{{name}}">
+  <button class="checklist-select-all btn btn-default btn-xs">+</button>
+  <button class="checklist-deselect-all btn btn-default btn-xs">-</button>
       {%for k, v in data:%}
         <div class="checkbox">
           <label><input type="checkbox" value="{{k}}">{{v}}</label>

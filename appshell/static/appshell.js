@@ -8,6 +8,14 @@ $(document).ready(function(){
         }
     }) ;
 
+    $('.checklist-select-all').click(function(e) {
+	$(e.target).parent().find('input').prop('checked', true);
+	$(e.target).parent().find('input').first().trigger('change');
+    }) ;
+    $('.checklist-deselect-all').click(function(e) {
+	$(e.target).parent().find('input').prop('checked', false);
+	$(e.target).parent().find('input').first().trigger('change');
+    }) ;
     
     $('.custom-select-item').click(function(e){
         var tgt = $(e.currentTarget);
