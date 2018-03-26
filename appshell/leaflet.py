@@ -1,4 +1,4 @@
-from flask import render_template
+from flask import render_template, current_app
 from appshell.templates import TemplateProxy
 from markupsafe import Markup, escape
 from itertools import chain
@@ -189,6 +189,10 @@ class Map(object):
                 "attribution": 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>',
                 "maxZoom": 18
             }
+            try:
+                self.tilelayer = current_app.config['APPSHELL_LEAFLET_TILE_LAYER']
+            except:
+                pass
         else:
             self.tilelayer = tilelayer
             self.tileoptions = tile_options
