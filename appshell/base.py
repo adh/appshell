@@ -1,9 +1,9 @@
 from flask import Flask, Blueprint, Markup, request, current_app
 import flask
 import flask.views
-from flask.ext.bootstrap import Bootstrap
-from flask.ext.babelex import Babel, Domain
-from flask.ext.wtf import CsrfProtect
+from flask_bootstrap import Bootstrap
+from flask_babelex import Babel, Domain
+from flask_wtf import CsrfProtect
 from appshell.menu import MenuEntry, MainMenu
 from appshell.urls import url_for, url_or_url_for, res_url, url_or_res_url
 from appshell.templates import single_view, render_template
@@ -15,7 +15,7 @@ from werkzeug.local import LocalProxy
 from appshell.assets import assets
 from hashlib import sha256
 from .internals.l10n import gettext, ngettext
-from flask.ext.babelex import Babel
+from flask_babelex import Babel
 
 def endpoint_accessible(target, values):
     return current_appshell.endpoint_accessible(target, values)

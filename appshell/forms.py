@@ -1,11 +1,11 @@
-from flask.ext.wtf import FlaskForm
+from flask_wtf import FlaskForm
 from flask import render_template
 from wtforms.widgets import TextArea, TextInput, Select
 from wtforms.fields import HiddenField, FileField, SelectMultipleField
 from wtforms import fields, widgets, Form
 from appshell.markup import element, button, link_button, GridColumn
 from markupsafe import Markup
-from flask.ext.babelex import Babel, Domain
+from flask_babelex import Babel, Domain
 from itertools import chain
 from hashlib import sha256
 from appshell.widgets import ClientSideTabbar

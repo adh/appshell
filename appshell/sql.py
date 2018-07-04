@@ -1,6 +1,6 @@
-from flask.ext.wtf import FlaskForm
+from flask_wtf import FlaskForm
 from appshell.forms import OrderedForm
-from flask.ext.sqlalchemy import SQLAlchemy
+from flask_sqlalchemy import SQLAlchemy
 from wtforms_alchemy import model_form_factory
 from appshell.tables import TableDataSource, SequenceTableDataSource, \
     SelectFilter, MultiSelectFilter, Column, TextFilter, ActionColumnMixin,\
@@ -10,7 +10,7 @@ from sqlalchemy.sql import expression as ex
 from sqlalchemy import desc, func
 import json
 from appshell.forms import FormEndpoint
-from flask.ext.babelex import Babel, Domain
+from flask_babelex import Babel, Domain
 from appshell import View, url_for
 from flask import flash, request, redirect
 from appshell.endpoints import ConfirmationEndpoint

@@ -1,4 +1,4 @@
-from flask.ext.babelex import Domain, Babel
+from flask_babelex import Domain, Babel
 import flask
 from .. import translations
 

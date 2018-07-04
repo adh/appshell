@@ -1,6 +1,6 @@
 from appshell.skins import Skin
 from appshell.assets import assets, appshell_components_css
-from flask.ext.assets import Bundle
+from flask_assets import Bundle
 from appshell import current_appshell
 from subprocess import check_output
 from markupsafe import Markup

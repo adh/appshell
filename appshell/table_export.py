@@ -1,4 +1,4 @@
-from flask.ext.babelex import Babel, Domain
+from flask_babelex import Babel, Domain
 import xlsxwriter
 import csv
 from flask import jsonify

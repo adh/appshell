@@ -9,7 +9,7 @@ import iso8601
 import datetime
 import json
 
-from flask.ext.babelex import Babel, Domain
+from flask_babelex import Babel, Domain
 
 import sys
 if sys.version_info >= (3,):

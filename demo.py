@@ -9,7 +9,7 @@ from appshell.tables import PlainTable, SequenceTableDataSource, VirtualTable,\
 from appshell.trees import PlainTreeGrid, TreeGridItem
 from appshell.leaflet import Map, Marker, Polyline, Polygon, Rectangle, Circle, HeatLayer
 from appshell import table_export 
-from flask.ext.login import UserMixin
+from flask_login import UserMixin
 from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, orm
 import iso8601
 import json
