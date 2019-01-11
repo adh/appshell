@@ -136,11 +136,8 @@ $(document).ready(function(){
         function checks_from_value(){
             var val = $("#"+name).val();
             var list = val.split(";")
-            console.log(list);
             $(e).find('input[type="checkbox"]').each(function(i, c){
                 var value = $(c).val();
-                console.log(value);
-                console.log(value in list);
                 if (list.indexOf(value) != -1){
                     $(c).prop('checked', true);
                 }
@@ -149,7 +146,6 @@ $(document).ready(function(){
         }
         checks_from_value();
         value_from_checks(false);
-        console.log(e);
         $(e).find('input[type="checkbox"]').on("change", function f(){
             value_from_checks(true);
         });
@@ -188,15 +184,12 @@ $(document).ready(function(){
                 var checked = self.prop('checked');
                 var myval = self.val()
                 var desc = tree.find('input[type="checkbox"][value^="'+myval+'/"]')
-                console.log(desc)
                 desc.prop('checked', checked);
-                console.log(checked);
                 if (!checked){
                     var path = myval.split('/');
                     var i;
                     var s = path[0];
                     for (i = 1; i < (path.length); i++){
-                        console.log(s)
                         tree.find("input[type='checkbox'][value='"+s+"']").prop('checked', false);
                         s = s + '/' + path[i];
                     }

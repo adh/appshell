@@ -76,13 +76,13 @@ collected_onloads.push(function() {
     {%endif%}                                
 
     {%if table.options["noSaveFilters"]%}
-       options.stateSaveParams = function(settings, data){
-         var columns = data.columns;
-         for (var i = 0; i < columns.length; i++){
-           delete columns[i].search;
-         }
+    options.stateSaveParams = function(settings, data){
+       var columns = data.columns;
+       for (var i = 0; i < columns.length; i++){
+         delete columns[i].search;
        }
-    {%endif%}                     
+     }
+     {%endif%}                     
                          
     e.parents('.dropdown').on('shown.bs.dropdown', function(){
       t.draw();
@@ -97,6 +97,25 @@ collected_onloads.push(function() {
         fho[{{k|tojson}}] = {{v|tojson}};
       {%endfor%}
       new $.fn.dataTable.FixedHeader(t, fho);
+    {%endif%}
+
+    {%if not table.options["noSaveFilters"]%}
+      state = t.state.loaded();
+      w = $(t.table().container());
+      w.find('.tablefilter').each(function(i, elem){
+        var eq = $(elem);
+        var column = eq.data('tablefilter-column');
+        eq.val(t.column(column).search());
+      })
+      w.find('.tablefilter-range').each(function(i, elem){
+        var eq = $(elem);
+        var column = eq.data('tablefilter-column');
+        v = t.column(column).search().split(';');
+        if (v){
+          eq.find('.range-from').val(v[0]);
+          eq.find('.range-to').val(v[1]);
+        };
+      })
     {%endif%}
 
     {%for i in table.extensions%}
