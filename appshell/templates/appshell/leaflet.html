@@ -22,8 +22,10 @@
 <script src="{{res_url('appshell.static', filename='leaflet-draw/leaflet.draw.js')}}"></script>
 <script src="{{res_url('appshell.static', filename='BeautifyMarker/leaflet-beautify-marker-icon.js')}}"></script>
 <script src="{{res_url('appshell.static', filename='leaflet.polylineDecorator.js')}}"></script>
+<script src="{{res_url('appshell.static', filename='Leaflet.Control.Custom.js')}}"></script>
 <script>
   leaflet_named_markers = {};
+  leaflet_preopen_popup = null;
   
   $('#map').css('height', $(window).height() - {{appshell.skin.height_decrement - 130}});
   var map = L.map('map').setView([{{map.x|tojson}}, {{map.y|tojson}}], {{map.z|tojson}});
@@ -33,7 +35,7 @@
 
   (function(){
   {%for i in map.elements%}
-    ({{i.get_js()}}(map)).addTo(map);
+      ({{i.get_js()}}(map)).addTo(map);
   {%endfor%}
   })();
 
@@ -44,6 +46,9 @@
   {%if map.fit_to%}
   map.fitBounds({{map.fit_to|tojson}});
   {%endif%}
+  if(leaflet_preopen_popup){
+      leaflet_preopen_popup.openPopup();
+  }
 </script>{%endblock%}
 
 

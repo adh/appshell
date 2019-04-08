@@ -1,8 +1,11 @@
-{%macro element(items)%}
+{%macro element(items, open_popup)%}
 (function(){
 {%for i in items%}
 {{i}}
 {%endfor%}
+{%if open_popup%}
+leaflet_preopen_popup = e;
+{%endif%}
 return e;
 })
 {%endmacro%}
@@ -22,7 +25,8 @@ leaflet_named_markers[{{m.name|tojson}}] = e;
 {%endmacro%}
 
 {%macro popup(popup)%}
-e.bindPopup({{popup|tojson}});
+p = {{popup|tojson}};
+e.bindPopup(p);
 {%endmacro%}
 
 {%macro group(c, options, klass)%}
@@ -38,6 +42,11 @@ return e;
 {%macro pathelement(points, opts={}, klass='polyline')%}
 var e = L.{{klass}}({{points|tojson}}, {{opts|tojson}});
 {%endmacro%}
+
+{%macro custom_control(options)%}
+var e = L.control.custom({{options|tojson}});
+{%endmacro%}
+
 
 {%macro arrowpolyline(points, opts={}, klass='polyline')%}
 var e = L.layerGroup()

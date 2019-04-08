@@ -19,17 +19,19 @@ class MapExtension(object):
     pass
 
 class MapElement(object):
-    def __init__(self, popup=None, **kwargs):
+    def __init__(self, popup=None, open_popup=False, **kwargs):
         if popup is not None:
             self.popup = escape(popup)
         else:
             self.popup = None
-
+        self.open_popup = open_popup
+            
     def get_bounds(self):
         return []
     
     def get_js(self):
-        return t.element((self.get_element_js(), self.get_popup_js()))
+        return t.element((self.get_element_js(), self.get_popup_js()),
+                         self.open_popup)
 
     def get_popup_js(self):
         if self.popup is None:
@@ -177,6 +179,13 @@ class LayerControl(MapControl):
     def get_bounds(self):
         return self.fit_to
         
+class CustomControl(MapControl):
+    def __init__(self, options={}, **kwargs):
+        super(CustomControl, self).__init__(options=options, **kwargs);
+        self.options = options
+
+    def get_element_js(self):
+        return t.custom_control(self.options)
     
 class Map(object):
     def __init__(self, x=0, y=0, z=0, tilelayer=None, tile_options={}, after=None):
