@@ -79,7 +79,7 @@ class JSONField(fields.Field):
         if self.raw_data:
             return self.raw_data[0]
         elif self.data is not None:
-            return json.dumps(self.data, indent=2)
+            return json.dumps(self.data, indent=2, ensure_ascii=False)
         else:
             return ''
 
