@@ -1,7 +1,7 @@
 from flask import request, g
 from appshell.locals import current_appshell
 from collections import defaultdict
-from werkzeug import LocalProxy
+from werkzeug.local import LocalProxy
 
 def get_pushed_blocks_dict():
     pb = getattr(g, '_appshell_pushed_blocks', None)
