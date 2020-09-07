@@ -48,6 +48,7 @@ setup(
         "iso8601",
         "XlsxWriter",
         "Flask-Assets",
-        "cssutils"
+        "cssutils",
+        "pyyaml"
     ]
 )

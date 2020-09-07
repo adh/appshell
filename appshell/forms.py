@@ -17,6 +17,8 @@ import json
 
 from .internals.l10n import lazy_gettext, _
 
+import yaml
+
 class OrderedForm(FlaskForm):
     def __iter__(self):
         fields = list(super(OrderedForm, self).__iter__())
@@ -45,6 +47,16 @@ class BootstrapMarkdown(TextArea):
         kwargs['class'] = u'%s %s' % ("bootstrap-markdown", c)
         return super(BootstrapMarkdown, self).__call__(field, **kwargs)
 
+class MonoSpacedTextArea(TextArea):
+    def __init__(self, rows=10):
+        self.rows = rows
+
+    def __call__(self, field, **kwargs):
+        kwargs['rows'] = self.rows
+        kwargs['style'] = "font-family: monospace"
+        return super(MonoSpacedTextArea, self).__call__(field, **kwargs)
+
+    
 class DateWidget(TextInput):
     def __call__(self, field, **kwargs):
         i = super(DateWidget, self).__call__(field, **kwargs)
@@ -70,7 +82,7 @@ class SearchSelectField(fields.SelectField):
     widget = SearchSelect()
     
 class JSONField(fields.Field):
-    widget = TextArea()
+    widget = MonoSpacedTextArea()
 
     def __init__(self, label=None, validators=None, **kwargs):
         super(JSONField, self).__init__(label, validators, **kwargs)
@@ -96,6 +108,32 @@ class JSONField(fields.Field):
                 self.data = None
                 raise ValueError(self.gettext('Not a valid JSON: {}').format(ex))
 
+
+class YAMLField(fields.Field):
+    widget = MonoSpacedTextArea()
+
+    def __init__(self, label=None, validators=None, **kwargs):
+        super(YAMLField, self).__init__(label, validators, **kwargs)
+        
+    def _value(self):
+        if self.raw_data:
+            return self.raw_data[0]
+        elif self.data is not None:
+            return yaml.dump(self.data,
+                             allow_unicode=True)
+        else:
+            return ''
+
+    def process_formdata(self, valuelist):
+        if valuelist:
+            try:
+                if valuelist[0] == '':
+                    return None
+                self.data = yaml.load(valuelist[0])
+            except ValueError as ex:
+                self.data = None
+                raise ValueError(self.gettext('Not a valid YAML: {}').format(ex))
+            
     
 class MultiCheckboxField(SelectMultipleField):
     """
