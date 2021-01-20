@@ -1,3 +1,4 @@
+from datetime import timedelta
 from flask_wtf import FlaskForm
 from appshell.forms import OrderedForm
 from flask_sqlalchemy import SQLAlchemy
@@ -130,7 +131,14 @@ class SQLRangeFilter(SQLFilter, RangeFilter):
         return q
     
 class SQLDateRangeFilter(SQLRangeFilter, DateRangeFilter):
-    pass
+    def sql_append_where(self, column, q, filter_data):
+        f, t = self.parse_filter_data(filter_data)
+        if f:
+            q = q.where(self.get_column_to_filter(column) >= f)
+        if t:
+            t = t + timedelta(days=1)
+            q = q.where(self.get_column_to_filter(column) < t)
+        return q
 
 class SQLMultiSelectFilter(SQLFilter, MultiSelectFilter):
     def sql_append_where(self, column, q, filter_data):
